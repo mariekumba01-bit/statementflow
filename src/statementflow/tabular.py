@@ -94,6 +94,9 @@ def read_tabular(data: bytes, filename: str) -> tuple[list, bool]:
             continue
     if text is None:
         raise ValueError('Encodage non supporté (ni UTF-8 ni Latin-1)')
+    # octets NUL : csv.reader les rejette sur Python <= 3.10 ("line contains
+    # NUL") ; on les retire après décodage (comportement identique 3.10-3.12+)
+    text = text.replace('\x00', '')
     best, best_key = None, (-1, 10 ** 9)
     for sep in ['\t', ';', '|', ',']:
         rows = list(csv.reader(io.StringIO(text), delimiter=sep))
