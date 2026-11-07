@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """Test de l'API REST par TestClient FastAPI (sans réseau)."""
 import io
+import os
 import sys
 
-sys.path.insert(0, '/home/z/my-project/statementflow/src')
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(ROOT, 'src'))
 
 from fastapi.testclient import TestClient
 
 from statementflow.api import app
 
 client = TestClient(app)
-CORPUS = '/home/z/my-project/statementflow/tests/data/corpus'
+CORPUS = os.path.join(ROOT, 'tests', 'data', 'corpus')
 
 
 def post(path):

@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Test du serveur MCP par JSON-RPC stdio réel (sans client MCP)."""
 import json
+import os
 import subprocess
 import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 proc = subprocess.Popen(
     [sys.executable, '-m', 'statementflow.mcp_server'],
     stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-    text=True, cwd='/home/z/my-project/statementflow')
+    text=True, cwd=ROOT)
 
 msgid = 0
 
@@ -47,7 +50,7 @@ print('health →', json.loads(content))
 
 # 4. parse_statement sur un document du corpus
 r = send('tools/call', {'name': 'parse_statement', 'arguments': {
-    'path': '/home/z/my-project/statementflow/tests/data/corpus/SYNTH_csv_wave_v2_U.csv'}})
+    'path': os.path.join(ROOT, 'tests', 'data', 'corpus', 'SYNTH_csv_wave_v2_U.csv')}})
 data = json.loads(r['result']['content'][0]['text'])
 print('parse_statement →', len(data['transactions']), 'tx | devise:',
       data['currency'], '| adapter:', data['document']['adapter'])
@@ -56,7 +59,7 @@ assert data['currency'] == 'XOF'
 
 # 5. get_checks
 r = send('tools/call', {'name': 'get_checks', 'arguments': {
-    'path': '/home/z/my-project/statementflow/tests/data/corpus/SYNTH_fr_societegenerale_A.pdf'}})
+    'path': os.path.join(ROOT, 'tests', 'data', 'corpus', 'SYNTH_fr_societegenerale_A.pdf')}})
 data = json.loads(r['result']['content'][0]['text'])
 print('get_checks →', data['checks']['chain_matches'], '/',
       data['checks']['chain_checked'], '| équilibre:', data['checks']['opening_closing_ok'])
