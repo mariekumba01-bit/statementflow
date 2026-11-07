@@ -1,0 +1,53 @@
+{
+  "name": "StatementFlow — relevé PDF vers JSON (CLI locale)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "hours", "hoursInterval": 24 }]
+        }
+      },
+      "id": "schedule",
+      "name": "Chaque jour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "command": "statementflow parse /data/releves --outdir /data/json --quiet"
+      },
+      "id": "parse",
+      "name": "StatementFlow (CLI)",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "check-ok",
+      "name": "Parsing réussi ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 0]
+    }
+  ],
+  "connections": {
+    "Chaque jour": { "main": [[{ "node": "StatementFlow (CLI)", "type": "main", "index": 0 }]] },
+    "StatementFlow (CLI)": { "main": [[{ "node": "Parsing réussi ?", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "note": "Workflow minimal : à compléter avec vos nœuds de lecture de fichiers et d'import comptable. Aucun service payant requis."
+}

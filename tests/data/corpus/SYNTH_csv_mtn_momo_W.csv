@@ -1,0 +1,11 @@
+Transaction ID,Date,Type,Description,Amount (XOF),Balance
+MP2600001.SN,2026-08-01,Debit,Airtime purchase Orange SN,-18377,952304
+MP2600002.SN,2026-08-05,Debit,Bank transfer to SG SN 00012345678,-70859,881445
+MP2600003.SN,2026-08-10,Debit,Airtime purchase Orange SN,-165224,716221
+MP2600004.SN,2026-08-12,Debit,Cash-out at agent Point E,-51738,664483
+MP2600005.SN,2026-08-14,Debit,Bank transfer to SG SN 00012345678,-27918,636565
+MP2600006.SN,2026-08-15,Credit,Cash-in from agent Liberte 6,229946,866511
+MP2600007.SN,2026-08-16,Debit,Airtime purchase Orange SN,-197046,669465
+MP2600008.SN,2026-08-19,Credit,Cash-in from agent Liberte 6,136561,806026
+MP2600009.SN,2026-08-23,Credit,P2P received from Fatou N.,123263,929289
+MP2600010.SN,2026-08-27,Debit,Cash-out at agent Point E,-153448,775841

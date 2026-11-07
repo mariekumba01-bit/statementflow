@@ -1,0 +1,246 @@
+{
+  "schema": "statementflow/v1",
+  "document": {
+    "filename": "SYNTH_stress_scanned_T.pdf",
+    "kind": "pdf",
+    "pages": 1,
+    "method": "ocr",
+    "parser": "generic-columns-v3",
+    "adapter": "generic-pdf"
+  },
+  "currency": "EUR",
+  "opening_balance": 3812.53,
+  "closing_balance": 807.53,
+  "closing_derived": true,
+  "transactions": [
+    {
+      "index": 1,
+      "date": "2026-02-01",
+      "label": "VIREMENT SALAIRE TECHNOS SARL",
+      "debit": 541.15,
+      "credit": null,
+      "balance": 3105.54,
+      "currency": "EUR",
+      "confidence": 0.5,
+      "trace": {
+        "page": 1,
+        "method": "ocr",
+        "source_row": 7
+      }
+    },
+    {
+      "index": 2,
+      "date": "2026-02-06",
+      "label": "VIREMENT RECU LOYER M. DURAND",
+      "debit": null,
+      "credit": 597.75,
+      "balance": 3703.29,
+      "currency": "EUR",
+      "confidence": 0.75,
+      "trace": {
+        "page": 1,
+        "method": "ocr",
+        "source_row": 8
+      }
+    },
+    {
+      "index": 3,
+      "date": "2026-02-09",
+      "label": "CHEQUE N 0045123",
+      "debit": 115.9,
+      "credit": null,
+      "balance": 3587.39,
+      "currency": "EUR",
+      "confidence": 0.75,
+      "trace": {
+        "page": 1,
+        "method": "ocr",
+        "source_row": 9
+      }
+    },
+    {
+      "index": 4,
+      "date": "2026-02-10",
+      "label": "VIREMENT SALAIRE TECHNOS SARL",
+      "debit": 631.79,
+      "credit": null,
+      "balance": 2955.6,
+      "currency": "EUR",
+      "confidence": 0.75,
+      "trace": {
+        "page": 1,
+        "method": "ocr",
+        "source_row": 10
+      }
+    },
+    {
+      "index": 5,
+      "date": "2026-02-12",
+      "label": "RETRAIT DAB CONCORDE",
+      "debit": 471.72,
+      "credit": null,
+      "balance": 2483.88,
+      "currency": "EUR",
+      "confidence": 0.75,
+      "trace": {
+        "page": 1,
+        "method": "ocr",
+        "source_row": 11
+      }
+    },
+    {
+      "index": 6,
+      "date": "2026-02-13",
+      "label": "VIREMENT RECU LOYER M. DURAND",
+      "debit": null,
+      "credit": 137.04,
+      "balance": 2620.92,
+      "currency": "EUR",
+      "confidence": 0.75,
+      "trace": {
+        "page": 1,
+        "method": "ocr",
+        "source_row": 12
+      }
+    },
+    {
+      "index": 7,
+      "date": "2026-02-14",
+      "label": "VIREMENT SEPA FOURNISSEUR BETA",
+      "debit": 1104.54,
+      "credit": null,
+      "balance": 1516.38,
+      "currency": "EUR",
+      "confidence": 0.75,
+      "trace": {
+        "page": 1,
+        "method": "ocr",
+        "source_row": 13
+      }
+    },
+    {
+      "index": 8,
+      "date": "2026-02-15",
+      "label": "REMBOURSEMENT CAF ALLOCATIONS",
+      "debit": null,
+      "credit": 1154.99,
+      "balance": 2671.37,
+      "currency": "EUR",
+      "confidence": 0.75,
+      "trace": {
+        "page": 1,
+        "method": "ocr",
+        "source_row": 14
+      }
+    },
+    {
+      "index": 9,
+      "date": "2026-02-19",
+      "label": "VIREMENT RECU LOYER M. DURAND",
+      "debit": null,
+      "credit": 236.64,
+      "balance": 2908.01,
+      "currency": "EUR",
+      "confidence": 0.75,
+      "trace": {
+        "page": 1,
+        "method": "ocr",
+        "source_row": 15
+      }
+    },
+    {
+      "index": 10,
+      "date": "2026-02-22",
+      "label": "REMBOURSEMENT CAF ALLOCATIONS",
+      "debit": null,
+      "credit": 169.25,
+      "balance": 3077.26,
+      "currency": "EUR",
+      "confidence": 0.75,
+      "trace": {
+        "page": 1,
+        "method": "ocr",
+        "source_row": 16
+      }
+    },
+    {
+      "index": 11,
+      "date": "2026-02-23",
+      "label": "PRLV ASSURANCE AXA AUTO",
+      "debit": 1139.09,
+      "credit": null,
+      "balance": 1938.17,
+      "currency": "EUR",
+      "confidence": 0.75,
+      "trace": {
+        "page": 1,
+        "method": "ocr",
+        "source_row": 17
+      }
+    },
+    {
+      "index": 12,
+      "date": "2026-02-25",
+      "label": "PRLV EDF GAZ FACTURE",
+      "debit": 1130.64,
+      "credit": null,
+      "balance": 807.53,
+      "currency": "EUR",
+      "confidence": 0.75,
+      "trace": {
+        "page": 1,
+        "method": "ocr",
+        "source_row": 18
+      }
+    }
+  ],
+  "totals": {
+    "count": 12,
+    "debits": 5134.83,
+    "credits": 2295.67
+  },
+  "checks": {
+    "tolerance": 0.01,
+    "chain_checked": 12,
+    "chain_matches": 11,
+    "chain_breaks": [
+      {
+        "transaction_index": 1,
+        "expected_balance": 3271.38,
+        "actual_balance": 3105.54
+      }
+    ],
+    "chain_ok": false,
+    "opening_closing_ok": false,
+    "totals": {
+      "count": 12,
+      "debits": 5134.83,
+      "credits": 2295.67
+    }
+  },
+  "alerts": [
+    {
+      "code": "ocr_used",
+      "severity": "info",
+      "message": "OCR appliqué aux pages sans couche texte : [1].",
+      "transaction_index": null
+    },
+    {
+      "code": "chain_break",
+      "severity": "error",
+      "message": "Solde incohérent : attendu 3271.38, lu 3105.54 (transaction 1).",
+      "transaction_index": 1
+    },
+    {
+      "code": "unbalanced_statement",
+      "severity": "error",
+      "message": "Ouverture + crédits − débits = 973.37 ≠ clôture lue 807.53.",
+      "transaction_index": null
+    }
+  ],
+  "confidence": 0.5,
+  "usage": {
+    "pages": 1,
+    "transactions": 12
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "schema": "statementflow/v1",
+  "document": {
+    "filename": "SYNTH_csv_wave_v2_U.csv",
+    "kind": "csv",
+    "pages": 1,
+    "method": "tabular",
+    "parser": "generic-columns-v3",
+    "adapter": "wave-csv"
+  },
+  "currency": "XOF",
+  "opening_balance": null,
+  "closing_balance": -465251.0,
+  "closing_derived": true,
+  "transactions": [
+    {
+      "index": 1,
+      "date": "2026-09-04",
+      "label": "Airtime purchase Orange SN",
+      "debit": 48121.0,
+      "credit": null,
+      "balance": 369557.0,
+      "currency": "XOF",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 2
+      }
+    },
+    {
+      "index": 2,
+      "date": "2026-09-06",
+      "label": "Merchant payment Pharmacie Mermoz",
+      "debit": 175238.0,
+      "credit": null,
+      "balance": 194319.0,
+      "currency": "XOF",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 3
+      }
+    },
+    {
+      "index": 3,
+      "date": "2026-09-08",
+      "label": "Airtime purchase Orange SN",
+      "debit": 85217.0,
+      "credit": null,
+      "balance": 109102.0,
+      "currency": "XOF",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 4
+      }
+    },
+    {
+      "index": 4,
+      "date": "2026-09-09",
+      "label": "Cash-out at agent Point E",
+      "debit": 157589.0,
+      "credit": null,
+      "balance": -48487.0,
+      "currency": "XOF",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 5
+      }
+    },
+    {
+      "index": 5,
+      "date": "2026-09-11",
+      "label": "Transfer to Awa Diop",
+      "debit": 26509.0,
+      "credit": null,
+      "balance": -74996.0,
+      "currency": "XOF",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 6
+      }
+    },
+    {
+      "index": 6,
+      "date": "2026-09-14",
+      "label": "Cash-in from agent Liberte 6",
+      "debit": null,
+      "credit": 102942.0,
+      "balance": 27946.0,
+      "currency": "XOF",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 7
+      }
+    },
+    {
+      "index": 7,
+      "date": "2026-09-17",
+      "label": "Airtime purchase Orange SN",
+      "debit": 104214.0,
+      "credit": null,
+      "balance": -76268.0,
+      "currency": "XOF",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 8
+      }
+    },
+    {
+      "index": 8,
+      "date": "2026-09-18",
+      "label": "Received from Mamadou Sow",
+      "debit": null,
+      "credit": 115946.0,
+      "balance": 39678.0,
+      "currency": "XOF",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 9
+      }
+    },
+    {
+      "index": 9,
+      "date": "2026-09-19",
+      "label": "Transfer to Awa Diop",
+      "debit": 211817.0,
+      "credit": null,
+      "balance": -172139.0,
+      "currency": "XOF",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 10
+      }
+    },
+    {
+      "index": 10,
+      "date": "2026-09-20",
+      "label": "Airtime purchase Orange SN",
+      "debit": 13694.0,
+      "credit": null,
+      "balance": -185833.0,
+      "currency": "XOF",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 11
+      }
+    },
+    {
+      "index": 11,
+      "date": "2026-09-21",
+      "label": "Bank transfer to SG SN 00012345678",
+      "debit": 221962.0,
+      "credit": null,
+      "balance": -407795.0,
+      "currency": "XOF",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 12
+      }
+    },
+    {
+      "index": 12,
+      "date": "2026-09-25",
+      "label": "Bill payment SENELEC 45210",
+      "debit": 57456.0,
+      "credit": null,
+      "balance": -465251.0,
+      "currency": "XOF",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 13
+      }
+    }
+  ],
+  "totals": {
+    "count": 12,
+    "debits": 1101817.0,
+    "credits": 218888.0
+  },
+  "checks": {
+    "tolerance": 0.01,
+    "chain_checked": 11,
+    "chain_matches": 11,
+    "chain_breaks": [],
+    "chain_ok": true,
+    "opening_closing_ok": null,
+    "totals": {
+      "count": 12,
+      "debits": 1101817.0,
+      "credits": 218888.0
+    }
+  },
+  "alerts": [
+    {
+      "code": "opening_missing",
+      "severity": "info",
+      "message": "Solde d'ouverture non trouvé dans le document.",
+      "transaction_index": null
+    }
+  ],
+  "confidence": 1.0,
+  "usage": {
+    "pages": 1,
+    "transactions": 12
+  }
+}

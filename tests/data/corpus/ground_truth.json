@@ -1,0 +1,3583 @@
+{
+ "SYNTH_fr_societegenerale_A.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "00012345678",
+  "opening_balance": 3812.53,
+  "closing_balance": -3319.45,
+  "transactions": [
+   {
+    "date": "2026-01-01",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 859.35,
+    "credit": null,
+    "balance": 2953.18
+   },
+   {
+    "date": "2026-01-02",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 1091.4,
+    "credit": null,
+    "balance": 1861.78
+   },
+   {
+    "date": "2026-01-03",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 27.69,
+    "credit": null,
+    "balance": 1834.09
+   },
+   {
+    "date": "2026-01-06",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 825.93,
+    "credit": null,
+    "balance": 1008.16
+   },
+   {
+    "date": "2026-01-07",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 524.3,
+    "balance": 1532.46
+   },
+   {
+    "date": "2026-01-12",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 670.0,
+    "credit": null,
+    "balance": 862.46
+   },
+   {
+    "date": "2026-01-13",
+    "label": "CB LECLERC SAINT-JULIEN",
+    "debit": 421.56,
+    "credit": null,
+    "balance": 440.9
+   },
+   {
+    "date": "2026-01-14",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 1048.72,
+    "credit": null,
+    "balance": -607.82
+   },
+   {
+    "date": "2026-01-18",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 522.56,
+    "credit": null,
+    "balance": -1130.38
+   },
+   {
+    "date": "2026-01-19",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 244.7,
+    "credit": null,
+    "balance": -1375.08
+   },
+   {
+    "date": "2026-01-22",
+    "label": "CHEQUE N 0045123",
+    "debit": 648.75,
+    "credit": null,
+    "balance": -2023.83
+   },
+   {
+    "date": "2026-01-25",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 691.14,
+    "credit": null,
+    "balance": -2714.97
+   },
+   {
+    "date": "2026-01-26",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 222.76,
+    "balance": -2492.21
+   },
+   {
+    "date": "2026-01-27",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 827.24,
+    "credit": null,
+    "balance": -3319.45
+   }
+  ]
+ },
+ "SYNTH_fr_bnpparibas_B.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "FR7630006000011234567890129",
+  "opening_balance": 1195.51,
+  "closing_balance": -2617.03,
+  "transactions": [
+   {
+    "date": "2026-09-02",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 508.2,
+    "credit": null,
+    "balance": null
+   },
+   {
+    "date": "2026-09-03",
+    "label": "CHEQUE N 0045123",
+    "debit": 909.41,
+    "credit": null,
+    "balance": null
+   },
+   {
+    "date": "2026-09-05",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 905.03,
+    "balance": null
+   },
+   {
+    "date": "2026-09-08",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 100.56,
+    "credit": null,
+    "balance": null
+   },
+   {
+    "date": "2026-09-09",
+    "label": "CHEQUE N 0045123",
+    "debit": 1125.92,
+    "credit": null,
+    "balance": null
+   },
+   {
+    "date": "2026-09-14",
+    "label": "CHEQUE N 0045123",
+    "debit": 748.64,
+    "credit": null,
+    "balance": null
+   },
+   {
+    "date": "2026-09-16",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 126.01,
+    "credit": null,
+    "balance": null
+   },
+   {
+    "date": "2026-09-19",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 472.56,
+    "credit": null,
+    "balance": null
+   },
+   {
+    "date": "2026-09-20",
+    "label": "CB LECLERC SAINT-JULIEN",
+    "debit": 719.25,
+    "credit": null,
+    "balance": null
+   },
+   {
+    "date": "2026-09-23",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 106.72,
+    "balance": null
+   },
+   {
+    "date": "2026-09-24",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 219.14,
+    "credit": null,
+    "balance": null
+   },
+   {
+    "date": "2026-09-26",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 105.4,
+    "balance": null
+   }
+  ]
+ },
+ "SYNTH_fr_creditagricole_C.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "12345 67890 12345678901 23",
+  "opening_balance": 2159.56,
+  "closing_balance": -238.56,
+  "transactions": [
+   {
+    "date": "2026-08-01",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 699.73,
+    "credit": null,
+    "balance": 1459.83
+   },
+   {
+    "date": "2026-08-03",
+    "label": "CB LECLERC SAINT-JULIEN",
+    "debit": 773.94,
+    "credit": null,
+    "balance": 685.89
+   },
+   {
+    "date": "2026-08-08",
+    "label": "CB LECLERC SAINT-JULIEN",
+    "debit": 78.22,
+    "credit": null,
+    "balance": 607.67
+   },
+   {
+    "date": "2026-08-09",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 665.23,
+    "balance": 1272.9
+   },
+   {
+    "date": "2026-08-11",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 42.45,
+    "balance": 1315.35
+   },
+   {
+    "date": "2026-08-12",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 77.53,
+    "balance": 1392.88
+   },
+   {
+    "date": "2026-08-13",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 1028.12,
+    "credit": null,
+    "balance": 364.76
+   },
+   {
+    "date": "2026-08-15",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 1103.19,
+    "balance": 1467.95
+   },
+   {
+    "date": "2026-08-18",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 547.78,
+    "balance": 2015.73
+   },
+   {
+    "date": "2026-08-20",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 1028.26,
+    "credit": null,
+    "balance": 987.47
+   },
+   {
+    "date": "2026-08-22",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 221.51,
+    "credit": null,
+    "balance": 765.96
+   },
+   {
+    "date": "2026-08-23",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 873.5,
+    "credit": null,
+    "balance": -107.54
+   },
+   {
+    "date": "2026-08-24",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 183.12,
+    "credit": null,
+    "balance": -290.66
+   },
+   {
+    "date": "2026-08-25",
+    "label": "CB LECLERC SAINT-JULIEN",
+    "debit": 467.35,
+    "credit": null,
+    "balance": -758.01
+   },
+   {
+    "date": "2026-08-27",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 519.45,
+    "balance": -238.56
+   }
+  ]
+ },
+ "SYNTH_fr_lcl_D.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "30047 00001 12345678901",
+  "opening_balance": 2587.47,
+  "closing_balance": 4496.56,
+  "transactions": [
+   {
+    "date": "2026-07-02",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 866.13,
+    "balance": 3453.6
+   },
+   {
+    "date": "2026-07-04",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 157.66,
+    "balance": 3611.26
+   },
+   {
+    "date": "2026-07-05",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 392.94,
+    "balance": 4004.2
+   },
+   {
+    "date": "2026-07-07",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 515.25,
+    "balance": 4519.45
+   },
+   {
+    "date": "2026-07-11",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 1046.77,
+    "credit": null,
+    "balance": 3472.68
+   },
+   {
+    "date": "2026-07-14",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 300.69,
+    "balance": 3773.37
+   },
+   {
+    "date": "2026-07-17",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 470.69,
+    "balance": 4244.06
+   },
+   {
+    "date": "2026-07-18",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 860.42,
+    "credit": null,
+    "balance": 3383.64
+   },
+   {
+    "date": "2026-07-20",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 971.56,
+    "balance": 4355.2
+   },
+   {
+    "date": "2026-07-22",
+    "label": "PRLV EDF GAZ FACTURE",
+    "debit": 530.92,
+    "credit": null,
+    "balance": 3824.28
+   },
+   {
+    "date": "2026-07-23",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 210.71,
+    "balance": 4034.99
+   },
+   {
+    "date": "2026-07-24",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 29.51,
+    "balance": 4064.5
+   },
+   {
+    "date": "2026-07-25",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 432.06,
+    "balance": 4496.56
+   }
+  ]
+ },
+ "SYNTH_fr_banquepostale_E.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "20041 00001 1234567890Z 21",
+  "opening_balance": 3292.31,
+  "closing_balance": -2881.95,
+  "transactions": [
+   {
+    "date": "2026-08-04",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 359.9,
+    "credit": null,
+    "balance": 2932.41
+   },
+   {
+    "date": "2026-08-06",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 118.6,
+    "balance": 3051.01
+   },
+   {
+    "date": "2026-08-10",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 780.4,
+    "balance": 3831.41
+   },
+   {
+    "date": "2026-08-12",
+    "label": "PRLV EDF GAZ FACTURE",
+    "debit": 1049.35,
+    "credit": null,
+    "balance": 2782.06
+   },
+   {
+    "date": "2026-08-13",
+    "label": "CB LECLERC SAINT-JULIEN",
+    "debit": 1172.9,
+    "credit": null,
+    "balance": 1609.16
+   },
+   {
+    "date": "2026-08-14",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 61.35,
+    "credit": null,
+    "balance": 1547.81
+   },
+   {
+    "date": "2026-08-16",
+    "label": "CB LECLERC SAINT-JULIEN",
+    "debit": 1018.51,
+    "credit": null,
+    "balance": 529.3
+   },
+   {
+    "date": "2026-08-17",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 570.83,
+    "balance": 1100.13
+   },
+   {
+    "date": "2026-08-18",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 976.1,
+    "credit": null,
+    "balance": 124.03
+   },
+   {
+    "date": "2026-08-19",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 449.52,
+    "credit": null,
+    "balance": -325.49
+   },
+   {
+    "date": "2026-08-21",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 959.41,
+    "credit": null,
+    "balance": -1284.9
+   },
+   {
+    "date": "2026-08-22",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 740.76,
+    "credit": null,
+    "balance": -2025.66
+   },
+   {
+    "date": "2026-08-23",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 46.01,
+    "credit": null,
+    "balance": -2071.67
+   },
+   {
+    "date": "2026-08-24",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 55.56,
+    "balance": -2016.11
+   },
+   {
+    "date": "2026-08-25",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 290.65,
+    "balance": -1725.46
+   },
+   {
+    "date": "2026-08-26",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 1156.49,
+    "credit": null,
+    "balance": -2881.95
+   }
+  ]
+ },
+ "SYNTH_fr_caissedepargne_F.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "12345678901",
+  "opening_balance": 2468.29,
+  "closing_balance": -1290.29,
+  "transactions": [
+   {
+    "date": "2026-06-01",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 372.46,
+    "credit": null,
+    "balance": 2095.83
+   },
+   {
+    "date": "2026-06-02",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 887.52,
+    "balance": 2983.35
+   },
+   {
+    "date": "2026-06-05",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 52.93,
+    "credit": null,
+    "balance": 2930.42
+   },
+   {
+    "date": "2026-06-07",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 116.75,
+    "credit": null,
+    "balance": 2813.67
+   },
+   {
+    "date": "2026-06-08",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 959.26,
+    "credit": null,
+    "balance": 1854.41
+   },
+   {
+    "date": "2026-06-10",
+    "label": "CB LECLERC SAINT-JULIEN",
+    "debit": 392.53,
+    "credit": null,
+    "balance": 1461.88
+   },
+   {
+    "date": "2026-06-11",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 1059.57,
+    "balance": 2521.45
+   },
+   {
+    "date": "2026-06-15",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 863.85,
+    "credit": null,
+    "balance": 1657.6
+   },
+   {
+    "date": "2026-06-17",
+    "label": "CHEQUE N 0045123",
+    "debit": 659.98,
+    "credit": null,
+    "balance": 997.62
+   },
+   {
+    "date": "2026-06-19",
+    "label": "CB LECLERC SAINT-JULIEN",
+    "debit": 1002.49,
+    "credit": null,
+    "balance": -4.87
+   },
+   {
+    "date": "2026-06-23",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 1082.95,
+    "credit": null,
+    "balance": -1087.82
+   },
+   {
+    "date": "2026-06-24",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 202.47,
+    "credit": null,
+    "balance": -1290.29
+   }
+  ]
+ },
+ "SYNTH_fr_creditmutuel_G.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "10278 12345 12345678901 23",
+  "opening_balance": 3008.11,
+  "closing_balance": 2703.56,
+  "transactions": [
+   {
+    "date": "2026-01-02",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 526.36,
+    "credit": null,
+    "balance": 2481.75
+   },
+   {
+    "date": "2026-01-05",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 1081.98,
+    "balance": 3563.73
+   },
+   {
+    "date": "2026-01-06",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 74.33,
+    "balance": 3638.06
+   },
+   {
+    "date": "2026-01-07",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 778.68,
+    "balance": 4416.74
+   },
+   {
+    "date": "2026-01-08",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 762.44,
+    "balance": 5179.18
+   },
+   {
+    "date": "2026-01-10",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 114.26,
+    "balance": 5293.44
+   },
+   {
+    "date": "2026-01-15",
+    "label": "PRLV EDF GAZ FACTURE",
+    "debit": 711.42,
+    "credit": null,
+    "balance": 4582.02
+   },
+   {
+    "date": "2026-01-17",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 475.21,
+    "credit": null,
+    "balance": 4106.81
+   },
+   {
+    "date": "2026-01-19",
+    "label": "CHEQUE N 0045123",
+    "debit": 1024.34,
+    "credit": null,
+    "balance": 3082.47
+   },
+   {
+    "date": "2026-01-20",
+    "label": "PRLV EDF GAZ FACTURE",
+    "debit": 225.0,
+    "credit": null,
+    "balance": 2857.47
+   },
+   {
+    "date": "2026-01-23",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 1090.06,
+    "balance": 3947.53
+   },
+   {
+    "date": "2026-01-24",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 942.01,
+    "credit": null,
+    "balance": 3005.52
+   },
+   {
+    "date": "2026-01-25",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 288.23,
+    "credit": null,
+    "balance": 2717.29
+   },
+   {
+    "date": "2026-01-26",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 13.73,
+    "credit": null,
+    "balance": 2703.56
+   }
+  ]
+ },
+ "SYNTH_fr_boursorama_H.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "FR76102780002100020269500120",
+  "opening_balance": 1254.15,
+  "closing_balance": -1630.18,
+  "transactions": [
+   {
+    "date": "2026-09-01",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 53.58,
+    "credit": null,
+    "balance": 1200.57
+   },
+   {
+    "date": "2026-09-02",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 1186.21,
+    "balance": 2386.78
+   },
+   {
+    "date": "2026-09-03",
+    "label": "CHEQUE N 0045123",
+    "debit": 1040.77,
+    "credit": null,
+    "balance": 1346.01
+   },
+   {
+    "date": "2026-09-04",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 449.93,
+    "balance": 1795.94
+   },
+   {
+    "date": "2026-09-05",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 529.55,
+    "credit": null,
+    "balance": 1266.39
+   },
+   {
+    "date": "2026-09-11",
+    "label": "CB LECLERC SAINT-JULIEN",
+    "debit": 929.56,
+    "credit": null,
+    "balance": 336.83
+   },
+   {
+    "date": "2026-09-12",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 551.73,
+    "balance": 888.56
+   },
+   {
+    "date": "2026-09-15",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 793.34,
+    "credit": null,
+    "balance": 95.22
+   },
+   {
+    "date": "2026-09-19",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 501.56,
+    "credit": null,
+    "balance": -406.34
+   },
+   {
+    "date": "2026-09-23",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 603.28,
+    "credit": null,
+    "balance": -1009.62
+   },
+   {
+    "date": "2026-09-24",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 76.08,
+    "credit": null,
+    "balance": -1085.7
+   },
+   {
+    "date": "2026-09-26",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 544.48,
+    "credit": null,
+    "balance": -1630.18
+   }
+  ]
+ },
+ "SYNTH_fr_fortuneo_I.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "FR7614580000011234567890123",
+  "opening_balance": 2459.82,
+  "closing_balance": -1061.07,
+  "transactions": [
+   {
+    "date": "2026-03-01",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 615.14,
+    "credit": null,
+    "balance": 1844.68
+   },
+   {
+    "date": "2026-03-03",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 559.24,
+    "balance": 2403.92
+   },
+   {
+    "date": "2026-03-04",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 1038.55,
+    "credit": null,
+    "balance": 1365.37
+   },
+   {
+    "date": "2026-03-06",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 172.58,
+    "credit": null,
+    "balance": 1192.79
+   },
+   {
+    "date": "2026-03-07",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 517.52,
+    "credit": null,
+    "balance": 675.27
+   },
+   {
+    "date": "2026-03-08",
+    "label": "CHEQUE N 0045123",
+    "debit": 552.56,
+    "credit": null,
+    "balance": 122.71
+   },
+   {
+    "date": "2026-03-09",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 499.5,
+    "balance": 622.21
+   },
+   {
+    "date": "2026-03-14",
+    "label": "CHEQUE N 0045123",
+    "debit": 45.23,
+    "credit": null,
+    "balance": 576.98
+   },
+   {
+    "date": "2026-03-16",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 233.5,
+    "credit": null,
+    "balance": 343.48
+   },
+   {
+    "date": "2026-03-17",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 933.29,
+    "credit": null,
+    "balance": -589.81
+   },
+   {
+    "date": "2026-03-23",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 989.17,
+    "balance": 399.36
+   },
+   {
+    "date": "2026-03-24",
+    "label": "CHEQUE N 0045123",
+    "debit": 17.29,
+    "credit": null,
+    "balance": 382.07
+   },
+   {
+    "date": "2026-03-25",
+    "label": "PRLV EDF GAZ FACTURE",
+    "debit": 1076.35,
+    "credit": null,
+    "balance": -694.28
+   },
+   {
+    "date": "2026-03-26",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 240.16,
+    "credit": null,
+    "balance": -934.44
+   },
+   {
+    "date": "2026-03-27",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 126.63,
+    "credit": null,
+    "balance": -1061.07
+   }
+  ]
+ },
+ "SYNTH_fr_monabanq_J.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "30002012345000123456789012",
+  "opening_balance": 2526.13,
+  "closing_balance": -323.89,
+  "transactions": [
+   {
+    "date": "2026-10-03",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 96.28,
+    "credit": null,
+    "balance": 2429.85
+   },
+   {
+    "date": "2026-10-04",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 893.65,
+    "credit": null,
+    "balance": 1536.2
+   },
+   {
+    "date": "2026-10-05",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 176.99,
+    "credit": null,
+    "balance": 1359.21
+   },
+   {
+    "date": "2026-10-06",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 1198.24,
+    "credit": null,
+    "balance": 160.97
+   },
+   {
+    "date": "2026-10-07",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 232.99,
+    "credit": null,
+    "balance": -72.02
+   },
+   {
+    "date": "2026-10-08",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 1149.82,
+    "credit": null,
+    "balance": -1221.84
+   },
+   {
+    "date": "2026-10-09",
+    "label": "PRLV EDF GAZ FACTURE",
+    "debit": 80.42,
+    "credit": null,
+    "balance": -1302.26
+   },
+   {
+    "date": "2026-10-11",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 699.91,
+    "balance": -602.35
+   },
+   {
+    "date": "2026-10-12",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 277.93,
+    "balance": -324.42
+   },
+   {
+    "date": "2026-10-13",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 347.67,
+    "balance": 23.25
+   },
+   {
+    "date": "2026-10-14",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 923.21,
+    "balance": 946.46
+   },
+   {
+    "date": "2026-10-16",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 1144.28,
+    "balance": 2090.74
+   },
+   {
+    "date": "2026-10-17",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 573.95,
+    "balance": 2664.69
+   },
+   {
+    "date": "2026-10-18",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 219.46,
+    "credit": null,
+    "balance": 2445.23
+   },
+   {
+    "date": "2026-10-19",
+    "label": "CHEQUE N 0045123",
+    "debit": 1047.63,
+    "credit": null,
+    "balance": 1397.6
+   },
+   {
+    "date": "2026-10-20",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 463.53,
+    "balance": 1861.13
+   },
+   {
+    "date": "2026-10-21",
+    "label": "CHEQUE N 0045123",
+    "debit": 1170.99,
+    "credit": null,
+    "balance": 690.14
+   },
+   {
+    "date": "2026-10-22",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 65.0,
+    "credit": null,
+    "balance": 625.14
+   },
+   {
+    "date": "2026-10-23",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 1040.38,
+    "credit": null,
+    "balance": -415.24
+   },
+   {
+    "date": "2026-10-24",
+    "label": "PRLV EDF GAZ FACTURE",
+    "debit": 48.02,
+    "credit": null,
+    "balance": -463.26
+   },
+   {
+    "date": "2026-10-25",
+    "label": "CHEQUE N 0045123",
+    "debit": 605.72,
+    "credit": null,
+    "balance": -1068.98
+   },
+   {
+    "date": "2026-10-27",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 745.09,
+    "balance": -323.89
+   }
+  ]
+ },
+ "SYNTH_eu_deutschebank_K.pdf": {
+  "family": "eu_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "DE89370400440532013000",
+  "opening_balance": 2757.01,
+  "closing_balance": 1211.69,
+  "transactions": [
+   {
+    "date": "2026-06-01",
+    "label": "UEBERWEISUNG SEPA EMPFAENGER",
+    "debit": 1105.3,
+    "credit": null,
+    "balance": 1651.71
+   },
+   {
+    "date": "2026-06-04",
+    "label": "UEBERWEISUNG SEPA EMPFAENGER",
+    "debit": 258.25,
+    "credit": null,
+    "balance": 1393.46
+   },
+   {
+    "date": "2026-06-06",
+    "label": "KARTENZAHLUNG REWE FILIALE 2201",
+    "debit": 423.26,
+    "credit": null,
+    "balance": 970.2
+   },
+   {
+    "date": "2026-06-08",
+    "label": "KARTENZAHLUNG REWE FILIALE 2201",
+    "debit": 1007.88,
+    "credit": null,
+    "balance": -37.68
+   },
+   {
+    "date": "2026-06-09",
+    "label": "UEBERWEISUNG SEPA EMPFAENGER",
+    "debit": 12.67,
+    "credit": null,
+    "balance": -50.35
+   },
+   {
+    "date": "2026-06-13",
+    "label": "GUTSCHRIFT LOHN MUSTERFIRMA GMBH",
+    "debit": null,
+    "credit": 1111.26,
+    "balance": 1060.91
+   },
+   {
+    "date": "2026-06-14",
+    "label": "UEBERWEISUNG SEPA EMPFAENGER",
+    "debit": 1122.22,
+    "credit": null,
+    "balance": -61.31
+   },
+   {
+    "date": "2026-06-15",
+    "label": "GUTSCHRIFT LOHN MUSTERFIRMA GMBH",
+    "debit": null,
+    "credit": 1155.0,
+    "balance": 1093.69
+   },
+   {
+    "date": "2026-06-17",
+    "label": "GUTSCHRIFT LOHN MUSTERFIRMA GMBH",
+    "debit": null,
+    "credit": 183.19,
+    "balance": 1276.88
+   },
+   {
+    "date": "2026-06-22",
+    "label": "GUTSCHRIFT LOHN MUSTERFIRMA GMBH",
+    "debit": null,
+    "credit": 228.73,
+    "balance": 1505.61
+   },
+   {
+    "date": "2026-06-23",
+    "label": "UEBERWEISUNG SEPA EMPFAENGER",
+    "debit": 516.49,
+    "credit": null,
+    "balance": 989.12
+   },
+   {
+    "date": "2026-06-24",
+    "label": "GUTSCHRIFT LOHN MUSTERFIRMA GMBH",
+    "debit": null,
+    "credit": 164.4,
+    "balance": 1153.52
+   },
+   {
+    "date": "2026-06-27",
+    "label": "GUTSCHRIFT LOHN MUSTERFIRMA GMBH",
+    "debit": null,
+    "credit": 58.17,
+    "balance": 1211.69
+   }
+  ]
+ },
+ "SYNTH_eu_ing_nl_L.pdf": {
+  "family": "eu_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "NL91ABNA0417164300",
+  "opening_balance": 324.71,
+  "closing_balance": -4326.19,
+  "transactions": [
+   {
+    "date": "2026-06-01",
+    "label": "INCASSO ENERGIEBEDRIJF NL",
+    "debit": 575.11,
+    "credit": null,
+    "balance": -250.4
+   },
+   {
+    "date": "2026-06-05",
+    "label": "INCASSO ENERGIEBEDRIJF NL",
+    "debit": 583.41,
+    "credit": null,
+    "balance": -833.81
+   },
+   {
+    "date": "2026-06-06",
+    "label": "ABONNEMENT INTERNET KPN",
+    "debit": 253.96,
+    "credit": null,
+    "balance": -1087.77
+   },
+   {
+    "date": "2026-06-07",
+    "label": "INCASSO ENERGIEBEDRIJF NL",
+    "debit": 580.71,
+    "credit": null,
+    "balance": -1668.48
+   },
+   {
+    "date": "2026-06-08",
+    "label": "PINBETALING JUMBO S-HERTOGENBOSCH",
+    "debit": 274.55,
+    "credit": null,
+    "balance": -1943.03
+   },
+   {
+    "date": "2026-06-09",
+    "label": "SALARIS BETAALD WERKGEVER BV",
+    "debit": 1014.55,
+    "credit": null,
+    "balance": -2957.58
+   },
+   {
+    "date": "2026-06-12",
+    "label": "PINBETALING JUMBO S-HERTOGENBOSCH",
+    "debit": 615.7,
+    "credit": null,
+    "balance": -3573.28
+   },
+   {
+    "date": "2026-06-13",
+    "label": "OVERBOEING ONTVANGEN VRIEND",
+    "debit": null,
+    "credit": 441.8,
+    "balance": -3131.48
+   },
+   {
+    "date": "2026-06-14",
+    "label": "OVERBOEING ONTVANGEN VRIEND",
+    "debit": null,
+    "credit": 919.36,
+    "balance": -2212.12
+   },
+   {
+    "date": "2026-06-17",
+    "label": "PINBETALING JUMBO S-HERTOGENBOSCH",
+    "debit": 630.79,
+    "credit": null,
+    "balance": -2842.91
+   },
+   {
+    "date": "2026-06-18",
+    "label": "INCASSO ENERGIEBEDRIJF NL",
+    "debit": 653.09,
+    "credit": null,
+    "balance": -3496.0
+   },
+   {
+    "date": "2026-06-20",
+    "label": "ABONNEMENT INTERNET KPN",
+    "debit": 430.73,
+    "credit": null,
+    "balance": -3926.73
+   },
+   {
+    "date": "2026-06-24",
+    "label": "SALARIS BETAALD WERKGEVER BV",
+    "debit": 438.06,
+    "credit": null,
+    "balance": -4364.79
+   },
+   {
+    "date": "2026-06-26",
+    "label": "OVERBOEING ONTVANGEN VRIEND",
+    "debit": null,
+    "credit": 38.6,
+    "balance": -4326.19
+   }
+  ]
+ },
+ "SYNTH_eu_santander_es_M.pdf": {
+  "family": "eu_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "ES9121000418450200051332",
+  "opening_balance": 3608.56,
+  "closing_balance": 2048.62,
+  "transactions": [
+   {
+    "date": "2026-08-01",
+    "label": "TRASFERENCIA RECIBIDA PADRES",
+    "debit": null,
+    "credit": 94.23,
+    "balance": 3702.79
+   },
+   {
+    "date": "2026-08-02",
+    "label": "DOMICILIACION AGUA EMPRESA MUNICIPAL",
+    "debit": 88.41,
+    "credit": null,
+    "balance": 3614.38
+   },
+   {
+    "date": "2026-08-04",
+    "label": "NOMINA EMPRESA TALLERES SL",
+    "debit": null,
+    "credit": 472.4,
+    "balance": 4086.78
+   },
+   {
+    "date": "2026-08-06",
+    "label": "DOMICILIACION AGUA EMPRESA MUNICIPAL",
+    "debit": 1135.01,
+    "credit": null,
+    "balance": 2951.77
+   },
+   {
+    "date": "2026-08-09",
+    "label": "PAGO CON TARJETA MERCADONA N432",
+    "debit": 151.25,
+    "credit": null,
+    "balance": 2800.52
+   },
+   {
+    "date": "2026-08-13",
+    "label": "TRASFERENCIA RECIBIDA PADRES",
+    "debit": null,
+    "credit": 499.41,
+    "balance": 3299.93
+   },
+   {
+    "date": "2026-08-18",
+    "label": "PAGO CON TARJETA MERCADONA N432",
+    "debit": 602.69,
+    "credit": null,
+    "balance": 2697.24
+   },
+   {
+    "date": "2026-08-19",
+    "label": "NOMINA EMPRESA TALLERES SL",
+    "debit": null,
+    "credit": 386.19,
+    "balance": 3083.43
+   },
+   {
+    "date": "2026-08-21",
+    "label": "DOMICILIACION AGUA EMPRESA MUNICIPAL",
+    "debit": 342.9,
+    "credit": null,
+    "balance": 2740.53
+   },
+   {
+    "date": "2026-08-23",
+    "label": "DOMICILIACION AGUA EMPRESA MUNICIPAL",
+    "debit": 436.47,
+    "credit": null,
+    "balance": 2304.06
+   },
+   {
+    "date": "2026-08-24",
+    "label": "RECIBO LUZ IBERDROLA CLIENTES",
+    "debit": 82.61,
+    "credit": null,
+    "balance": 2221.45
+   },
+   {
+    "date": "2026-08-25",
+    "label": "NOMINA EMPRESA TALLERES SL",
+    "debit": null,
+    "credit": 601.73,
+    "balance": 2823.18
+   },
+   {
+    "date": "2026-08-27",
+    "label": "RECIBO LUZ IBERDROLA CLIENTES",
+    "debit": 774.56,
+    "credit": null,
+    "balance": 2048.62
+   }
+  ]
+ },
+ "SYNTH_eu_barclays_uk_N.pdf": {
+  "family": "eu_pdf",
+  "nature": "synthétique",
+  "currency": "GBP",
+  "account": "GB29NWBK60161331926819",
+  "opening_balance": 2892.12,
+  "closing_balance": -854.77,
+  "transactions": [
+   {
+    "date": "2026-09-01",
+    "label": "DIRECT DEBIT BRITISH GAS ENERGY",
+    "debit": 11.44,
+    "credit": null,
+    "balance": 2880.68
+   },
+   {
+    "date": "2026-09-02",
+    "label": "FPS RECEIVED REF INVOICE204",
+    "debit": null,
+    "credit": 301.69,
+    "balance": 3182.37
+   },
+   {
+    "date": "2026-09-05",
+    "label": "DIRECT DEBIT BRITISH GAS ENERGY",
+    "debit": 672.81,
+    "credit": null,
+    "balance": 2509.56
+   },
+   {
+    "date": "2026-09-06",
+    "label": "STANDING ORDER RENT HILLVIEW",
+    "debit": 298.42,
+    "credit": null,
+    "balance": 2211.14
+   },
+   {
+    "date": "2026-09-08",
+    "label": "CARD PAYMENT TESCO STORES 3214",
+    "debit": 911.27,
+    "credit": null,
+    "balance": 1299.87
+   },
+   {
+    "date": "2026-09-09",
+    "label": "DIRECT DEBIT BRITISH GAS ENERGY",
+    "debit": 430.49,
+    "credit": null,
+    "balance": 869.38
+   },
+   {
+    "date": "2026-09-13",
+    "label": "DIRECT DEBIT BRITISH GAS ENERGY",
+    "debit": 403.26,
+    "credit": null,
+    "balance": 466.12
+   },
+   {
+    "date": "2026-09-14",
+    "label": "DIRECT DEBIT BRITISH GAS ENERGY",
+    "debit": 1042.37,
+    "credit": null,
+    "balance": -576.25
+   },
+   {
+    "date": "2026-09-15",
+    "label": "SALARY ACME CONSULTING LTD",
+    "debit": null,
+    "credit": 551.85,
+    "balance": -24.4
+   },
+   {
+    "date": "2026-09-16",
+    "label": "FPS RECEIVED REF INVOICE204",
+    "debit": null,
+    "credit": 643.58,
+    "balance": 619.18
+   },
+   {
+    "date": "2026-09-17",
+    "label": "SALARY ACME CONSULTING LTD",
+    "debit": null,
+    "credit": 867.79,
+    "balance": 1486.97
+   },
+   {
+    "date": "2026-09-20",
+    "label": "DIRECT DEBIT BRITISH GAS ENERGY",
+    "debit": 1039.14,
+    "credit": null,
+    "balance": 447.83
+   },
+   {
+    "date": "2026-09-21",
+    "label": "DIRECT DEBIT BRITISH GAS ENERGY",
+    "debit": 588.54,
+    "credit": null,
+    "balance": -140.71
+   },
+   {
+    "date": "2026-09-23",
+    "label": "CARD PAYMENT TESCO STORES 3214",
+    "debit": 714.06,
+    "credit": null,
+    "balance": -854.77
+   }
+  ]
+ },
+ "SYNTH_uemoa_ecobank_sn_O.pdf": {
+  "family": "uemoa_pdf",
+  "nature": "synthétique",
+  "currency": "XOF",
+  "account": "SN08SN01001520001234567890",
+  "opening_balance": 1064535,
+  "closing_balance": 719361,
+  "transactions": [
+   {
+    "date": "2026-02-01",
+    "label": "PRELEVEMENT SENELEC FACTURE",
+    "debit": 132090,
+    "credit": null,
+    "balance": 932445
+   },
+   {
+    "date": "2026-02-02",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 189238,
+    "balance": 1121683
+   },
+   {
+    "date": "2026-02-09",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 61278,
+    "balance": 1182961
+   },
+   {
+    "date": "2026-02-10",
+    "label": "VIREMENT SALAIRE ETAT SN",
+    "debit": 155868,
+    "credit": null,
+    "balance": 1027093
+   },
+   {
+    "date": "2026-02-12",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 112550,
+    "balance": 1139643
+   },
+   {
+    "date": "2026-02-13",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 225656,
+    "balance": 1365299
+   },
+   {
+    "date": "2026-02-14",
+    "label": "FRAIS TENUE DE COMPTE MENSUEL",
+    "debit": 90368,
+    "credit": null,
+    "balance": 1274931
+   },
+   {
+    "date": "2026-02-16",
+    "label": "FRAIS TRANSFERT INTERNATIONAL",
+    "debit": 248536,
+    "credit": null,
+    "balance": 1026395
+   },
+   {
+    "date": "2026-02-17",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 48314,
+    "balance": 1074709
+   },
+   {
+    "date": "2026-02-18",
+    "label": "VIREMENT EMIS FOURNISSEUR BAMAKO",
+    "debit": 2422,
+    "credit": null,
+    "balance": 1072287
+   },
+   {
+    "date": "2026-02-22",
+    "label": "FRAIS TENUE DE COMPTE MENSUEL",
+    "debit": 21921,
+    "credit": null,
+    "balance": 1050366
+   },
+   {
+    "date": "2026-02-23",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 9521,
+    "balance": 1059887
+   },
+   {
+    "date": "2026-02-25",
+    "label": "FRAIS TENUE DE COMPTE MENSUEL",
+    "debit": 244410,
+    "credit": null,
+    "balance": 815477
+   },
+   {
+    "date": "2026-02-26",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 54627,
+    "balance": 870104
+   },
+   {
+    "date": "2026-02-27",
+    "label": "RETRAIT ATM DAKAR PLATEAU",
+    "debit": 150743,
+    "credit": null,
+    "balance": 719361
+   }
+  ]
+ },
+ "SYNTH_uemoa_boa_sn_P.pdf": {
+  "family": "uemoa_pdf",
+  "nature": "synthétique",
+  "currency": "XOF",
+  "account": "SN012 0010 12345678901 96",
+  "opening_balance": 881920,
+  "closing_balance": 443599,
+  "transactions": [
+   {
+    "date": "2026-06-01",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 231615,
+    "balance": 1113535
+   },
+   {
+    "date": "2026-06-02",
+    "label": "PRELEVEMENT SENELEC FACTURE",
+    "debit": 77639,
+    "credit": null,
+    "balance": 1035896
+   },
+   {
+    "date": "2026-06-03",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 214027,
+    "balance": 1249923
+   },
+   {
+    "date": "2026-06-05",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 169985,
+    "balance": 1419908
+   },
+   {
+    "date": "2026-06-06",
+    "label": "DEPOT ESPECES AGENCE LIBERTE",
+    "debit": 62385,
+    "credit": null,
+    "balance": 1357523
+   },
+   {
+    "date": "2026-06-07",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 91586,
+    "balance": 1449109
+   },
+   {
+    "date": "2026-06-08",
+    "label": "CHEQUE N 0001234",
+    "debit": 36950,
+    "credit": null,
+    "balance": 1412159
+   },
+   {
+    "date": "2026-06-09",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 213757,
+    "balance": 1625916
+   },
+   {
+    "date": "2026-06-10",
+    "label": "VIREMENT SALAIRE ETAT SN",
+    "debit": 227466,
+    "credit": null,
+    "balance": 1398450
+   },
+   {
+    "date": "2026-06-11",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 154102,
+    "balance": 1552552
+   },
+   {
+    "date": "2026-06-12",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 52985,
+    "balance": 1605537
+   },
+   {
+    "date": "2026-06-13",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 25014,
+    "balance": 1630551
+   },
+   {
+    "date": "2026-06-14",
+    "label": "DEPOT ESPECES AGENCE LIBERTE",
+    "debit": 249779,
+    "credit": null,
+    "balance": 1380772
+   },
+   {
+    "date": "2026-06-15",
+    "label": "VIREMENT SALAIRE ETAT SN",
+    "debit": 136683,
+    "credit": null,
+    "balance": 1244089
+   },
+   {
+    "date": "2026-06-16",
+    "label": "VIREMENT EMIS FOURNISSEUR BAMAKO",
+    "debit": 43662,
+    "credit": null,
+    "balance": 1200427
+   },
+   {
+    "date": "2026-06-17",
+    "label": "FRAIS TRANSFERT INTERNATIONAL",
+    "debit": 45056,
+    "credit": null,
+    "balance": 1155371
+   },
+   {
+    "date": "2026-06-18",
+    "label": "FRAIS TRANSFERT INTERNATIONAL",
+    "debit": 8371,
+    "credit": null,
+    "balance": 1147000
+   },
+   {
+    "date": "2026-06-20",
+    "label": "CHEQUE N 0001234",
+    "debit": 58785,
+    "credit": null,
+    "balance": 1088215
+   },
+   {
+    "date": "2026-06-21",
+    "label": "DEPOT ESPECES AGENCE LIBERTE",
+    "debit": 165561,
+    "credit": null,
+    "balance": 922654
+   },
+   {
+    "date": "2026-06-23",
+    "label": "RETRAIT ATM DAKAR PLATEAU",
+    "debit": 237390,
+    "credit": null,
+    "balance": 685264
+   },
+   {
+    "date": "2026-06-24",
+    "label": "VIREMENT EMIS FOURNISSEUR BAMAKO",
+    "debit": 125371,
+    "credit": null,
+    "balance": 559893
+   },
+   {
+    "date": "2026-06-25",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 204273,
+    "balance": 764166
+   },
+   {
+    "date": "2026-06-26",
+    "label": "VIREMENT EMIS FOURNISSEUR BAMAKO",
+    "debit": 129876,
+    "credit": null,
+    "balance": 634290
+   },
+   {
+    "date": "2026-06-27",
+    "label": "DEPOT ESPECES AGENCE LIBERTE",
+    "debit": 190691,
+    "credit": null,
+    "balance": 443599
+   }
+  ]
+ },
+ "SYNTH_stress_parentheses_Q.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "12345678900",
+  "opening_balance": 3448.39,
+  "closing_balance": 4133.79,
+  "transactions": [
+   {
+    "date": "2026-08-01",
+    "label": "PRLV EDF GAZ FACTURE",
+    "debit": 750.38,
+    "credit": null,
+    "balance": 2698.01
+   },
+   {
+    "date": "2026-08-04",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 669.61,
+    "credit": null,
+    "balance": 2028.4
+   },
+   {
+    "date": "2026-08-07",
+    "label": "CHEQUE N 0045123",
+    "debit": 588.19,
+    "credit": null,
+    "balance": 1440.21
+   },
+   {
+    "date": "2026-08-09",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 306.88,
+    "balance": 1747.09
+   },
+   {
+    "date": "2026-08-10",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 191.66,
+    "balance": 1938.75
+   },
+   {
+    "date": "2026-08-12",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 686.48,
+    "balance": 2625.23
+   },
+   {
+    "date": "2026-08-14",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 474.93,
+    "balance": 3100.16
+   },
+   {
+    "date": "2026-08-16",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 937.53,
+    "balance": 4037.69
+   },
+   {
+    "date": "2026-08-20",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 774.42,
+    "balance": 4812.11
+   },
+   {
+    "date": "2026-08-21",
+    "label": "CHEQUE N 0045123",
+    "debit": 1188.36,
+    "credit": null,
+    "balance": 3623.75
+   },
+   {
+    "date": "2026-08-22",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 638.03,
+    "balance": 4261.78
+   },
+   {
+    "date": "2026-08-24",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 127.99,
+    "credit": null,
+    "balance": 4133.79
+   }
+  ]
+ },
+ "SYNTH_stress_multipage_40tx_R.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "12345678901",
+  "opening_balance": 3934.34,
+  "closing_balance": 2299.22,
+  "transactions": [
+   {
+    "date": "2026-07-01",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 385.18,
+    "balance": 4319.52
+   },
+   {
+    "date": "2026-07-02",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 588.12,
+    "credit": null,
+    "balance": 3731.4
+   },
+   {
+    "date": "2026-07-03",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 1008.24,
+    "balance": 4739.64
+   },
+   {
+    "date": "2026-07-04",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 1093.27,
+    "balance": 5832.91
+   },
+   {
+    "date": "2026-07-05",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 702.92,
+    "balance": 6535.83
+   },
+   {
+    "date": "2026-07-06",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 85.6,
+    "credit": null,
+    "balance": 6450.23
+   },
+   {
+    "date": "2026-07-07",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 485.01,
+    "credit": null,
+    "balance": 5965.22
+   },
+   {
+    "date": "2026-07-08",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 834.92,
+    "balance": 6800.14
+   },
+   {
+    "date": "2026-07-09",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 48.16,
+    "balance": 6848.3
+   },
+   {
+    "date": "2026-07-10",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 580.39,
+    "balance": 7428.69
+   },
+   {
+    "date": "2026-07-11",
+    "label": "CHEQUE N 0045123",
+    "debit": 26.72,
+    "credit": null,
+    "balance": 7401.97
+   },
+   {
+    "date": "2026-07-12",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 141.83,
+    "credit": null,
+    "balance": 7260.14
+   },
+   {
+    "date": "2026-07-13",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 975.44,
+    "balance": 8235.58
+   },
+   {
+    "date": "2026-07-14",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 259.27,
+    "credit": null,
+    "balance": 7976.31
+   },
+   {
+    "date": "2026-07-15",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 393.59,
+    "credit": null,
+    "balance": 7582.72
+   },
+   {
+    "date": "2026-07-16",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 1158.61,
+    "credit": null,
+    "balance": 6424.11
+   },
+   {
+    "date": "2026-07-17",
+    "label": "CHEQUE N 0045123",
+    "debit": 122.41,
+    "credit": null,
+    "balance": 6301.7
+   },
+   {
+    "date": "2026-07-18",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 289.66,
+    "balance": 6591.36
+   },
+   {
+    "date": "2026-07-19",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 909.85,
+    "credit": null,
+    "balance": 5681.51
+   },
+   {
+    "date": "2026-07-20",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 119.83,
+    "credit": null,
+    "balance": 5561.68
+   },
+   {
+    "date": "2026-07-21",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 457.94,
+    "balance": 6019.62
+   },
+   {
+    "date": "2026-07-22",
+    "label": "CHEQUE N 0045123",
+    "debit": 535.42,
+    "credit": null,
+    "balance": 5484.2
+   },
+   {
+    "date": "2026-07-23",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 1026.36,
+    "credit": null,
+    "balance": 4457.84
+   },
+   {
+    "date": "2026-07-24",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 520.11,
+    "balance": 4977.95
+   },
+   {
+    "date": "2026-07-25",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 315.14,
+    "credit": null,
+    "balance": 4662.81
+   },
+   {
+    "date": "2026-07-26",
+    "label": "CHEQUE N 0045123",
+    "debit": 864.32,
+    "credit": null,
+    "balance": 3798.49
+   },
+   {
+    "date": "2026-07-27",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 106.04,
+    "credit": null,
+    "balance": 3692.45
+   },
+   {
+    "date": "2026-07-28",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 637.2,
+    "credit": null,
+    "balance": 3055.25
+   },
+   {
+    "date": "2026-07-29",
+    "label": "CHEQUE N 0045123",
+    "debit": 653.99,
+    "credit": null,
+    "balance": 2401.26
+   },
+   {
+    "date": "2026-07-30",
+    "label": "CHEQUE N 0045123",
+    "debit": 1080.27,
+    "credit": null,
+    "balance": 1320.99
+   },
+   {
+    "date": "2026-07-31",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 984.41,
+    "balance": 2305.4
+   },
+   {
+    "date": "2026-07-32",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 1006.37,
+    "credit": null,
+    "balance": 1299.03
+   },
+   {
+    "date": "2026-07-33",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 971.46,
+    "balance": 2270.49
+   },
+   {
+    "date": "2026-07-34",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 815.72,
+    "credit": null,
+    "balance": 1454.77
+   },
+   {
+    "date": "2026-07-35",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 938.31,
+    "balance": 2393.08
+   },
+   {
+    "date": "2026-07-36",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 819.94,
+    "balance": 3213.02
+   },
+   {
+    "date": "2026-07-37",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 429.89,
+    "credit": null,
+    "balance": 2783.13
+   },
+   {
+    "date": "2026-07-38",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 561.28,
+    "credit": null,
+    "balance": 2221.85
+   },
+   {
+    "date": "2026-07-39",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 159.17,
+    "balance": 2381.02
+   },
+   {
+    "date": "2026-07-40",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 81.8,
+    "credit": null,
+    "balance": 2299.22
+   }
+  ]
+ },
+ "SYNTH_stress_preamble_S.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "98765432100",
+  "opening_balance": 1134.08,
+  "closing_balance": -741.0,
+  "transactions": [
+   {
+    "date": "2026-01-04",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 423.34,
+    "balance": 1557.42
+   },
+   {
+    "date": "2026-01-05",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 349.66,
+    "balance": 1907.08
+   },
+   {
+    "date": "2026-01-07",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 57.41,
+    "credit": null,
+    "balance": 1849.67
+   },
+   {
+    "date": "2026-01-08",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 725.28,
+    "balance": 2574.95
+   },
+   {
+    "date": "2026-01-10",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 813.5,
+    "balance": 3388.45
+   },
+   {
+    "date": "2026-01-11",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 527.68,
+    "credit": null,
+    "balance": 2860.77
+   },
+   {
+    "date": "2026-01-13",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 780.47,
+    "credit": null,
+    "balance": 2080.3
+   },
+   {
+    "date": "2026-01-15",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 461.68,
+    "credit": null,
+    "balance": 1618.62
+   },
+   {
+    "date": "2026-01-18",
+    "label": "CB ABONNEMENT NETFLIX",
+    "debit": 924.69,
+    "credit": null,
+    "balance": 693.93
+   },
+   {
+    "date": "2026-01-19",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 215.55,
+    "credit": null,
+    "balance": 478.38
+   },
+   {
+    "date": "2026-01-20",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 774.9,
+    "credit": null,
+    "balance": -296.52
+   },
+   {
+    "date": "2026-01-21",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 687.37,
+    "balance": 390.85
+   },
+   {
+    "date": "2026-01-24",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 1131.85,
+    "credit": null,
+    "balance": -741.0
+   }
+  ]
+ },
+ "SYNTH_stress_scanned_T.pdf": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "00098765432",
+  "opening_balance": 3646.69,
+  "closing_balance": 807.53,
+  "transactions": [
+   {
+    "date": "2026-02-01",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 541.15,
+    "credit": null,
+    "balance": 3105.54
+   },
+   {
+    "date": "2026-02-06",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 597.75,
+    "balance": 3703.29
+   },
+   {
+    "date": "2026-02-09",
+    "label": "CHEQUE N 0045123",
+    "debit": 115.9,
+    "credit": null,
+    "balance": 3587.39
+   },
+   {
+    "date": "2026-02-10",
+    "label": "VIREMENT SALAIRE TECHNOS SARL",
+    "debit": 631.79,
+    "credit": null,
+    "balance": 2955.6
+   },
+   {
+    "date": "2026-02-12",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 471.72,
+    "credit": null,
+    "balance": 2483.88
+   },
+   {
+    "date": "2026-02-13",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 137.04,
+    "balance": 2620.92
+   },
+   {
+    "date": "2026-02-14",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 1104.54,
+    "credit": null,
+    "balance": 1516.38
+   },
+   {
+    "date": "2026-02-15",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 1154.99,
+    "balance": 2671.37
+   },
+   {
+    "date": "2026-02-19",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 236.64,
+    "balance": 2908.01
+   },
+   {
+    "date": "2026-02-22",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 169.25,
+    "balance": 3077.26
+   },
+   {
+    "date": "2026-02-23",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 1139.09,
+    "credit": null,
+    "balance": 1938.17
+   },
+   {
+    "date": "2026-02-25",
+    "label": "PRLV EDF GAZ FACTURE",
+    "debit": 1130.64,
+    "credit": null,
+    "balance": 807.53
+   }
+  ]
+ },
+ "SYNTH_csv_wave_v2_U.csv": {
+  "family": "csv_mm",
+  "nature": "synthétique",
+  "currency": "XOF",
+  "account": "0781234567",
+  "opening_balance": 417678,
+  "closing_balance": -465251,
+  "transactions": [
+   {
+    "date": "2026-09-04",
+    "label": "Airtime purchase Orange SN",
+    "debit": 48121,
+    "credit": null,
+    "balance": 369557,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-09-06",
+    "label": "Merchant payment Pharmacie Mermoz",
+    "debit": 175238,
+    "credit": null,
+    "balance": 194319,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-09-08",
+    "label": "Airtime purchase Orange SN",
+    "debit": 85217,
+    "credit": null,
+    "balance": 109102,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-09-09",
+    "label": "Cash-out at agent Point E",
+    "debit": 157589,
+    "credit": null,
+    "balance": -48487,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-09-11",
+    "label": "Transfer to Awa Diop",
+    "debit": 26509,
+    "credit": null,
+    "balance": -74996,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-09-14",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 102942,
+    "balance": 27946,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-09-17",
+    "label": "Airtime purchase Orange SN",
+    "debit": 104214,
+    "credit": null,
+    "balance": -76268,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-09-18",
+    "label": "Received from Mamadou Sow",
+    "debit": null,
+    "credit": 115946,
+    "balance": 39678,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-09-19",
+    "label": "Transfer to Awa Diop",
+    "debit": 211817,
+    "credit": null,
+    "balance": -172139,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-09-20",
+    "label": "Airtime purchase Orange SN",
+    "debit": 13694,
+    "credit": null,
+    "balance": -185833,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-09-21",
+    "label": "Bank transfer to SG SN 00012345678",
+    "debit": 221962,
+    "credit": null,
+    "balance": -407795,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-09-25",
+    "label": "Bill payment SENELEC 45210",
+    "debit": 57456,
+    "credit": null,
+    "balance": -465251,
+    "currency": "XOF"
+   }
+  ]
+ },
+ "SYNTH_csv_orange_money_V.csv": {
+  "family": "csv_mm",
+  "nature": "synthétique",
+  "currency": "XOF",
+  "account": "0777654321",
+  "opening_balance": 774915,
+  "closing_balance": 808196,
+  "transactions": [
+   {
+    "date": "2026-03-02",
+    "label": "Airtime purchase Orange SN",
+    "debit": 220871,
+    "credit": null,
+    "balance": 554044,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-03-03",
+    "label": "Bill payment SENELEC 45210",
+    "debit": 33508,
+    "credit": null,
+    "balance": 520536,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-03-08",
+    "label": "Received from Mamadou Sow",
+    "debit": null,
+    "credit": 173555,
+    "balance": 694091,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-03-12",
+    "label": "Bill payment SENELEC 45210",
+    "debit": 41258,
+    "credit": null,
+    "balance": 652833,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-03-13",
+    "label": "Bank transfer to SG SN 00012345678",
+    "debit": 9550,
+    "credit": null,
+    "balance": 643283,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-03-14",
+    "label": "Received from Mamadou Sow",
+    "debit": null,
+    "credit": 167034,
+    "balance": 810317,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-03-18",
+    "label": "Received from Mamadou Sow",
+    "debit": null,
+    "credit": 124643,
+    "balance": 934960,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-03-20",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 119277,
+    "balance": 1054237,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-03-24",
+    "label": "Merchant payment Marche Sandaga",
+    "debit": 179427,
+    "credit": null,
+    "balance": 874810,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-03-25",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 179483,
+    "balance": 1054293,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-03-27",
+    "label": "Transfer to Awa Diop",
+    "debit": 246097,
+    "credit": null,
+    "balance": 808196,
+    "currency": "XOF"
+   }
+  ]
+ },
+ "SYNTH_csv_mtn_momo_W.csv": {
+  "family": "csv_mm",
+  "nature": "synthétique",
+  "currency": "XOF",
+  "account": "0701234567",
+  "opening_balance": 970681,
+  "closing_balance": 775841,
+  "transactions": [
+   {
+    "date": "2026-08-01",
+    "label": "Airtime purchase Orange SN",
+    "debit": 18377,
+    "credit": null,
+    "balance": 952304,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-08-05",
+    "label": "Bank transfer to SG SN 00012345678",
+    "debit": 70859,
+    "credit": null,
+    "balance": 881445,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-08-10",
+    "label": "Airtime purchase Orange SN",
+    "debit": 165224,
+    "credit": null,
+    "balance": 716221,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-08-12",
+    "label": "Cash-out at agent Point E",
+    "debit": 51738,
+    "credit": null,
+    "balance": 664483,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-08-14",
+    "label": "Bank transfer to SG SN 00012345678",
+    "debit": 27918,
+    "credit": null,
+    "balance": 636565,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-08-15",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 229946,
+    "balance": 866511,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-08-16",
+    "label": "Airtime purchase Orange SN",
+    "debit": 197046,
+    "credit": null,
+    "balance": 669465,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-08-19",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 136561,
+    "balance": 806026,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-08-23",
+    "label": "P2P received from Fatou N.",
+    "debit": null,
+    "credit": 123263,
+    "balance": 929289,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-08-27",
+    "label": "Cash-out at agent Point E",
+    "debit": 153448,
+    "credit": null,
+    "balance": 775841,
+    "currency": "XOF"
+   }
+  ]
+ },
+ "SYNTH_csv_moov_X.csv": {
+  "family": "csv_mm",
+  "nature": "synthétique",
+  "currency": "XOF",
+  "account": "0780001111",
+  "opening_balance": 493924,
+  "closing_balance": 259764,
+  "transactions": [
+   {
+    "date": "2026-01-04",
+    "label": "Transfer to Awa Diop",
+    "debit": 108381,
+    "credit": null,
+    "balance": 385543,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-11",
+    "label": "P2P received from Fatou N.",
+    "debit": null,
+    "credit": 117972,
+    "balance": 503515,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-12",
+    "label": "Merchant payment Marche Sandaga",
+    "debit": 242631,
+    "credit": null,
+    "balance": 260884,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-13",
+    "label": "P2P received from Fatou N.",
+    "debit": null,
+    "credit": 24141,
+    "balance": 285025,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-15",
+    "label": "Received from Mamadou Sow",
+    "debit": null,
+    "credit": 167836,
+    "balance": 452861,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-16",
+    "label": "Bank transfer to SG SN 00012345678",
+    "debit": 27841,
+    "credit": null,
+    "balance": 425020,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-17",
+    "label": "Merchant payment Marche Sandaga",
+    "debit": 229596,
+    "credit": null,
+    "balance": 195424,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-20",
+    "label": "P2P received from Fatou N.",
+    "debit": null,
+    "credit": 48832,
+    "balance": 244256,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-23",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 75930,
+    "balance": 320186,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-24",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 61032,
+    "balance": 381218,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-26",
+    "label": "Bill payment SENELEC 45210",
+    "debit": 121454,
+    "credit": null,
+    "balance": 259764,
+    "currency": "XOF"
+   }
+  ]
+ },
+ "SYNTH_csv_wave_bom_semicolon_Y.csv": {
+  "family": "csv_mm",
+  "nature": "synthétique",
+  "currency": "XOF",
+  "account": "0781122334",
+  "opening_balance": 951235,
+  "closing_balance": 541134,
+  "transactions": [
+   {
+    "date": "2026-04-02",
+    "label": "Received from Mamadou Sow",
+    "debit": null,
+    "credit": 188233,
+    "balance": 1139468,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-07",
+    "label": "Received from Mamadou Sow",
+    "debit": null,
+    "credit": 89745,
+    "balance": 1229213,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-08",
+    "label": "Bill payment SENELEC 45210",
+    "debit": 236654,
+    "credit": null,
+    "balance": 992559,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-11",
+    "label": "Bank transfer to SG SN 00012345678",
+    "debit": 197885,
+    "credit": null,
+    "balance": 794674,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-12",
+    "label": "Cash-out at agent Point E",
+    "debit": 231070,
+    "credit": null,
+    "balance": 563604,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-13",
+    "label": "Bank transfer to SG SN 00012345678",
+    "debit": 156360,
+    "credit": null,
+    "balance": 407244,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-16",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 17153,
+    "balance": 424397,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-21",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 199023,
+    "balance": 623420,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-23",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 86773,
+    "balance": 710193,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-27",
+    "label": "Transfer to Awa Diop",
+    "debit": 169059,
+    "credit": null,
+    "balance": 541134,
+    "currency": "XOF"
+   }
+  ]
+ },
+ "SYNTH_xlsx_banque_Z.xlsx": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "FR7630004000011234567890142",
+  "opening_balance": 670.13,
+  "closing_balance": -370.94,
+  "transactions": [
+   {
+    "date": "2026-01-04",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 738.09,
+    "credit": null,
+    "balance": -67.96,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-08",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 866.01,
+    "balance": 798.05,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-09",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 1103.2,
+    "credit": null,
+    "balance": -305.15,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-11",
+    "label": "CB LECLERC SAINT-JULIEN",
+    "debit": 413.57,
+    "credit": null,
+    "balance": -718.72,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-13",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 185.09,
+    "credit": null,
+    "balance": -903.81,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-14",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 234.39,
+    "balance": -669.42,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-15",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 519.01,
+    "credit": null,
+    "balance": -1188.43,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-16",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 213.8,
+    "balance": -974.63,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-18",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 575.66,
+    "balance": -398.97,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-19",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 751.34,
+    "balance": 352.37,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-23",
+    "label": "PRLV EDF GAZ FACTURE",
+    "debit": 689.71,
+    "credit": null,
+    "balance": -337.34,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-26",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 33.6,
+    "credit": null,
+    "balance": -370.94,
+    "currency": "EUR"
+   }
+  ]
+ },
+ "SYNTH_csv_quoted_thousands_AA.csv": {
+  "family": "fr_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "12345678901",
+  "opening_balance": 2193.47,
+  "closing_balance": 1523.98,
+  "transactions": [
+   {
+    "date": "2026-01-01",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 438.88,
+    "credit": null,
+    "balance": 1754.59,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-02",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 825.58,
+    "balance": 2580.17,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-03",
+    "label": "CHEQUE N 0045123",
+    "debit": 1176.15,
+    "credit": null,
+    "balance": 1404.02,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-04",
+    "label": "REMBOURSEMENT CAF ALLOCATIONS",
+    "debit": null,
+    "credit": 97.96,
+    "balance": 1501.98,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-08",
+    "label": "VIREMENT SEPA FOURNISSEUR BETA",
+    "debit": 15.38,
+    "credit": null,
+    "balance": 1486.6,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-14",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 584.07,
+    "credit": null,
+    "balance": 902.53,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-16",
+    "label": "PRLV EDF GAZ FACTURE",
+    "debit": 1095.04,
+    "credit": null,
+    "balance": -192.51,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-17",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 1022.2,
+    "balance": 829.69,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-18",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 1163.58,
+    "balance": 1993.27,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-20",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 469.29,
+    "credit": null,
+    "balance": 1523.98,
+    "currency": "EUR"
+   }
+  ]
+ },
+ "SYNTH_csv_accounting_parentheses_AB.csv": {
+  "family": "eu_pdf",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "DE89370400440532013000",
+  "opening_balance": 394.86,
+  "closing_balance": -4492.77,
+  "transactions": [
+   {
+    "date": "2026-08-01",
+    "label": "LASTSCHRIFT TELEKOM DEUTSCHLAND",
+    "debit": 1048.41,
+    "credit": null,
+    "balance": -653.55,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-08-07",
+    "label": "LASTSCHRIFT TELEKOM DEUTSCHLAND",
+    "debit": 94.19,
+    "credit": null,
+    "balance": -747.74,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-08-09",
+    "label": "ZINSEN WERTSTELLE",
+    "debit": 1163.28,
+    "credit": null,
+    "balance": -1911.02,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-08-12",
+    "label": "ZINSEN WERTSTELLE",
+    "debit": 425.52,
+    "credit": null,
+    "balance": -2336.54,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-08-13",
+    "label": "UEBERWEISUNG SEPA EMPFAENGER",
+    "debit": 177.55,
+    "credit": null,
+    "balance": -2514.09,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-08-15",
+    "label": "DAUERAUFTRAG MIETE WOHNUNG",
+    "debit": 153.78,
+    "credit": null,
+    "balance": -2667.87,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-08-18",
+    "label": "LASTSCHRIFT TELEKOM DEUTSCHLAND",
+    "debit": 915.35,
+    "credit": null,
+    "balance": -3583.22,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-08-20",
+    "label": "LASTSCHRIFT TELEKOM DEUTSCHLAND",
+    "debit": 47.47,
+    "credit": null,
+    "balance": -3630.69,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-08-21",
+    "label": "DAUERAUFTRAG MIETE WOHNUNG",
+    "debit": 896.5,
+    "credit": null,
+    "balance": -4527.19,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-08-23",
+    "label": "LASTSCHRIFT TELEKOM DEUTSCHLAND",
+    "debit": 701.11,
+    "credit": null,
+    "balance": -5228.3,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-08-26",
+    "label": "GUTSCHRIFT LOHN MUSTERFIRMA GMBH",
+    "debit": null,
+    "credit": 735.53,
+    "balance": -4492.77,
+    "currency": "EUR"
+   }
+  ]
+ },
+ "SYNTH_csv_multicurrency_AC.csv": {
+  "family": "csv_mm",
+  "nature": "synthétique",
+  "currency": "EUR",
+  "account": "multi",
+  "opening_balance": 3246.27,
+  "closing_balance": 3821.18,
+  "transactions": [
+   {
+    "date": "2026-10-06",
+    "label": "RETRAIT DAB CONCORDE",
+    "debit": 917.32,
+    "credit": null,
+    "balance": null,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-10-10",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 332.48,
+    "balance": null,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-10-17",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 648.42,
+    "balance": null,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-10-18",
+    "label": "INTERETS CREDITEURS CAP",
+    "debit": null,
+    "credit": 1159.34,
+    "balance": null,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-10-20",
+    "label": "PRLV ASSURANCE AXA AUTO",
+    "debit": 241.68,
+    "credit": null,
+    "balance": null,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-10-22",
+    "label": "FRAIS TENUE DE COMPTE",
+    "debit": 1086.16,
+    "credit": null,
+    "balance": null,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-10-23",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 38.24,
+    "balance": null,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-10-24",
+    "label": "VIREMENT RECU LOYER M. DURAND",
+    "debit": null,
+    "credit": 641.59,
+    "balance": null,
+    "currency": "EUR"
+   },
+   {
+    "date": "2026-01-06",
+    "label": "VIREMENT EMIS FOURNISSEUR BAMAKO",
+    "debit": 248226,
+    "credit": null,
+    "balance": null,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-07",
+    "label": "RETRAIT ATM DAKAR PLATEAU",
+    "debit": 118642,
+    "credit": null,
+    "balance": null,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-14",
+    "label": "CHEQUE N 0001234",
+    "debit": 2462,
+    "credit": null,
+    "balance": null,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-20",
+    "label": "CHEQUE N 0001234",
+    "debit": 43815,
+    "credit": null,
+    "balance": null,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-21",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 222467,
+    "balance": null,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-01-25",
+    "label": "FRAIS TENUE DE COMPTE MENSUEL",
+    "debit": 112412,
+    "credit": null,
+    "balance": null,
+    "currency": "XOF"
+   }
+  ]
+ },
+ "SYNTH_csv_preamble_lines_AD.csv": {
+  "family": "csv_mm",
+  "nature": "synthétique",
+  "currency": "XOF",
+  "account": "0789998887",
+  "opening_balance": 1154692,
+  "closing_balance": 811859,
+  "transactions": [
+   {
+    "date": "2026-10-02",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 127692,
+    "balance": 1282384,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-10-09",
+    "label": "Airtime purchase Orange SN",
+    "debit": 3437,
+    "credit": null,
+    "balance": 1278947,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-10-11",
+    "label": "Bill payment SENELEC 45210",
+    "debit": 52912,
+    "credit": null,
+    "balance": 1226035,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-10-12",
+    "label": "Merchant payment Marche Sandaga",
+    "debit": 153131,
+    "credit": null,
+    "balance": 1072904,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-10-13",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 221128,
+    "balance": 1294032,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-10-15",
+    "label": "Merchant payment Pharmacie Mermoz",
+    "debit": 182113,
+    "credit": null,
+    "balance": 1111919,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-10-18",
+    "label": "Received from Mamadou Sow",
+    "debit": null,
+    "credit": 9688,
+    "balance": 1121607,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-10-24",
+    "label": "Cash-out at agent Point E",
+    "debit": 29411,
+    "credit": null,
+    "balance": 1092196,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-10-25",
+    "label": "Cash-out at agent Point E",
+    "debit": 235871,
+    "credit": null,
+    "balance": 856325,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-10-26",
+    "label": "Bank transfer to SG SN 00012345678",
+    "debit": 44466,
+    "credit": null,
+    "balance": 811859,
+    "currency": "XOF"
+   }
+  ]
+ },
+ "SYNTH_csv_tsv_iso_AE.csv": {
+  "family": "csv_mm",
+  "nature": "synthétique",
+  "currency": "XOF",
+  "account": "0785554443",
+  "opening_balance": 235075,
+  "closing_balance": -75859,
+  "transactions": [
+   {
+    "date": "2026-07-02",
+    "label": "Received from Mamadou Sow",
+    "debit": null,
+    "credit": 108718,
+    "balance": 343793,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-07-06",
+    "label": "P2P received from Fatou N.",
+    "debit": null,
+    "credit": 69123,
+    "balance": 412916,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-07-07",
+    "label": "Airtime purchase Orange SN",
+    "debit": 190172,
+    "credit": null,
+    "balance": 222744,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-07-10",
+    "label": "Transfer to Awa Diop",
+    "debit": 183831,
+    "credit": null,
+    "balance": 38913,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-07-11",
+    "label": "Merchant payment Pharmacie Mermoz",
+    "debit": 165737,
+    "credit": null,
+    "balance": -126824,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-07-12",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 12456,
+    "balance": -114368,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-07-14",
+    "label": "Bank transfer to SG SN 00012345678",
+    "debit": 10921,
+    "credit": null,
+    "balance": -125289,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-07-15",
+    "label": "Cash-in from agent Liberte 6",
+    "debit": null,
+    "credit": 236830,
+    "balance": 111541,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-07-18",
+    "label": "P2P received from Fatou N.",
+    "debit": null,
+    "credit": 11272,
+    "balance": 122813,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-07-21",
+    "label": "Merchant payment Pharmacie Mermoz",
+    "debit": 123305,
+    "credit": null,
+    "balance": -492,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-07-22",
+    "label": "Merchant payment Marche Sandaga",
+    "debit": 75367,
+    "credit": null,
+    "balance": -75859,
+    "currency": "XOF"
+   }
+  ]
+ },
+ "SYNTH_csv_xof_suffix_AF.csv": {
+  "family": "csv_mm",
+  "nature": "synthétique",
+  "currency": "XOF",
+  "account": "SN01200101234567890196",
+  "opening_balance": 521398,
+  "closing_balance": 1058873,
+  "transactions": [
+   {
+    "date": "2026-04-01",
+    "label": "RETRAIT ATM DAKAR PLATEAU",
+    "debit": 25628,
+    "credit": null,
+    "balance": 495770,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-03",
+    "label": "DEPOT ESPECES AGENCE LIBERTE",
+    "debit": 16432,
+    "credit": null,
+    "balance": 479338,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-08",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 25247,
+    "balance": 504585,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-09",
+    "label": "FRAIS TENUE DE COMPTE MENSUEL",
+    "debit": 197059,
+    "credit": null,
+    "balance": 307526,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-13",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 168305,
+    "balance": 475831,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-15",
+    "label": "VIREMENT SALAIRE ETAT SN",
+    "debit": 22307,
+    "credit": null,
+    "balance": 453524,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-19",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 145660,
+    "balance": 599184,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-21",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 245908,
+    "balance": 845092,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-24",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 73264,
+    "balance": 918356,
+    "currency": "XOF"
+   },
+   {
+    "date": "2026-04-27",
+    "label": "VIREMENT RECU EUROPE FRANCE",
+    "debit": null,
+    "credit": 140517,
+    "balance": 1058873,
+    "currency": "XOF"
+   }
+  ]
+ }
+}

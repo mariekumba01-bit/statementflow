@@ -1,0 +1,24 @@
+{
+  "_commentaire": "Seuils de non-régression figés (mesurés le 2026-11-07 sur le corpus synthétique de 32 documents / 447 transactions). dates=0.9799 et currency=0.6742 sont des comportements documentés : 9 dates impossibles dans le générateur (conservées avec date=null + alerte) et 5 CSV sans aucune devise dans le contenu (null + alerte, devise jamais inventée).",
+  "mesures_v3": {
+    "recall": 1.0,
+    "precision": 1.0,
+    "date": 0.9799,
+    "label": 1.0,
+    "debit": 1.0,
+    "credit": 1.0,
+    "balance": 1.0,
+    "currency": 0.6742,
+    "documents_parfaits": 27
+  },
+  "thresholds": {
+    "recall": 0.98,
+    "precision": 1.0,
+    "date": 0.97,
+    "label": 0.98,
+    "debit": 0.98,
+    "credit": 0.98,
+    "balance": 0.98,
+    "currency": 0.60
+  }
+}

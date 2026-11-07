@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+.env
+.env.*
+*.pem
+*.key
+
+# fichiers d'usage locaux (compteurs)
+usage_store.json

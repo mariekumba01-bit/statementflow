@@ -1,0 +1,251 @@
+{
+  "schema": "statementflow/v1",
+  "document": {
+    "filename": "SYNTH_fr_societegenerale_A.pdf",
+    "kind": "pdf",
+    "pages": 1,
+    "method": "text",
+    "parser": "generic-columns-v3",
+    "adapter": "generic-pdf"
+  },
+  "currency": "EUR",
+  "opening_balance": 3812.53,
+  "closing_balance": -3319.45,
+  "closing_derived": true,
+  "transactions": [
+    {
+      "index": 1,
+      "date": "2026-01-01",
+      "label": "CB ABONNEMENT NETFLIX",
+      "debit": 859.35,
+      "credit": null,
+      "balance": 2953.18,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 6
+      }
+    },
+    {
+      "index": 2,
+      "date": "2026-01-02",
+      "label": "RETRAIT DAB CONCORDE",
+      "debit": 1091.4,
+      "credit": null,
+      "balance": 1861.78,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 7
+      }
+    },
+    {
+      "index": 3,
+      "date": "2026-01-03",
+      "label": "RETRAIT DAB CONCORDE",
+      "debit": 27.69,
+      "credit": null,
+      "balance": 1834.09,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 8
+      }
+    },
+    {
+      "index": 4,
+      "date": "2026-01-06",
+      "label": "VIREMENT SALAIRE TECHNOS SARL",
+      "debit": 825.93,
+      "credit": null,
+      "balance": 1008.16,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 9
+      }
+    },
+    {
+      "index": 5,
+      "date": "2026-01-07",
+      "label": "REMBOURSEMENT CAF ALLOCATIONS",
+      "debit": null,
+      "credit": 524.3,
+      "balance": 1532.46,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 10
+      }
+    },
+    {
+      "index": 6,
+      "date": "2026-01-12",
+      "label": "RETRAIT DAB CONCORDE",
+      "debit": 670.0,
+      "credit": null,
+      "balance": 862.46,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 11
+      }
+    },
+    {
+      "index": 7,
+      "date": "2026-01-13",
+      "label": "CB LECLERC SAINT-JULIEN",
+      "debit": 421.56,
+      "credit": null,
+      "balance": 440.9,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 12
+      }
+    },
+    {
+      "index": 8,
+      "date": "2026-01-14",
+      "label": "VIREMENT SALAIRE TECHNOS SARL",
+      "debit": 1048.72,
+      "credit": null,
+      "balance": -607.82,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 13
+      }
+    },
+    {
+      "index": 9,
+      "date": "2026-01-18",
+      "label": "VIREMENT SEPA FOURNISSEUR BETA",
+      "debit": 522.56,
+      "credit": null,
+      "balance": -1130.38,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 14
+      }
+    },
+    {
+      "index": 10,
+      "date": "2026-01-19",
+      "label": "FRAIS TENUE DE COMPTE",
+      "debit": 244.7,
+      "credit": null,
+      "balance": -1375.08,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 15
+      }
+    },
+    {
+      "index": 11,
+      "date": "2026-01-22",
+      "label": "CHEQUE N 0045123",
+      "debit": 648.75,
+      "credit": null,
+      "balance": -2023.83,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 16
+      }
+    },
+    {
+      "index": 12,
+      "date": "2026-01-25",
+      "label": "FRAIS TENUE DE COMPTE",
+      "debit": 691.14,
+      "credit": null,
+      "balance": -2714.97,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 17
+      }
+    },
+    {
+      "index": 13,
+      "date": "2026-01-26",
+      "label": "INTERETS CREDITEURS CAP",
+      "debit": null,
+      "credit": 222.76,
+      "balance": -2492.21,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 18
+      }
+    },
+    {
+      "index": 14,
+      "date": "2026-01-27",
+      "label": "FRAIS TENUE DE COMPTE",
+      "debit": 827.24,
+      "credit": null,
+      "balance": -3319.45,
+      "currency": "EUR",
+      "confidence": 1.0,
+      "trace": {
+        "page": 1,
+        "method": "text",
+        "source_row": 19
+      }
+    }
+  ],
+  "totals": {
+    "count": 14,
+    "debits": 7879.04,
+    "credits": 747.06
+  },
+  "checks": {
+    "tolerance": 0.01,
+    "chain_checked": 14,
+    "chain_matches": 14,
+    "chain_breaks": [],
+    "chain_ok": true,
+    "opening_closing_ok": true,
+    "totals": {
+      "count": 14,
+      "debits": 7879.04,
+      "credits": 747.06
+    }
+  },
+  "alerts": [],
+  "confidence": 1.0,
+  "usage": {
+    "pages": 1,
+    "transactions": 14
+  }
+}

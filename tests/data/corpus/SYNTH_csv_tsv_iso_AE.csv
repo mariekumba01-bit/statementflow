@@ -1,0 +1,12 @@
+timestamp	description	withdrawal (XOF)	deposit (XOF)	new balance (XOF)
+2026-07-02T10:01:00	Received from Mamadou Sow	0	108718	343793
+2026-07-06T10:02:00	P2P received from Fatou N.	0	69123	412916
+2026-07-07T10:03:00	Airtime purchase Orange SN	190172	0	222744
+2026-07-10T10:04:00	Transfer to Awa Diop	183831	0	38913
+2026-07-11T10:05:00	Merchant payment Pharmacie Mermoz	165737	0	-126824
+2026-07-12T10:06:00	Cash-in from agent Liberte 6	0	12456	-114368
+2026-07-14T10:07:00	Bank transfer to SG SN 00012345678	10921	0	-125289
+2026-07-15T10:08:00	Cash-in from agent Liberte 6	0	236830	111541
+2026-07-18T10:09:00	P2P received from Fatou N.	0	11272	122813
+2026-07-21T10:10:00	Merchant payment Pharmacie Mermoz	123305	0	-492
+2026-07-22T10:11:00	Merchant payment Marche Sandaga	75367	0	-75859
