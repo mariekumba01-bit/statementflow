@@ -4,6 +4,8 @@
 
 [English](README.md) · [Français](README.fr.md)
 
+[![CI](https://github.com/mariekumba01-bit/statementflow/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mariekumba01-bit/statementflow/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/mariekumba01-bit/statementflow/blob/main/LICENSE)
+
 Native PDFs, scanned PDFs (OCR), CSV, TSV, XLSX → ISO dates, cleaned labels, separated
 debits/credits, currencies detected when identifiable, opening/closing balances,
 **accounting consistency checks** and alerts on uncertain data. Built for **French,

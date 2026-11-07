@@ -41,3 +41,9 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+[project.urls]
+Homepage = "https://github.com/mariekumba01-bit/statementflow"
+Documentation = "https://github.com/mariekumba01-bit/statementflow#readme"
+Issues = "https://github.com/mariekumba01-bit/statementflow/issues"
+Changelog = "https://github.com/mariekumba01-bit/statementflow/blob/main/CHANGELOG.md"

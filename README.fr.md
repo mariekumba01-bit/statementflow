@@ -2,6 +2,8 @@
 
 [English](README.md) · [Français](README.fr.md)
 
+[![CI](https://github.com/mariekumba01-bit/statementflow/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mariekumba01-bit/statementflow/actions/workflows/ci.yml) [![Licence : MIT](https://img.shields.io/badge/Licence-MIT-yellow.svg)](https://github.com/mariekumba01-bit/statementflow/blob/main/LICENSE)
+
 **Transformez des relevés bancaires et des exports mobile money en transactions JSON normalisées et vérifiées.**
 
 PDF natifs, PDF scannés (OCR), CSV, TSV, XLSX → dates ISO, libellés nettoyés, débits/crédits séparés, devises détectées quand elles sont identifiables, soldes d'ouverture/clôture, **contrôles de cohérence comptable** et alertes sur les données incertaines. Pensé pour les formats **français, européens et UEMOA / Afrique francophone** (montants FCFA, exports Wave / Orange Money / MTN MoMo / Moov — fournis légalement par leurs titulaires).
