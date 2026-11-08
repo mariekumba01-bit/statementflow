@@ -22,5 +22,5 @@ sont pas une garantie de performance sur des relevés réels.
 from .config import Config
 from .engine import ParseError, parse_bytes, parse_file
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 __all__ = ['parse_file', 'parse_bytes', 'ParseError', 'Config', '__version__']

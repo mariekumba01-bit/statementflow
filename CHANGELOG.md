@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.3.0 (2026-11-08) — offre commerciale : crédits prépayés, encaissement SasPay
+
+### Facturation prépayée (nouveau)
+- Crédits : 1 crédit = 1 page PDF ou 50 lignes tabulaires, décomptés
+  après un traitement réussi (`billing.credits_charged/remaining` dans
+  chaque résultat) ; clé sans crédits → 402 `payment_required`.
+- Packs : Starter 500/5 000 FCFA, Pro 2 500/20 000, Business 10 000/
+  60 000 (10/8/6 FCFA par crédit, dégressif) — catalogue public
+  `GET /v1/billing/packs`.
+- Achat : `POST /v1/billing/topup` → session de paiement SasPay
+  (checkout hébergé) ; statut temps réel `GET /v1/billing/status/{ref}`
+  (interroge toujours l'état réel passerelle).
+- Webhook `POST /v1/billing/webhook` : signature HMAC-SHA256
+  (X-Webhook-Signature sur « {timestamp}.{corps brut} », tolérance
+  300 s), idempotence par événement, activation UNIQUEMENT après
+  re-vérification serveur du paiement — jamais sur une redirection.
+- Encaissement SasPay (docs.saspay.me, contrats vérifiés 2026-11-08) ;
+  sans clé configurée, un simulateur local reproduit les mêmes contrats
+  (mode test : parcours complet sans paiement réel).
+- Clés gérées : `statementflow keys issue|list|revoke|credits`
+  (STATEMENTFLOW_KEYS_PATH, hash SHA-256 persistant, rechargement à
+  chaud) ; `statementflow billing pending|check|simulate`.
+
+### Documentation commerciale
+- docs/PRICING.md (grille, règle de crédits, marges, pilote gratuit),
+  docs/BUSINESS_CASE.md (marché, 7 modèles comparés, simulation
+  financière exécutable `scripts/finance_simulation.py` : seuil de
+  rentabilité à 10 clients actifs, marge brute 95-97 %), docs/TERMS.md
+  et docs/PRIVACY.md (modèles CGU/confidentialité, réserve juridique
+  explicite), section facturation dans docs/API.md.
+
+### Compatibilité
+- Aucun changement cassant : clés `API_KEY_HASHES` restent valides et
+  non facturées ; API/CLI/MCP/SDK inchangés fonctionnellement. La
+  tarification ne s'applique qu'aux clés gérées (KEYS_PATH).
+
 ## 0.2.0 (2026-11-07) — durcissement sécurité, validation calendaire, schéma enrichi
 
 ### Sécurité (ruptures volontaires, migration documentée)

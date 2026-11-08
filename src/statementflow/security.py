@@ -27,8 +27,12 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import json
 import os
 import secrets
+import threading
+import time
+from typing import Optional
 
 ENV_PREFIX = 'STATEMENTFLOW_'
 
@@ -46,8 +50,10 @@ def mask_key(key: str) -> str:
 
 
 def generate_key() -> str:
-    """Clé d'API aléatoire (256 bits d'entropie), à afficher une seule fois."""
-    return secrets.token_urlsafe(32)
+    """Clé d'API aléatoire (256 bits d'entropie), à afficher une seule fois.
+    Préfixe « sf_ » garanti : une clé ne peut jamais commencer par « - »
+    (sinon argparse la traiterait comme une option dans la CLI)."""
+    return 'sf_' + secrets.token_urlsafe(32)
 
 
 class ApiKeyStore:
@@ -120,3 +126,138 @@ def sanitize_filename(name: str | None, max_len: int = 200) -> str:
     if not name or name in {'.', '..'}:
         return 'document'
     return name[:max_len]
+
+
+class ManagedKey:
+    """Clé API commerciale : hash + crédit prépayé + révocation.
+
+    La clé en clair n'existe qu'au moment de l'émission (affichée une
+    seule fois par la CLI) ; seuls le hash SHA-256 et les attributs
+    commerciaux sont persistés."""
+
+    def __init__(self, label: str, key_hash: str, credits: float = 0.0,
+                 revoked: bool = False, created: str = ''):
+        self.label = label
+        self.key_hash = key_hash
+        self.credits = float(credits)
+        self.revoked = revoked
+        self.created = created or time.strftime(
+            '%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+
+    def to_dict(self) -> dict:
+        return {'label': self.label, 'key_hash': self.key_hash,
+                'credits': self.credits, 'revoked': self.revoked,
+                'created': self.created}
+
+
+class ManagedKeyStore:
+    """Clés API gérées (JSON persistant) : émission, révocation, crédits.
+
+    Utilisé par l'opérateur via la CLI (`statementflow keys issue|revoke|
+    list|credits`) et par l'API (vérification + décompte de crédits).
+    Le fichier est rechargé à la volée (mtime) : une clé émise par la CLI
+    est utilisable immédiatement sans redémarrer l'API. Une clé peut aussi
+    être déclarée dans STATEMENTFLOW_API_KEY_HASHES (sans crédits, non
+    gérée) — les deux mécanismes coexistent."""
+
+    def __init__(self, path: str = ''):
+        self._path = path
+        self._lock = threading.Lock()
+        self._records: dict[str, ManagedKey] = {}
+        self._mtime = 0.0
+        self._load()
+
+    @classmethod
+    def from_env(cls) -> 'ManagedKeyStore':
+        return cls(os.environ.get(ENV_PREFIX + 'KEYS_PATH', ''))
+
+    def _load(self, force: bool = False):
+        if not self._path or not os.path.exists(self._path):
+            return
+        mtime = os.path.getmtime(self._path)
+        if not force and mtime == self._mtime:
+            return
+        try:
+            with open(self._path, encoding='utf-8') as f:
+                data = json.load(f)
+            records = {h: ManagedKey(**r) for h, r in data.items()}
+        except (json.JSONDecodeError, TypeError, OSError):
+            return  # fichier illisible : on garde l'état précédent
+        with self._lock:
+            self._records = records
+            self._mtime = mtime
+
+    def _flush(self):
+        if not self._path:
+            return
+        tmp = self._path + '.tmp'
+        with open(tmp, 'w', encoding='utf-8') as f:
+            json.dump({h: k.to_dict() for h, k in self._records.items()},
+                      f, ensure_ascii=False)
+        os.replace(tmp, self._path)
+        self._mtime = os.path.getmtime(self._path)
+
+    def lookup(self, key_hash: str) -> Optional[ManagedKey]:
+        """Clé gérée valide (présente, non révoquée) ou None.
+        Relecture forcée : la granularité d'mtime du système de fichiers
+        peut masquer une écriture récente (API et CLI en parallèle)."""
+        self._load(force=True)
+        with self._lock:
+            k = self._records.get(key_hash)
+            if k is None or k.revoked:
+                return None
+            return k
+
+    def issue(self, label: str, credits: float = 0.0) -> tuple[str, ManagedKey]:
+        """Émet une clé : retourne (clé_en_clair, enregistrement). La clé
+        en clair n'est JAMAIS persistée — l'appelant l'affiche une fois."""
+        key = generate_key()
+        record = ManagedKey(label, hash_key(key), credits=credits)
+        with self._lock:
+            self._records[record.key_hash] = record
+            self._flush()
+        return key, record
+
+    def revoke(self, key_hash: str) -> bool:
+        self._load(force=True)
+        with self._lock:
+            k = self._records.get(key_hash)
+            if k is None:
+                return False
+            k.revoked = True
+            self._flush()
+            return True
+
+    def add_credits(self, key_hash: str, credits: float) -> bool:
+        self._load(force=True)
+        with self._lock:
+            k = self._records.get(key_hash)
+            if k is None:
+                return False
+            k.credits = max(0.0, k.credits + credits)
+            self._flush()
+            return True
+
+    def deduct(self, key_hash: str, credits: float) -> float:
+        """Débite des crédits (plancher 0). Retourne le solde restant.
+        Recharge l'état disque avant mutation : deux processus (API +
+        CLI) peuvent ajuster le même fichier."""
+        self._load(force=True)
+        with self._lock:
+            k = self._records.get(key_hash)
+            if k is None:
+                return -1.0
+            k.credits = max(0.0, k.credits - credits)
+            self._flush()
+            return k.credits
+
+    def balance(self, key_hash: str) -> Optional[float]:
+        self._load()
+        with self._lock:
+            k = self._records.get(key_hash)
+            return None if k is None else k.credits
+
+    def list(self) -> list[dict]:
+        self._load()
+        with self._lock:
+            return [k.to_dict() for k in self._records.values()]

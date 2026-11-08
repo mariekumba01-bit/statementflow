@@ -14,6 +14,8 @@ import os
 import sys
 
 from . import __version__
+from .billing import BillingStore, FakeSasPay, SasPayError, is_failed, \
+    is_paid, provider_from_env
 from .config import Config
 from .engine import ParseError, parse_file
 from .security import generate_key, hash_key
@@ -126,6 +128,151 @@ def cmd_keys_hash(args) -> int:
     return 0
 
 
+def _managed_store():
+    from .security import ManagedKeyStore
+    store = ManagedKeyStore.from_env()
+    if not store._path:
+        print('ERREUR : définissez STATEMENTFLOW_KEYS_PATH (fichier de clés '
+              'gérées) pour utiliser cette commande.', file=sys.stderr)
+        return None
+    return store
+
+
+def _key_or_hash(value: str) -> str:
+    """Accepte une clé en clair ou déjà hashée (64 hex)."""
+    value = value.strip()
+    if len(value) == 64 and all(c in '0123456789abcdef' for c in value.lower()):
+        return value.lower()
+    return hash_key(value)
+
+
+def cmd_keys_issue(args) -> int:
+    store = _managed_store()
+    if store is None:
+        return 1
+    key, record = store.issue(args.label, credits=args.credits)
+    print(f'Clé émise pour « {args.label} » — affichée UNE SEULE FOIS :')
+    print(f'  clé    : {key}')
+    print(f'  hash   : {record.key_hash}')
+    print(f'  crédits: {record.credits:g}')
+    print('Configurez STATEMENTFLOW_KEYS_PATH côté API pour l\'activation.')
+    return 0
+
+
+def cmd_keys_revoke(args) -> int:
+    store = _managed_store()
+    if store is None:
+        return 1
+    kh = _key_or_hash(args.key)
+    if store.revoke(kh):
+        print(f'Clé révoquée : {kh}')
+        return 0
+    print(f'ERREUR : clé gérée introuvable ({kh})', file=sys.stderr)
+    return 1
+
+
+def cmd_keys_list(args) -> int:
+    store = _managed_store()
+    if store is None:
+        return 1
+    records = store.list()
+    if not records:
+        print('Aucune clé gérée.')
+        return 0
+    print(f'{"hash":64s} {"crédits":>9s} {"état":10s} {"créée":20s} label')
+    for r in records:
+        state = 'RÉVOQUÉE' if r['revoked'] else 'active'
+        print(f'{r["key_hash"]} {r["credits"]:9g} {state:10s} '
+              f'{r["created"]} {r["label"]}')
+    return 0
+
+
+def cmd_keys_credits(args) -> int:
+    store = _managed_store()
+    if store is None:
+        return 1
+    kh = _key_or_hash(args.key)
+    if store.add_credits(kh, args.amount):
+        print(f'Crédits mis à jour : {kh} → {store.balance(kh):g}')
+        return 0
+    print(f'ERREUR : clé gérée introuvable ({kh})', file=sys.stderr)
+    return 1
+
+
+def cmd_billing_pending(args) -> int:
+    from .config import Config
+    store = BillingStore(Config.from_env().billing_store_path)
+    pending = store.pending()
+    if not pending:
+        print('Aucun rechargement en attente.')
+        return 0
+    for t in pending:
+        print(f'{t["reference"]}  pack={t["pack"]}  '
+              f'{t["amount_fcfa"]} FCFA  créé le {t["created"]}')
+    return 0
+
+
+def cmd_billing_check(args) -> int:
+    from .config import Config
+    cfg = Config.from_env()
+    store = BillingStore(cfg.billing_store_path)
+    provider, mode = provider_from_env()
+    record = store.get(args.reference)
+    if record is None:
+        print(f'ERREUR : référence inconnue ({args.reference})', file=sys.stderr)
+        return 1
+    if record['status'] == 'pending':
+        try:
+            status = provider.checkout_status(record['session_id'])
+        except SasPayError as e:
+            print(f'ERREUR : passerelle injoignable ({e})', file=sys.stderr)
+            return 1
+        print(f'statut passerelle : {status.get("status")} / '
+              f'{status.get("transaction_status")}')
+        if is_paid(status):
+            activated = store.activate(
+                record['reference'], status.get('transaction_id') or '')
+            if activated:
+                from .security import ManagedKeyStore
+                ManagedKeyStore(cfg.keys_path).add_credits(
+                    record['key_hash'], record['credits'])
+                print(f'Crédits activés : +{record["credits"]} pour '
+                      f'{record["key_hash"][:12]}…')
+        elif is_failed(status):
+            store.mark_failed(args.reference)
+            print('Paiement échoué : rechargement marqué failed.')
+    else:
+        print(f'statut : {record["status"]}')
+    return 0
+
+
+def cmd_billing_simulate(args) -> int:
+    """MODE TEST uniquement : déclenche le paiement simulé d'une session
+    et imprime le webhook signé à POSTER sur /v1/billing/webhook."""
+    provider, mode = provider_from_env()
+    if mode != 'test' or not isinstance(provider, FakeSasPay):
+        print('ERREUR : simulation disponible uniquement en mode test '
+              '(aucune STATEMENTFLOW_SASPAY_SECRET_KEY configurée).',
+              file=sys.stderr)
+        return 1
+    webhook = provider.pay_session(args.session_id, success=not args.fail)
+    if webhook is None:
+        print('ERREUR : session inconnue ou déjà payée.', file=sys.stderr)
+        return 1
+    body, ts, sig, event = webhook
+    import base64
+    print(f'Événement simulé : {event}')
+    print('POST /v1/billing/webhook avec :')
+    print(f'  X-Webhook-Signature: {sig}')
+    print(f'  X-Webhook-Timestamp: {ts}')
+    print(f'  X-Webhook-Event: {event}')
+    print(f'  corps: {body.decode()}')
+    print('\n(requête : curl -X POST http://127.0.0.1:8080/v1/billing/webhook '
+          '-H "Content-Type: application/json" '
+          '-H "X-Webhook-Signature: ..." -d @body.json)')
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog='statementflow',
@@ -160,6 +307,36 @@ def build_parser() -> argparse.ArgumentParser:
     kh.add_argument('key', nargs='?', default='',
                     help='clé en clair (omise : lue sur stdin, recommandé)')
     kh.set_defaults(func=cmd_keys_hash)
+
+    ki = keys_sub.add_parser(
+        'issue', help='émettre une clé client avec crédits (KEYS_PATH requis)')
+    ki.add_argument('label', help='nom du client (ex. pilote-alpha)')
+    ki.add_argument('--credits', type=float, default=0,
+                    help='crédits initiaux (ex. 100 offerts en pilote)')
+    ki.set_defaults(func=cmd_keys_issue)
+    kr = keys_sub.add_parser('revoke', help='révoquer une clé gérée')
+    kr.add_argument('key', help='clé en clair OU hash SHA-256')
+    kr.set_defaults(func=cmd_keys_revoke)
+    kl = keys_sub.add_parser('list', help='lister les clés gérées (hashes)')
+    kl.set_defaults(func=cmd_keys_list)
+    kcr = keys_sub.add_parser('credits', help='ajouter des crédits à une clé')
+    kcr.add_argument('key', help='clé en clair OU hash SHA-256')
+    kcr.add_argument('amount', type=float, help='crédits à ajouter (négatif : retirer)')
+    kcr.set_defaults(func=cmd_keys_credits)
+
+    sb = sub.add_parser('billing', help='gestion des rechargements (opérateur)')
+    billing_sub = sb.add_subparsers(dest='billing_command', required=True)
+    bp = billing_sub.add_parser('pending', help='rechargements en attente')
+    bp.set_defaults(func=cmd_billing_pending)
+    bc = billing_sub.add_parser('check', help='interroger le statut réel d’un rechargement')
+    bc.add_argument('reference', help='référence TOPUP-…')
+    bc.set_defaults(func=cmd_billing_check)
+    bs = billing_sub.add_parser(
+        'simulate', help='[MODE TEST SEULEMENT] simuler le paiement d’une session')
+    bs.add_argument('session_id', help='identifiant de session de paiement')
+    bs.add_argument('--fail', action='store_true',
+                    help='simuler un échec au lieu d’un succès')
+    bs.set_defaults(func=cmd_billing_simulate)
     return p
 
 

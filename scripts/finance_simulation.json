@@ -1,0 +1,189 @@
+{
+  "hypotheses": {
+    "frais_saspay": "1,75 % + 100 FCFA (saspay.me, 2026-11-08)",
+    "cout_variable_fcfa_par_credit": 0.1,
+    "infrastructure": {
+      "0_client": 0,
+      "50_clients": 10000
+    },
+    "consommation_mensuelle_par_client": {
+      "prudent": 250,
+      "realiste": 600,
+      "ambitieux": 1200
+    }
+  },
+  "resultats": {
+    "prudent": {
+      "10": {
+        "clients": 10,
+        "credits_consommes": 2500,
+        "credits_achetes": 14000,
+        "ca_fcfa": 95000,
+        "frais_paiement_fcfa": 2162,
+        "cout_variable_fcfa": 250,
+        "infrastructure_fcfa": 0,
+        "benefice_avant_impots_fcfa": 92588,
+        "marge_brute_pct": 97.5
+      },
+      "50": {
+        "clients": 50,
+        "credits_consommes": 12500,
+        "credits_achetes": 22500,
+        "ca_fcfa": 175000,
+        "frais_paiement_fcfa": 4862,
+        "cout_variable_fcfa": 1250,
+        "infrastructure_fcfa": 10000,
+        "benefice_avant_impots_fcfa": 158888,
+        "marge_brute_pct": 96.5
+      },
+      "100": {
+        "clients": 100,
+        "credits_consommes": 25000,
+        "credits_achetes": 35000,
+        "ca_fcfa": 290000,
+        "frais_paiement_fcfa": 8575,
+        "cout_variable_fcfa": 2500,
+        "infrastructure_fcfa": 10000,
+        "benefice_avant_impots_fcfa": 268925,
+        "marge_brute_pct": 96.2
+      },
+      "500": {
+        "clients": 500,
+        "credits_consommes": 125000,
+        "credits_achetes": 130000,
+        "ca_fcfa": 1170000,
+        "frais_paiement_fcfa": 37375,
+        "cout_variable_fcfa": 12500,
+        "infrastructure_fcfa": 10000,
+        "benefice_avant_impots_fcfa": 1110125,
+        "marge_brute_pct": 95.7
+      },
+      "1000": {
+        "clients": 1000,
+        "credits_consommes": 250000,
+        "credits_achetes": 247500,
+        "ca_fcfa": 2260000,
+        "frais_paiement_fcfa": 73150,
+        "cout_variable_fcfa": 25000,
+        "infrastructure_fcfa": 10000,
+        "benefice_avant_impots_fcfa": 2151850,
+        "marge_brute_pct": 95.7
+      }
+    },
+    "realiste": {
+      "10": {
+        "clients": 10,
+        "credits_consommes": 6000,
+        "credits_achetes": 15000,
+        "ca_fcfa": 105000,
+        "frais_paiement_fcfa": 2538,
+        "cout_variable_fcfa": 600,
+        "infrastructure_fcfa": 0,
+        "benefice_avant_impots_fcfa": 101862,
+        "marge_brute_pct": 97.0
+      },
+      "50": {
+        "clients": 50,
+        "credits_consommes": 30000,
+        "credits_achetes": 34500,
+        "ca_fcfa": 280000,
+        "frais_paiement_fcfa": 7900,
+        "cout_variable_fcfa": 3000,
+        "infrastructure_fcfa": 10000,
+        "benefice_avant_impots_fcfa": 259100,
+        "marge_brute_pct": 96.1
+      },
+      "100": {
+        "clients": 100,
+        "credits_consommes": 60000,
+        "credits_achetes": 61500,
+        "ca_fcfa": 520000,
+        "frais_paiement_fcfa": 15100,
+        "cout_variable_fcfa": 6000,
+        "infrastructure_fcfa": 10000,
+        "benefice_avant_impots_fcfa": 488900,
+        "marge_brute_pct": 95.9
+      },
+      "500": {
+        "clients": 500,
+        "credits_consommes": 300000,
+        "credits_achetes": 295000,
+        "ca_fcfa": 2520000,
+        "frais_paiement_fcfa": 73900,
+        "cout_variable_fcfa": 30000,
+        "infrastructure_fcfa": 10000,
+        "benefice_avant_impots_fcfa": 2406100,
+        "marge_brute_pct": 95.9
+      },
+      "1000": {
+        "clients": 1000,
+        "credits_consommes": 600000,
+        "credits_achetes": 600000,
+        "ca_fcfa": 5100000,
+        "frais_paiement_fcfa": 148950,
+        "cout_variable_fcfa": 60000,
+        "infrastructure_fcfa": 10000,
+        "benefice_avant_impots_fcfa": 4881050,
+        "marge_brute_pct": 95.9
+      }
+    },
+    "ambitieux": {
+      "10": {
+        "clients": 10,
+        "credits_consommes": 12000,
+        "credits_achetes": 18000,
+        "ca_fcfa": 130000,
+        "frais_paiement_fcfa": 3175,
+        "cout_variable_fcfa": 1200,
+        "infrastructure_fcfa": 0,
+        "benefice_avant_impots_fcfa": 125625,
+        "marge_brute_pct": 96.6
+      },
+      "50": {
+        "clients": 50,
+        "credits_consommes": 60000,
+        "credits_achetes": 65000,
+        "ca_fcfa": 510000,
+        "frais_paiement_fcfa": 13325,
+        "cout_variable_fcfa": 6000,
+        "infrastructure_fcfa": 10000,
+        "benefice_avant_impots_fcfa": 480675,
+        "marge_brute_pct": 96.2
+      },
+      "100": {
+        "clients": 100,
+        "credits_consommes": 120000,
+        "credits_achetes": 120000,
+        "ca_fcfa": 960000,
+        "frais_paiement_fcfa": 25500,
+        "cout_variable_fcfa": 12000,
+        "infrastructure_fcfa": 10000,
+        "benefice_avant_impots_fcfa": 912500,
+        "marge_brute_pct": 96.1
+      },
+      "500": {
+        "clients": 500,
+        "credits_consommes": 600000,
+        "credits_achetes": 600000,
+        "ca_fcfa": 4800000,
+        "frais_paiement_fcfa": 127500,
+        "cout_variable_fcfa": 60000,
+        "infrastructure_fcfa": 10000,
+        "benefice_avant_impots_fcfa": 4602500,
+        "marge_brute_pct": 96.1
+      },
+      "1000": {
+        "clients": 1000,
+        "credits_consommes": 1200000,
+        "credits_achetes": 1200000,
+        "ca_fcfa": 9600000,
+        "frais_paiement_fcfa": 255000,
+        "cout_variable_fcfa": 120000,
+        "infrastructure_fcfa": 10000,
+        "benefice_avant_impots_fcfa": 9215000,
+        "marge_brute_pct": 96.1
+      }
+    }
+  },
+  "seuil_rentabilite_clients": 10
+}

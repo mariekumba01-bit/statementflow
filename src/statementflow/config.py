@@ -29,6 +29,10 @@ class Config:
     quota_pages: int | None = None
     # comptage d'usage (voir usage.py) — désactivé par défaut en local
     usage_store_path: str = ''
+    # facturation prépayée (v0.3.0, voir billing.py) : clés API gérées
+    # (JSON) + rechargements ; vides = tout en mémoire (mode test local)
+    keys_path: str = ''
+    billing_store_path: str = ''
 
     @classmethod
     def from_env(cls) -> 'Config':
@@ -62,4 +66,6 @@ class Config:
             quota_documents=env_opt('QUOTA_DOCUMENTS', int),
             quota_pages=env_opt('QUOTA_PAGES', int),
             usage_store_path=env('USAGE_STORE_PATH', '', str),
+            keys_path=env('KEYS_PATH', '', str),
+            billing_store_path=env('BILLING_STORE_PATH', '', str),
         )
