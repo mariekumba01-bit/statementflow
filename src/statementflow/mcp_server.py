@@ -19,14 +19,18 @@ import os
 
 try:  # SDK mcp v1
     from mcp.server.fastmcp import FastMCP
+    _MCP_V2 = False
 except ModuleNotFoundError:  # SDK mcp v2 : FastMCP renommé MCPServer
     from mcp.server.mcpserver import MCPServer as FastMCP
+    _MCP_V2 = True
 
 from . import __version__
 from .config import Config
 from .engine import ParseError, parse_file
 
-mcp = FastMCP('statementflow')
+# v2 expose la version du serveur via kwarg ; v1 la déduit du SDK
+mcp = (FastMCP('statementflow', version=__version__) if _MCP_V2
+       else FastMCP('statementflow'))
 
 _ALLOWED_EXT = ('.pdf', '.csv', '.tsv', '.xlsx', '.xls', '.txt')
 _config = Config.from_env()
