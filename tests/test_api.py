@@ -50,6 +50,7 @@ class TestHealth:
         assert body['version'] == __import__('statementflow').__version__
         assert 'max_file_mb' in body['limits']
         assert body['auth_mode'] in ('open', 'key-hash-list',
+                                     'key-hash-list+managed-keys',
                                      'managed-keys', 'locked')
 
     def test_openapi_documentee(self, client):
