@@ -51,7 +51,21 @@ where key_hash = repeat('a', 64);                           -- toujours 500.00
 --    4e. réservation puis remboursement (échec de traitement)
 select reserve_credits(repeat('a', 64), 1, 'job-test-2');   -- true
 select settle_credits(repeat('a', 64), 0, 'job-test-2', false);  -- 500.00
-select settle_credits(repeat('a', 64), 0, 'job-test-2', false);  -- 500.00 (idempotent)
+-- rejeu du remboursement : idempotent UNIQUEMENT après la migration
+-- 004 (correctifs d'intégrité). Avec les seules fonctions de 002, ce
+-- rejeu levait une violation UNIQUE (défaut corrigé par 004) — d'où
+-- ce bloc tolérant qui affiche le comportement réel.
+do $$
+declare v_balance numeric;
+begin
+    v_balance := settle_credits(repeat('a', 64), 0, 'job-test-2', false);
+    raise notice 'rejeu idempotent : solde %', v_balance;
+exception
+    when unique_violation then
+        raise notice 'rejeu NON idempotent : appliquer 20261108000004';
+end $$;
+select credits_balance from api_key_balances
+where key_hash = repeat('a', 64);                           -- 500.00
 
 --    4f. événement webhook rejoué → false
 select record_webhook_event('transaction.success:tx-test-1');  -- true

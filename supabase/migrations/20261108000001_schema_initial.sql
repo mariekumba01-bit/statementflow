@@ -23,7 +23,15 @@
 -- ⚠️ À exécuter dans l'éditeur SQL Supabase ou via supabase db push.
 --    Cette migration n'est PAS appliquée automatiquement par le dépôt.
 
-create extension if not exists pgcrypto;  -- gen_random_uuid()
+-- gen_random_uuid() est NATIF depuis PostgreSQL 13 (Supabase : PG15+).
+-- pgcrypto n'est requis que pour les instances plus anciennes : sa
+-- création est tolérante s'il n'est pas disponible.
+do $$
+begin
+    create extension if not exists pgcrypto;
+exception
+    when others then null;  -- extension absente : inutile en PG >= 13
+end $$;
 
 -- ─────────────────────────────────────────────────────────────────────
 -- 1. Comptes / organisations clientes
@@ -217,4 +225,10 @@ alter table audit_log      enable row level security;
 --               where m.org_id = api_keys.org_id and m.user_id = auth.uid()));
 
 -- Sécurité supplémentaire : révoquer les droits d'écriture du rôle anon
-revoke insert, update, delete on all tables in public from anon;
+-- (rôle propre à Supabase : tolérant sur un PostgreSQL auto-hébergé)
+do $$
+begin
+    revoke insert, update, delete on all tables in schema public from anon;
+exception
+    when undefined_object then null;  -- rôle anon inexistant hors Supabase
+end $$;
