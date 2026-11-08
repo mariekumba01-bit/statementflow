@@ -1,7 +1,9 @@
 # Exemple curl — API StatementFlow
 
-# 1. Démarrer l'API (terminal 1) :
+# 1. Démarrer l'API (terminal 1) — l'API est VERROUILLÉE par défaut :
+#    export STATEMENTFLOW_ALLOW_OPEN_AUTH=1   # mode ouvert LOCAL uniquement
 #    uvicorn statementflow.api:app --host 127.0.0.1 --port 8080
+#    (en production : STATEMENTFLOW_API_KEY_HASHES ou KEYS_PATH)
 
 # 2. Santé :
 curl -s http://127.0.0.1:8080/health

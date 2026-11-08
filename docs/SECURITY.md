@@ -28,9 +28,14 @@
   existante, lecture stdin recommandée pour éviter l'historique shell).
   **Rotation** : ajouter le nouveau hash à `API_KEY_HASHES`, redémarrer,
   distribuer la nouvelle clé, puis retirer l'ancien hash pour révoquer.
-- **Mode ouvert** (sans hashes configurés) : toute clé non vide est
-  acceptée — réservé au développement local, signalé par
-  `/health → auth_mode: "open"`. Production : configurez les hashes.
+- **Verrouillage par défaut (v0.3.1)** : sans hashes configurés ET sans
+  `STATEMENTFLOW_KEYS_PATH`, les routes privées répondent **503**
+  (`auth_not_configured`) — l'API n'est jamais accessible sans
+  authentification. Le mode ouvert historique (toute clé non vide
+  acceptée) reste disponible pour le développement local isolé via
+  `STATEMENTFLOW_ALLOW_OPEN_AUTH=1`, signalé par
+  `/health → auth_mode: "open"`. Production : configurez les hashes ou
+  les clés gérées.
 - Les compteurs d'usage sont indexés par hash de clé ; la
   réinitialisation est une opération administrative uniquement
   (l'ancienne route anonyme `DELETE /v1/usage/{key}` a été supprimée).

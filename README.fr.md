@@ -2,7 +2,7 @@
 
 [English](README.md) · [Français](README.fr.md)
 
-[![CI](https://github.com/mariekumba01-bit/statementflow/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mariekumba01-bit/statementflow/actions/workflows/ci.yml) [![Licence : MIT](https://img.shields.io/badge/Licence-MIT-yellow.svg)](https://github.com/mariekumba01-bit/statementflow/blob/main/LICENSE)
+[![CI](https://github.com/mariekumba01-bit/statementflow/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/mariekumba01-bit/statementflow/actions/workflows/tests.yml) [![Licence : MIT](https://img.shields.io/badge/Licence-MIT-yellow.svg)](https://github.com/mariekumba01-bit/statementflow/blob/main/LICENSE)
 
 **Transformez des relevés bancaires et des exports mobile money en transactions JSON normalisées et vérifiées.**
 
@@ -78,7 +78,9 @@ Exemples complets générés par le moteur : [`outputs/`](outputs/) (relevé FR,
 ```bash
 # API REST (documentation interactive sur http://127.0.0.1:8080/docs)
 uvicorn statementflow.api:app --host 127.0.0.1 --port 8080
-# toute route privée exige X-API-Key (toute clé non vide en mode ouvert local)
+# toute route privée exige X-API-Key. Verrouillée par défaut : configurez
+# des clés (STATEMENTFLOW_API_KEY_HASHES ou KEYS_PATH), ou activez le mode
+# ouvert local explicitement avec STATEMENTFLOW_ALLOW_OPEN_AUTH=1
 curl -X POST http://127.0.0.1:8080/v1/analyze -H "X-API-Key: ma-cle" -F "file=@releve.pdf"
 curl http://127.0.0.1:8080/v1/results/<job_id> -H "X-API-Key: ma-cle"
 
@@ -112,10 +114,10 @@ figé ; la v0.2.0 a aussi corrigé un bug de harnais dans la formule de
 précision publiée (pondérée par transactions, pas par documents — la valeur
 réelle était déjà 1.0).
 
-Suite de tests : **206 tests pytest** (unités, corpus avec seuils figés de non-régression, les 4 correctifs, API, CLI, MCP en JSON-RPC réel, fichiers malformés, comptabilité).
+Suite de tests : **246 tests pytest** (unités, corpus avec seuils figés de non-régression, correctifs, API, CLI, MCP en JSON-RPC réel, fichiers malformés, comptabilité, atomicité des crédits sous concurrence, idempotence des webhooks, persistance facturation).
 
 ```bash
-python -m pytest tests/ -q          # 206 passed
+python -m pytest tests/ -q          # 246 passed
 ```
 
 ## Sécurité et confidentialité
@@ -135,13 +137,13 @@ python -m pytest tests/ -q          # 206 passed
 ## Statut de maturité
 
 **Bêta — aperçu développeur.** Le moteur est complet sur ses formats cibles
-et couvert par 206 tests, mais il n'a **été validé que sur le corpus
+et couvert par 246 tests, mais il n'a **été validé que sur le corpus
 synthétique** : aucun relevé bancaire réel n'a encore été traité. Considérez
 chaque résultat comme non vérifié tant qu'un pilote sur des documents que
 vous êtes autorisé à traiter ne l'a confirmé (`docs/PILOT.md`). Aucune
 certification de conformité.
 
-## Offre commerciale (v0.3.0)
+## Offre commerciale (v0.3.1)
 
 StatementFlow est open source (MIT) et utilisable gratuitement en
 auto-hébergement. Un **service géré** est proposé en crédits prépayés :

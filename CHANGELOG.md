@@ -1,5 +1,61 @@
 # Changelog
 
+## 0.3.1 (2026-11-08) — durcissement commercial : verrouillage par défaut, crédits atomiques, Supabase, Render
+
+### Sécurité (rupture de compatibilité volontaire)
+- **Verrouillage par défaut** : sans `STATEMENTFLOW_API_KEY_HASHES` ni
+  `STATEMENTFLOW_KEYS_PATH`, les routes privées répondent **503**
+  `auth_not_configured` (`/health` → `auth_mode: "locked"`,
+  `status: "degraded"`). L'API n'est plus JAMAIS accessible sans
+  authentification ; le mode ouvert (développement local) s'active
+  explicitement via `STATEMENTFLOW_ALLOW_OPEN_AUTH=1`.
+- Mode « clés gérées » fermé : avec `KEYS_PATH` mais sans
+  `API_KEY_HASHES`, une clé inconnue du magasin géré est refusée
+  (401) — l'ajout d'un fichier de clés ne rouvre pas l'API.
+- Uploads : la limite de taille est appliquée **pendant la lecture**
+  (chunks de 1 Mo) — un fichier volumineux est rejeté (413) sans être
+  chargé en mémoire.
+- Traitement (OCR/parsing) déplacé en threadpool : la boucle
+  d'événements n'est plus bloquée pendant un parsing lourd.
+
+### Crédits — atomicité et correction de course
+- **Réservation atomique** (`reserve`/`settle`/`refund`) : 1 crédit est
+  réservé avant traitement, complété après succès au coût réel
+  (règle publique inchangée), restitué sur échec. La relecture du
+  fichier de clés se fait désormais **sous le verrou** : deux
+  requêtes concurrentes sur un solde de 1 crédit ne peuvent plus
+  passer toutes les deux (course démontrée par test, corrigée).
+- Webhook SasPay : un statut serveur `PENDING` ou inconnu lors de la
+  re-vérification ne marque plus le rechargement `failed` — seul un
+  statut d'échec explicite le fait ; le polling tranche ensuite
+  (correction : un client payé pouvait perdre ses crédits sur une
+  confirmation différée).
+- L'API n'accède plus aux attributs internes des magasins
+  (`is_revoked`, `snapshot` publics).
+
+### Persistance Supabase (préparée, non appliquée)
+- `supabase/migrations/` : schéma complet (organisations, clés, grand
+  livre des crédits, rechargements, événements webhook, usage, jobs,
+  audit) avec idempotence par contraintes UNIQUE, fonctions
+  transactionnelles (`reserve_credits`, `settle_credits`,
+  `activate_topup`, `record_webhook_event`, `record_usage`) et RLS
+  deny-all. Procédure et correspondance code ↔ schéma : `docs/SUPABASE.md`.
+
+### Déploiement Render
+- `docker/start.sh` : port dynamique `$PORT` (Render) avec repli 8080,
+  arrêt gracieux ; `render.yaml` (blueprint, secrets hors dépôt,
+  healthcheck `/health`) ; `docs/DEPLOYMENT.md` mis à jour.
+- CI : workflow renommé `.github/workflows/tests.yml` (push main +
+  PR vers main, badges mis à jour).
+
+### Tests
+- +16 tests critiques (fichier `tests/test_hardening.py`) :
+  concurrence réserve (8 threads, 1 crédit), remboursement sur échec,
+  coût réel post-traitement, webhook PENDING vs FAILED explicite,
+  limite de taille streamée, persistance des magasins JSON au
+  redéploiement, isolation des résultats entre clés gérées.
+- Suite complète : **246 tests passent** (230 avant).
+
 ## 0.3.0 (2026-11-08) — offre commerciale : crédits prépayés, encaissement SasPay
 
 ### Facturation prépayée (nouveau)

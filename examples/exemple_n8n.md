@@ -3,7 +3,7 @@
 # Deux intégrations gratuites, sans abonnement ni nœud payant :
 #
 # ── Option A : nœud HTTP Request vers l'API locale ─────────────────
-# 1. Lancer l'API :  uvicorn statementflow.api:app --host 127.0.0.1 --port 8080
+# 1. Lancer l'API :  uvicorn statementflow.api:app --host 127.0.0.1 --port 8080 (mode ouvert local : export STATEMENTFLOW_ALLOW_OPEN_AUTH=1)
 #    (si n8n tourne en Docker, utiliser host.docker.internal:8080)
 # 2. Dans n8n :
 #    - Trigger : Schedule (ex. quotidien) ou IMAP Email (pièce jointe relevé)

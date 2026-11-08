@@ -47,5 +47,5 @@
 statementflow --version                     # version installée
 statementflow parse <doc> --pretty          # sortie complète + alertes
 statementflow check <resultat.json>         # contrôles seuls (code retour 2 = déséquilibré)
-python -m pytest tests/ -q                  # 206 tests attendus
+python -m pytest tests/ -q                  # 246 tests attendus (v0.3.1)
 ```

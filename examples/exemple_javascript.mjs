@@ -5,6 +5,7 @@
 //
 // Prérequis : lancer l'API localement :
 //   uvicorn statementflow.api:app --host 127.0.0.1 --port 8080
+//   (mode ouvert local : export STATEMENTFLOW_ALLOW_OPEN_AUTH=1)
 
 const BASE = process.env.STATEMENTFLOW_URL || 'http://127.0.0.1:8080';
 

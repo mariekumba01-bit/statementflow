@@ -4,7 +4,7 @@
 
 [English](README.md) · [Français](README.fr.md)
 
-[![CI](https://github.com/mariekumba01-bit/statementflow/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mariekumba01-bit/statementflow/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/mariekumba01-bit/statementflow/blob/main/LICENSE)
+[![CI](https://github.com/mariekumba01-bit/statementflow/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/mariekumba01-bit/statementflow/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/mariekumba01-bit/statementflow/blob/main/LICENSE)
 
 Native PDFs, scanned PDFs (OCR), CSV, TSV, XLSX → ISO dates, cleaned labels, separated
 debits/credits, currencies detected when identifiable, opening/closing balances,
@@ -93,7 +93,9 @@ ready, what needs configuration, and what must be secured first.
 ```bash
 # REST API (interactive docs at http://127.0.0.1:8080/docs)
 uvicorn statementflow.api:app --host 127.0.0.1 --port 8080
-# every private route requires X-API-Key (any non-empty key in local open mode)
+# every private route requires X-API-Key. Locked by default: configure
+# keys (STATEMENTFLOW_API_KEY_HASHES or KEY_PATH) or enable local open
+# mode explicitly with STATEMENTFLOW_ALLOW_OPEN_AUTH=1
 curl -X POST http://127.0.0.1:8080/v1/analyze -H "X-API-Key: my-key" -F "file=@statement.pdf"
 curl http://127.0.0.1:8080/v1/results/<job_id> -H "X-API-Key: my-key"
 
@@ -137,13 +139,14 @@ Measured by script (`scripts/mesure_corpus.py`) on the frozen synthetic corpus;
 v0.2.0 also fixed a harness bug in the published precision formula
 (weighted by transactions, not documents — the real value was already 1.0).
 
-Test suite: **206 pytest tests** (units, strict calendar dates, schema v0.2,
+Test suite: **246 pytest tests** (units, strict calendar dates, schema,
 corpus with frozen non-regression thresholds, API auth matrix, CLI, real
-JSON-RPC MCP, malformed files, security, accounting). CI runs them on Python
-3.10/3.11/3.12 at every push and pull request.
+JSON-RPC MCP, malformed files, security, accounting, credit atomicity
+under concurrency, webhook idempotence, billing persistence). CI runs
+them on Python 3.10/3.11/3.12 at every push and pull request.
 
 ```bash
-python -m pytest tests/ -q          # 206 passed
+python -m pytest tests/ -q          # 246 passed
 ```
 
 ## Measured performance (local reference, i7-class laptop, 2026-11-07)
@@ -189,13 +192,13 @@ Local CLI/SDK use never requires a key or an account.
 ## Maturity status
 
 **Beta — developer preview.** The engine is feature-complete on its target
-formats and protected by 206 tests, but it has **only been validated on the
+formats and protected by 246 tests, but it has **only been validated on the
 synthetic corpus**: no real bank statement has been processed yet. Treat
 every result as unverified until a pilot on documents you are authorized to
 process confirms it (`docs/PILOT.md`). Not certified for any compliance
 framework.
 
-## Commercial offer (v0.3.0)
+## Commercial offer (v0.3.1)
 
 StatementFlow is open source (MIT) and fully usable self-hosted for free.
 A **managed service** is also available as prepaid credits:

@@ -124,16 +124,20 @@ n'est jamais fabriquée.
 | POST | `/v1/billing/webhook` | signature SasPay | webhook d'encaissement (HMAC obligatoire) |
 | GET | `/openapi.json`, `/docs` | public | spécification et documentation interactive |
 
-### Authentification (obligatoire depuis v0.2.0)
+### Authentification (obligatoire depuis v0.2.0, verrouillée par défaut depuis v0.3.1)
 
 - Toute route privée exige l'en-tête `X-API-Key` : **401** si absent ou
   vide, **401** si inconnu quand des clés sont configurées.
 - Clés valides : `STATEMENTFLOW_API_KEY_HASHES` (hashes SHA-256 séparés par
-  des virgules). Génération : `statementflow keys create` — la clé en clair
-  n'est stockée ni journalisée ni renvoyée (réponses masquées).
-- Sans hashes configurés, le serveur démarre en **mode ouvert**
-  (`/health` → `auth_mode: "open"`) : toute clé NON VIDE est acceptée
-  (développement local ; séparation par clé et quotas actifs).
+  des virgules) ou clés gérées via `STATEMENTFLOW_KEYS_PATH`
+  (`statementflow keys issue`). Génération : `statementflow keys create` —
+  la clé en clair n'est stockée ni journalisée ni renvoyée (réponses
+  masquées).
+- **Sans AUCUNE clé configurée**, les routes privées répondent **503**
+  (`auth_mode: "locked"` dans `/health`) : l'API n'est jamais accessible
+  sans authentification. Le mode ouvert (toute clé non vide acceptée,
+  développement local uniquement) s'active explicitement par
+  `STATEMENTFLOW_ALLOW_OPEN_AUTH=1` (`auth_mode: "open"`).
 - Administration distincte : `STATEMENTFLOW_ADMIN_KEY` → en-tête
   `X-Admin-Key` sur `/v1/admin/*` ; **403** sinon. L'ancienne route
   `DELETE /v1/usage/{key}` (réinitialisation anonyme) a été supprimée.

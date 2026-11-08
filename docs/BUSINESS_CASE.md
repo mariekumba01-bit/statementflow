@@ -41,7 +41,7 @@ Pourquoi ce segment (et pas un autre) :
 - **Accès sans budget** : développeurs joignables via GitHub, communautés
   n8n (template public), annuaires MCP (registre officiel modelcontextprotocol,
   Glama, mcp.so, Docker Hub — gratuits), forums — pas de publicité payante ;
-- **Coût de livraison ≈ 0** : moteur déjà construit (v0.2.0, 206 tests),
+- **Coût de livraison ≈ 0** : moteur déjà construit (v0.2.0, 246 tests au 0.3.1),
   traitement CPU local, pas d'infrastructure au démarrage ;
 - **Fréquence** : rapprochement mensuel récurrent → crédits récurrents.
 
