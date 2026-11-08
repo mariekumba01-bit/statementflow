@@ -9,10 +9,13 @@ Modèle de sécurité (v0.2.0) :
   SHA-256 (variable STATEMENTFLOW_API_KEY_HASHES, hexadécimal, séparés
   par des virgules). La clé en clair n'est jamais stockée, journalisée
   ni renvoyée.
-- Si aucun hash n'est configuré, le serveur démarre en « mode ouvert » :
-  toute clé NON VIDE est acceptée (séparation par clé et quotas actifs).
-  Ce mode est destiné au développement local ; il est signalé dans
-  /health (`auth_mode`) et documenté dans docs/SECURITY.md.
+- Si aucun hash n'est configuré (ni STATEMENTFLOW_API_KEY_HASHES ni
+  STATEMENTFLOW_KEYS_PATH), le serveur REFUSE toute requête privée
+  (503 auth_not_configured) : l'API n'est jamais accessible sans
+  authentification. Le mode ouvert historique (toute clé non vide
+  acceptée, développement local uniquement) doit être activé
+  EXPLICITEMENT via STATEMENTFLOW_ALLOW_OPEN_AUTH=1 ; il est signalé
+  dans /health (`auth_mode: "open"`) et documenté dans docs/SECURITY.md.
 - Les comparaisons de secrets passent par hmac.compare_digest (temps
   constant) — jamais par ==.
 - Les opérations d'administration (consultation globale de l'usage,
@@ -167,17 +170,45 @@ class ManagedKeyStore:
         self._mtime = 0.0
         self._load()
 
+    @property
+    def path_configured(self) -> bool:
+        """True si un fichier de clés gérées est configuré (KEYS_PATH) :
+        dans ce cas l'authentification est FERMÉE — seules les clés gérées
+        (ou déclarées via API_KEY_HASHES) sont acceptées."""
+        return bool(self._path)
+
     @classmethod
     def from_env(cls) -> 'ManagedKeyStore':
         return cls(os.environ.get(ENV_PREFIX + 'KEYS_PATH', ''))
 
-    def _load(self, force: bool = False):
+    def _load_locked(self):
+        """Recharge le fichier DANS le verrou (appelant déjà titulaire).
+        La relecture systématique avant chaque mutation reprend les
+        changements d'un autre processus (CLI) ; exécutée sous le verrou,
+        elle rend le cycle lire → décider → écrire atomique vis-à-vis
+        des autres threads du processus : deux réservations concurrentes
+        sur un solde insuffisant ne peuvent plus passer toutes les deux."""
         if not self._path or not os.path.exists(self._path):
             return
-        mtime = os.path.getmtime(self._path)
-        if not force and mtime == self._mtime:
+        try:
+            with open(self._path, encoding='utf-8') as f:
+                data = json.load(f)
+            self._records = {h: ManagedKey(**r) for h, r in data.items()}
+            self._mtime = os.path.getmtime(self._path)
+        except (json.JSONDecodeError, TypeError, OSError):
+            return  # fichier illisible : on garde l'état précédent
+
+    def _load(self, force: bool = False):
+        """Recharge le fichier de clés si son mtime a changé (ou force=True).
+        Lecture hors verrou : valable pour les lectures pures (lookup,
+        balance) qui tolèrent une fraîcheur légèrement retardée ; toutes
+        les MUTATIONS passent par _load_locked."""
+        if not self._path or not os.path.exists(self._path):
             return
         try:
+            mtime = os.path.getmtime(self._path)
+            if not force and mtime == self._mtime:
+                return
             with open(self._path, encoding='utf-8') as f:
                 data = json.load(f)
             records = {h: ManagedKey(**r) for h, r in data.items()}
@@ -208,19 +239,34 @@ class ManagedKeyStore:
                 return None
             return k
 
+    def balance(self, key_hash: str) -> Optional[float]:
+        self._load(force=True)
+        with self._lock:
+            k = self._records.get(key_hash)
+            return None if k is None else k.credits
+
+    def is_revoked(self, key_hash: str) -> bool:
+        """True si le hash correspond à une clé gérée RÉVOQUÉE (une clé
+        inconnue n'est pas « révoquée » : elle est simplement non gérée)."""
+        self._load(force=True)
+        with self._lock:
+            k = self._records.get(key_hash)
+            return k is not None and k.revoked
+
     def issue(self, label: str, credits: float = 0.0) -> tuple[str, ManagedKey]:
         """Émet une clé : retourne (clé_en_clair, enregistrement). La clé
         en clair n'est JAMAIS persistée — l'appelant l'affiche une fois."""
         key = generate_key()
         record = ManagedKey(label, hash_key(key), credits=credits)
         with self._lock:
+            self._load_locked()
             self._records[record.key_hash] = record
             self._flush()
         return key, record
 
     def revoke(self, key_hash: str) -> bool:
-        self._load(force=True)
         with self._lock:
+            self._load_locked()
             k = self._records.get(key_hash)
             if k is None:
                 return False
@@ -229,8 +275,8 @@ class ManagedKeyStore:
             return True
 
     def add_credits(self, key_hash: str, credits: float) -> bool:
-        self._load(force=True)
         with self._lock:
+            self._load_locked()
             k = self._records.get(key_hash)
             if k is None:
                 return False
@@ -239,11 +285,12 @@ class ManagedKeyStore:
             return True
 
     def deduct(self, key_hash: str, credits: float) -> float:
-        """Débite des crédits (plancher 0). Retourne le solde restant.
-        Recharge l'état disque avant mutation : deux processus (API +
-        CLI) peuvent ajuster le même fichier."""
-        self._load(force=True)
+        """Débite des crédits (plancher 0). Retourne le solde restant
+        (-1.0 si la clé est inconnue). Recharge l'état disque avant
+        mutation : deux processus (API + CLI) peuvent ajuster le même
+        fichier."""
         with self._lock:
+            self._load_locked()
             k = self._records.get(key_hash)
             if k is None:
                 return -1.0
@@ -251,13 +298,44 @@ class ManagedKeyStore:
             self._flush()
             return k.credits
 
-    def balance(self, key_hash: str) -> Optional[float]:
-        self._load()
+    def reserve(self, key_hash: str, credits: float = 1.0) -> bool:
+        """RÉSERVATION ATOMIQUE de crédits avant traitement : débite
+        immédiatement `credits` si le solde suffit, sinon refuse (False).
+        Élimine la course « vérifier puis débiter » : deux traitements
+        concurrents sur un solde de 1 crédit → un seul accepté. Le solde
+        est restitué par refund() si le traitement échoue, et complété
+        par settle() une fois le coût réel connu."""
         with self._lock:
+            self._load_locked()
             k = self._records.get(key_hash)
-            return None if k is None else k.credits
+            if k is None or k.revoked or k.credits < credits:
+                return False
+            k.credits -= credits
+            self._flush()
+            return True
+
+    def settle(self, key_hash: str, extra: float) -> float:
+        """Complète une réservation une fois le coût réel connu : débite
+        le surplus `max(0, coût − réservé)` (plancher 0 pour le solde).
+        Retourne le solde restant, ou -1.0 si la clé est inconnue."""
+        if extra <= 0:
+            bal = self.balance(key_hash)
+            return bal if bal is not None else -1.0
+        with self._lock:
+            self._load_locked()
+            k = self._records.get(key_hash)
+            if k is None:
+                return -1.0
+            k.credits = max(0.0, k.credits - extra)
+            self._flush()
+            return k.credits
+
+    def refund(self, key_hash: str, credits: float) -> bool:
+        """Restitue des crédits réservés (traitement échoué → rien n'est
+        consommé). Retourne False si la clé est inconnue."""
+        return self.add_credits(key_hash, credits)
 
     def list(self) -> list[dict]:
-        self._load()
+        self._load(force=True)
         with self._lock:
             return [k.to_dict() for k in self._records.values()]

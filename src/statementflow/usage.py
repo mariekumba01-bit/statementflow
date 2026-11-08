@@ -76,6 +76,14 @@ class UsageStore:
             return {'documents': r.documents, 'pages': r.pages,
                     'transactions': r.transactions}
 
+    def snapshot(self) -> dict[str, dict]:
+        """Vue complète des compteurs (route d'administration) : hash de
+        clé → compteurs. Ne expose jamais de clé en clair."""
+        with self._lock:
+            return {k: {'documents': r.documents, 'pages': r.pages,
+                        'transactions': r.transactions}
+                    for k, r in self._records.items()}
+
     def reset(self, key: str):
         with self._lock:
             self._records.pop(key, None)
