@@ -1,0 +1,44 @@
+# Render Blueprint — service API StatementFlow
+#
+# Ce fichier peut être importé dans Render (New → Blueprint) pour créer
+# le service web. AUCUN secret n'y figure : les variables sensibles
+# sont à définir dans l'interface Render (elles y sont chiffrées).
+services:
+  - type: web
+    name: statementflow-api
+    runtime: docker
+    plan: free
+    # Dockerfile inclus : python:3.12-slim + tesseract + poppler (OCR)
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # ── authentification (OBLIGATOIRE en production) ──────────────
+      # sans l'une de ces deux variables, l'API répond 503 sur toutes
+      # ses routes privées (verrou v0.3.1) : aucun accès anonyme.
+      - key: STATEMENTFLOW_KEYS_PATH
+        sync: false                # à définir dans Render (secret)
+      # - key: STATEMENTFLOW_API_KEY_HASHES   # alternative sans crédits
+      #   sync: false
+      - key: STATEMENTFLOW_ADMIN_KEY
+        sync: false                # clé d'administration (routes /v1/admin/*)
+      # ── encaissement SasPay ───────────────────────────────────────
+      - key: STATEMENTFLOW_SASPAY_SECRET_KEY
+        sync: false                # sk_live_… (mode production)
+      - key: STATEMENTFLOW_SASPAY_WEBHOOK_SECRET
+        sync: false                # secret de signature des webhooks
+      # ── persistance (voir docs/SUPABASE.md) ───────────────────────
+      # Le plan free n'a PAS de disque persistante : les fichiers JSON
+      # (keys/billing) sont perdus à chaque redéploiement. Brancher
+      # Supabase (migrations supabase/migrations/) avant tout usage
+      # réel ; en attendant, les clés peuvent être déclarées par hash
+      # via STATEMENTFLOW_API_KEY_HASHES (sans état).
+      # - key: STATEMENTFLOW_DATABASE_URL
+      #   sync: false
+      # ── limites de traitement (défauts raisonnables) ─────────────
+      - key: STATEMENTFLOW_MAX_FILE_MB
+        value: "20"
+      - key: STATEMENTFLOW_MAX_PAGES
+        value: "200"
+      - key: STATEMENTFLOW_RESULTS_TTL_S
+        value: "900"

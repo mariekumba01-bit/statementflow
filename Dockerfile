@@ -1,11 +1,12 @@
-# StatementFlow — image locale pour l'API REST
+# StatementFlow — image API (locale ET Render)
 #
 # Construction :  docker build -t statementflow .
 # Lancement  :    docker run --rm -p 8080:8080 statementflow
 #
-# ⚠️ NE PAS EXPOSER PUBLIQUEMENT TEL QUEL : l'API n'a pas d'authentification
-# forte (X-API-Key n'est qu'un identifiant de comptage). Voir docs/DEPLOYMENT.md
-# pour la liste des sécurités requises avant toute exposition publique.
+# ⚠️ NE PAS EXPOSER PUBLIQUEMENT SANS AUTHENTIFICATION CONFIGURÉE :
+# définissez STATEMENTFLOW_API_KEY_HASHES ou STATEMENTFLOW_KEYS_PATH
+# (sinon l'API répond 503 sur toutes les routes privées — verrou v0.3.1).
+# Voir docs/DEPLOYMENT.md et docs/SECURITY.md.
 FROM python:3.12-slim
 
 # tesseract + poppler : OCR des PDF scannés (tessdata eng par défaut)
@@ -23,12 +24,17 @@ RUN pip install --no-cache-dir ".[api]"
 RUN useradd --create-home sf && chown -R sf:sf /app
 USER sf
 
+# Render injecte PORT ; en local le défaut reste 8080 (start.sh lit $PORT).
+COPY --chown=sf:sf docker/start.sh /app/docker/start.sh
+RUN chmod +x /app/docker/start.sh
+
 ENV STATEMENTFLOW_API_HOST=0.0.0.0 \
     STATEMENTFLOW_API_PORT=8080
 
 EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-    CMD python -c "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/health')" || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=10s \
+    CMD python -c "import os,urllib.request;urllib.request.urlopen('http://127.0.0.1:' + os.environ.get('PORT', os.environ.get('STATEMENTFLOW_API_PORT', '8080')) + '/health')" || exit 1
 
-CMD ["python", "-m", "uvicorn", "statementflow.api:app", "--host", "0.0.0.0", "--port", "8080"]
+# start.sh : uvicorn sur le port dynamique $PORT (Render) avec repli 8080
+ENTRYPOINT ["/app/docker/start.sh"]
