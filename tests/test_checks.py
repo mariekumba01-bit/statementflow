@@ -54,7 +54,7 @@ class TestDeduplicate:
         t1 = tx(1, label='A', debit=10, balance=90)
         t2 = tx(2, label='A', debit=10, balance=90, page=2)  # réimprimée
         t3 = tx(3, label='B', credit=5, balance=95)
-        kept, alerts = deduplicate([t1, t2, t3])
+        kept, alerts, index_map = deduplicate([t1, t2, t3])
         assert len(kept) == 2
         assert any(a.code == 'duplicate_page_repeat' for a in alerts)
         assert kept[-1].index == 2  # renuméroté
@@ -62,7 +62,7 @@ class TestDeduplicate:
     def test_doublon_meme_page_conserve(self):
         t1 = tx(1, label='A', debit=10)
         t2 = tx(2, label='A', debit=10)
-        kept, alerts = deduplicate([t1, t2])
+        kept, alerts, index_map = deduplicate([t1, t2])
         assert len(kept) == 2
         assert any(a.code == 'possible_duplicate' for a in alerts)
 

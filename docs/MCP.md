@@ -10,16 +10,20 @@ statementflow-mcp
 ```
 
 Déclaration dans un client MCP (ex. Claude Desktop, `claude_desktop_config.json`) :
+pointez `command` sur l'exécutable du venv où StatementFlow est installé :
 
 ```json
 {
   "mcpServers": {
     "statementflow": {
-      "command": "statementflow-mcp"
+      "command": "/chemin/vers/venv/bin/statementflow-mcp"
     }
   }
 }
 ```
+
+Compatibilité SDK : le serveur fonctionne avec le SDK `mcp` v1 (`FastMCP`)
+comme v2 (`MCPServer`, renommage upstream) — shim d'import depuis v0.2.0.
 
 ## Outils exposés
 
