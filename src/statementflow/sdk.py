@@ -44,8 +44,9 @@ class StatementFlowResult:
             json.dump(self.data, f, ensure_ascii=False, indent=2)
 
     def to_csv(self, path: str, sep: str = ';') -> None:
-        cols = ['index', 'date', 'label', 'debit', 'credit', 'balance',
-                'currency', 'confidence']
+        cols = ['index', 'transaction_id', 'date', 'description', 'label',
+                'debit', 'credit', 'amount', 'balance', 'currency',
+                'confidence']
         with open(path, 'w', encoding='utf-8', newline='') as f:
             f.write(sep.join(cols) + '\n')
             for t in self.transactions:
@@ -109,7 +110,13 @@ class Client:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 job = json.load(resp)
         except urllib.error.HTTPError as e:
-            raise RuntimeError(f'API {e.code} : {e.read().decode("utf-8", "replace")}')
+            detail = e.read().decode('utf-8', 'replace')
+            if e.code == 401:
+                raise RuntimeError(
+                    'API 401 : clé d\'API absente ou invalide — fournissez '
+                    'api_key=… ou la variable d\'environnement '
+                    'STATEMENTFLOW_API_KEY.') from None
+            raise RuntimeError(f'API {e.code} : {detail}') from None
         # polling du résultat
         import time
         deadline = time.time() + self.timeout
@@ -129,6 +136,10 @@ class Client:
 
     def usage(self) -> dict:
         """Compteurs d'usage de la clé (mode distant uniquement)."""
+        if not self.base_url:
+            raise RuntimeError(
+                'usage() nécessite le mode distant : Client(base_url=…, '
+                'api_key=…). En mode local, le moteur ne comptabilise rien.')
         req = urllib.request.Request(self.base_url + '/v1/usage')
         if self.api_key:
             req.add_header('X-API-Key', self.api_key)

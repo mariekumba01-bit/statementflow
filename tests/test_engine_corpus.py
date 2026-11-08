@@ -131,8 +131,8 @@ def test_corpus_complet(all_scores):
     agg = {
         'recall': round(sum(s['recall'] * s['n_gt'] for s in scores)
                         / sum(s['n_gt'] for s in scores), 4),
-        'precision': round(sum(s['precision'] * max(s['n_gt'], 1)
-                               for s in scores) / len(scores), 4),
+        'precision': round(sum(s['precision'] * s['n_gt']
+                               for s in scores) / sum(s['n_gt'] for s in scores), 4),
         'date': _aggregate(scores, 'date'),
         'label': _aggregate(scores, 'label'),
         'debit': _aggregate(scores, 'debit'),

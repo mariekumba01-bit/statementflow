@@ -78,7 +78,9 @@ Exemples complets générés par le moteur : [`outputs/`](outputs/) (relevé FR,
 ```bash
 # API REST (documentation interactive sur http://127.0.0.1:8080/docs)
 uvicorn statementflow.api:app --host 127.0.0.1 --port 8080
-curl -X POST http://127.0.0.1:8080/v1/analyze -F "file=@releve.pdf"
+# toute route privée exige X-API-Key (toute clé non vide en mode ouvert local)
+curl -X POST http://127.0.0.1:8080/v1/analyze -H "X-API-Key: ma-cle" -F "file=@releve.pdf"
+curl http://127.0.0.1:8080/v1/results/<job_id> -H "X-API-Key: ma-cle"
 
 # serveur MCP (à déclarer dans votre client MCP)
 statementflow-mcp
@@ -105,19 +107,39 @@ Exemples d'intégration prêts à l'emploi : [`examples/`](examples/) — Python
 | Documents parfaitement convertis | 27/32 | les 5 restants : comportements honnêtes documentés |
 | Devise | 67 % | 5 CSV sans aucune devise lisible → `null` + alerte (jamais inventée) |
 
-Suite de tests : **120 tests pytest** (unités, corpus avec seuils figés de non-régression, les 4 correctifs, API, CLI, MCP en JSON-RPC réel, fichiers malformés, comptabilité).
+Mesurées par script (`scripts/mesure_corpus.py`) sur le corpus synthétique
+figé ; la v0.2.0 a aussi corrigé un bug de harnais dans la formule de
+précision publiée (pondérée par transactions, pas par documents — la valeur
+réelle était déjà 1.0).
+
+Suite de tests : **206 tests pytest** (unités, corpus avec seuils figés de non-régression, les 4 correctifs, API, CLI, MCP en JSON-RPC réel, fichiers malformés, comptabilité).
 
 ```bash
-python -m pytest tests/ -q          # 120 passed
+python -m pytest tests/ -q          # 206 passed
 ```
 
 ## Sécurité et confidentialité
 
 - **Aucun stockage** : les octets sont traités en mémoire puis jetés ; aucun document n'est écrit sur disque par le moteur.
 - API : résultats conservés en mémoire avec TTL (15 min par défaut), purge automatique.
-- Aucune journalisation de données bancaires (seuls nom de fichier, taille, codes d'erreur).
+- **Authentification API obligatoire** (v0.2.0) : toute route privée exige
+  `X-API-Key` (401 sinon) ; résultats liés à la clé soumettrice (404 pour
+  toute autre clé) ; clés stockées uniquement en SHA-256 côté serveur,
+  comparaison à temps constant ; administration séparée
+  (`STATEMENTFLOW_ADMIN_KEY`) ; quotas par clé (429).
+- Aucune journalisation de données bancaires (seuls nom de fichier nettoyé,
+  taille, codes d'erreur).
 - Limites strictes : 20 Mo / 200 pages / 200 000 lignes par défaut (variables d'environnement `STATEMENTFLOW_*`).
 - Le produit n'est **pas certifié RGPD** et ne prétend à aucune conformité sans audit juridique indépendant — voir [`docs/SECURITY.md`](docs/SECURITY.md) et [`docs/BILLING.md`](docs/BILLING.md).
+
+## Statut de maturité
+
+**Bêta — aperçu développeur.** Le moteur est complet sur ses formats cibles
+et couvert par 206 tests, mais il n'a **été validé que sur le corpus
+synthétique** : aucun relevé bancaire réel n'a encore été traité. Considérez
+chaque résultat comme non vérifié tant qu'un pilote sur des documents que
+vous êtes autorisé à traiter ne l'a confirmé (`docs/PILOT.md`). Aucune
+certification de conformité.
 
 ## Limites connues
 
@@ -137,6 +159,8 @@ python -m pytest tests/ -q          # 120 passed
 - [`docs/SECURITY.md`](docs/SECURITY.md) — traitement des données, limites
 - [`docs/BILLING.md`](docs/BILLING.md) — comptage d'usage, quotas, facturation future (aucune passerelle intégrée)
 - [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — auto-hébergement : prêt / à configurer / à sécuriser
+- [`docs/PILOT.md`](docs/PILOT.md) — kit pilote zéro budget : démonstration, fiche d'évaluation, modèles
+- [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) — erreurs courantes et solutions
 
 ## Licence
 

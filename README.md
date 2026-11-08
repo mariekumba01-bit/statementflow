@@ -93,7 +93,9 @@ ready, what needs configuration, and what must be secured first.
 ```bash
 # REST API (interactive docs at http://127.0.0.1:8080/docs)
 uvicorn statementflow.api:app --host 127.0.0.1 --port 8080
-curl -X POST http://127.0.0.1:8080/v1/analyze -F "file=@statement.pdf"
+# every private route requires X-API-Key (any non-empty key in local open mode)
+curl -X POST http://127.0.0.1:8080/v1/analyze -H "X-API-Key: my-key" -F "file=@statement.pdf"
+curl http://127.0.0.1:8080/v1/results/<job_id> -H "X-API-Key: my-key"
 
 # MCP server (declare it in your MCP client)
 statementflow-mcp
@@ -126,31 +128,72 @@ JavaScript/TypeScript, curl, **n8n** (importable JSON workflow), MCP client.
 | Measure | Value | Note |
 |---|---|---|
 | Transaction recall / precision | **100% / 100%** | 447/447 extracted, 0 invented |
-| Dates | 98.0% | 9 *impossible* generator dates → `null` + alert |
+| Dates | 98.0% | 9 *impossible* generator dates → `null` + alert (strict calendar validation) |
 | Labels, debits, credits, balances | **100%** | |
 | Perfectly converted documents | 27/32 | the other 5: documented honest behaviors |
 | Currency | 67% | 5 CSVs with no currency in content → `null` + alert (never invented) |
 
-Test suite: **120 pytest tests** (units, corpus with frozen non-regression thresholds,
-the 4 historical fixes, API, CLI, real JSON-RPC MCP, malformed files, accounting).
-CI runs them on every push and pull request.
+Measured by script (`scripts/mesure_corpus.py`) on the frozen synthetic corpus;
+v0.2.0 also fixed a harness bug in the published precision formula
+(weighted by transactions, not documents — the real value was already 1.0).
+
+Test suite: **206 pytest tests** (units, strict calendar dates, schema v0.2,
+corpus with frozen non-regression thresholds, API auth matrix, CLI, real
+JSON-RPC MCP, malformed files, security, accounting). CI runs them on Python
+3.10/3.11/3.12 at every push and pull request.
 
 ```bash
-python -m pytest tests/ -q          # 120 passed
+python -m pytest tests/ -q          # 206 passed
 ```
+
+## Measured performance (local reference, i7-class laptop, 2026-11-07)
+
+| Document | Size | Transactions | Time |
+|---|---|---|---|
+| Native PDF (14 tx) | 3 KB | 14 | 0.09 s |
+| Multi-page PDF (40 tx) | 5 KB | 40 | 0.08 s |
+| Scanned PDF (OCR, tesseract-bound) | 125 KB | 12 | ~3 s |
+| CSV (Wave export) | 1 KB | 12 | < 0.01 s |
+| CSV 100,000 rows | 3.5 MB | 100,000 | 4.1 s |
+
+OCR time is dominated by tesseract (per page); the row cap (200,000 by
+default) bounds memory. v0.2.0 also removed a quadratic alert-indexing path
+(100k rows: 268 s → 4.1 s).
 
 ## Security & privacy
 
 - **No storage**: bytes are processed in memory and never written to disk by the engine;
   OCR temp files live in an OS temp dir and are removed.
+- API authentication is **mandatory** (v0.2.0): every private route requires `X-API-Key`
+  (401 otherwise); results are bound to the submitting key (404 for any other key);
+  server-side keys exist only as SHA-256 hashes, compared in constant time; admin
+  operations require a separate key (`STATEMENTFLOW_ADMIN_KEY`); per-key quotas → 429.
 - API: results kept in process memory for at most `RESULTS_TTL_S` (default 15 min),
-  then purged; a restart wipes everything.
-- **No logging of banking data** (only filename, size, error codes).
-- Strict limits: 20 MB / 200 pages / 200,000 rows by default (`STATEMENTFLOW_*` env vars).
+  then purged; a restart wipes everything. Structured errors + `X-Request-ID` on every
+  response; uploaded filenames sanitized (path traversal stripped).
+- **No logging of banking data** (only sanitized filename, size, error codes).
+- Strict limits: 20 MB / 200 pages / 200,000 rows by default (`STATEMENTFLOW_*` env vars);
+  the row cap is enforced **during** CSV/XLSX parsing (ZIP-bomb protection).
 - The product **does not ask for bank passwords, OTP codes or account access** — it only
   processes documents the user is authorized to transmit. It is **not GDPR-certified**
   and claims no regulatory compliance without an independent legal audit — see
   [`docs/SECURITY.md`](docs/SECURITY.md).
+
+API keys are managed server-side:
+```bash
+statementflow keys create    # random key + SHA-256 hash (rotation documented)
+statementflow keys hash      # hash an existing key (stdin)
+```
+Local CLI/SDK use never requires a key or an account.
+
+## Maturity status
+
+**Beta — developer preview.** The engine is feature-complete on its target
+formats and protected by 206 tests, but it has **only been validated on the
+synthetic corpus**: no real bank statement has been processed yet. Treat
+every result as unverified until a pilot on documents you are authorized to
+process confirms it (`docs/PILOT.md`). Not certified for any compliance
+framework.
 
 ## Known limitations
 
@@ -164,6 +207,10 @@ python -m pytest tests/ -q          # 120 passed
    MTN MoMo, Moov). Other banks may need an adapter ([`docs/FORMATS.md`](docs/FORMATS.md)).
 5. Encrypted/password-protected PDFs are rejected with an explicit error.
 6. Legacy binary `.xls` is not supported (XLSX only).
+7. Scanned-page rotation/orientation is not auto-corrected (tesseract runs
+   without OSD) — heavily skewed scans may degrade amounts.
+8. Amounts are read as floats: precision is guaranteed up to ~1e13 units
+   (beyond realistic statements; a safe chain-break alert appears instead).
 
 ## Documentation
 
@@ -174,6 +221,8 @@ python -m pytest tests/ -q          # 120 passed
 - [`docs/SECURITY.md`](docs/SECURITY.md) — data handling, limits, legal notes
 - [`docs/BILLING.md`](docs/BILLING.md) — usage metering, quotas, future billing (no gateway integrated)
 - [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — self-hosting: ready / needs config / must secure
+- [`docs/PILOT.md`](docs/PILOT.md) — zero-budget pilot kit: demo script, evaluation sheet, templates
+- [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) — common errors and fixes
 - [`docs/DEPENDENCIES.md`](docs/DEPENDENCIES.md) — dependency licenses
 
 ## License

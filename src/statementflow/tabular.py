@@ -72,14 +72,27 @@ def read_tabular(data: bytes, filename: str) -> tuple[list, bool]:
 
     Chaque ligne est une liste de chaînes. Lève ValueError si illisible.
     """
+def read_tabular(data: bytes, filename: str,
+                 max_rows: int | None = None) -> tuple[list, bool]:
+    """Lit un CSV/TSV/XLSX → (lignes, est_xlsx).
+
+    Chaque ligne est une liste de chaînes. Lève ValueError si illisible ou
+    si le fichier dépasse max_rows lignes (protection ZIP bomb / CSV géant :
+    le plafond est appliqué PENDANT la lecture, pas après).
+    """
     if filename.lower().endswith(('.xlsx', '.xls')) or data.startswith(XLSX_MAGIC):
         try:
             import openpyxl
             wb = openpyxl.load_workbook(io.BytesIO(data), read_only=True,
                                         data_only=True)
             ws = wb.active
-            rows = [[('' if c is None else str(c)) for c in r]
-                    for r in ws.iter_rows(values_only=True)]
+            rows = []
+            for r in ws.iter_rows(values_only=True):
+                rows.append([('' if c is None else str(c)) for c in r])
+                if max_rows is not None and len(rows) > max_rows:
+                    wb.close()
+                    raise ValueError(
+                        f'Fichier : plus de {max_rows} lignes (limite).')
             wb.close()
             return rows, True
         except zipfile.BadZipFile as e:
@@ -99,7 +112,15 @@ def read_tabular(data: bytes, filename: str) -> tuple[list, bool]:
     text = text.replace('\x00', '')
     best, best_key = None, (-1, 10 ** 9)
     for sep in ['\t', ';', '|', ',']:
-        rows = list(csv.reader(io.StringIO(text), delimiter=sep))
+        rows = []
+        try:
+            for r in csv.reader(io.StringIO(text), delimiter=sep):
+                rows.append(r)
+                if max_rows is not None and len(rows) > max_rows:
+                    raise ValueError(
+                        f'Fichier : plus de {max_rows} lignes (limite).')
+        except csv.Error:
+            continue  # séparateur invraisemblable → essayer le suivant
         score = sum(1 for r in rows[:10] if map_headers(r) is not None)
         widths = [len(r) for r in rows if r]
         consistency = (max(widths) - min(widths)) if widths else 999

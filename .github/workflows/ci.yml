@@ -50,3 +50,22 @@ jobs:
           python -m pip install --upgrade pip build twine
           python -m build
           twine check dist/*
+
+  security-audit:
+    # audit informationnel des dépendances : signale les CVE connues sans
+    # bloquer la CI (une CVE transitive nouvelle ne doit pas casser main ;
+    # le correctif se fait par mise à jour de dépendance)
+    name: security audit (informational)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,api,mcp]" pip-audit
+      - name: pip-audit
+        run: pip-audit --skip-editable

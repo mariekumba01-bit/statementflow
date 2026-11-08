@@ -23,15 +23,30 @@ import re
 from typing import Optional
 
 from .adapters import Adapter, detect_adapter
-from .checks import (compute_checks, deduplicate, document_confidence)
+from .checks import (compute_checks, deduplicate, document_confidence,
+                     validation_status)
 from .config import Config
 from .core import (Alert, NUMERIC_ROLES, ROLE_KEYS, SCHEMA_VERSION,
-                   Transaction, detect_currency, normalize_txt, parse_amount,
-                   parse_date)
+                   Transaction, detect_currency, document_id_for,
+                   normalize_txt, parse_amount, parse_date,
+                   transaction_id_for)
 from .pdf_backend import OCRUnavailable, extract_lines
 from .tabular import map_headers, read_tabular
 
 PARSER_NAME = 'generic-columns-v3'
+
+# alias de devises écrits différemment selon les exports (cellule « FCFA »,
+# symbole isolé…) → code ISO pour permettre la comparaison de cohérence
+CURRENCY_ALIASES = {'FCFA': 'XOF', 'CFA': 'XOF',
+                    '€': 'EUR', '$': 'USD', '£': 'GBP'}
+
+
+def _norm_currency(c: Optional[str]) -> Optional[str]:
+    """Normalise une devise de cellule vers le code ISO utilisé en interne."""
+    if not c:
+        return None
+    c = str(c).strip().upper()
+    return CURRENCY_ALIASES.get(c, c)
 
 PDF_MAGIC = b'%PDF-'
 XLSX_MAGIC = b'PK\x03\x04'
@@ -290,6 +305,13 @@ def _parse_pdf(data: bytes, filename: str, config: Config,
         transactions.append(tx)
         if amounts['balance'] is not None:
             closing, closing_derived = amounts['balance'], True
+        if debit is not None and credit is not None:
+            alerts.append(Alert(
+                'debit_and_credit_ambiguous', 'warning',
+                f'Débit ET crédit reconnus sur la même ligne (colonnes '
+                f'adjacentes confondues ?) : les deux valeurs sont conservées, '
+                f'verifiez cette transaction.',
+                transaction_index=tx.index))
         if r['date'] is None and r.get('date_raw'):
             alerts.append(Alert(
                 'date_unparseable', 'error',
@@ -339,7 +361,7 @@ def _direction_of(text: str) -> Optional[str]:
 def _parse_tabular(data: bytes, filename: str, config: Config,
                    currency_hint: Optional[str]):
     try:
-        rows, _is_xlsx = read_tabular(data, filename)
+        rows, _is_xlsx = read_tabular(data, filename, max_rows=config.max_rows)
     except ValueError as e:
         raise ParseError(str(e)) from e
     if len(rows) > config.max_rows:
@@ -383,7 +405,7 @@ def _parse_tabular(data: bytes, filename: str, config: Config,
                     rec['date_raw'] = cell
                 continue
             if role == 'currency':
-                rec['currency'] = cell.strip().upper() or None
+                rec['currency'] = _norm_currency(cell)
                 continue
             if role == 'direction':
                 d = _direction_of(cell)
@@ -417,19 +439,22 @@ def _parse_tabular(data: bytes, filename: str, config: Config,
     # convention signe<0 = débit, signe>0 = crédit.
     has_credit_col = bool(header and 'credit' in header.values())
     for rec in recs:
+        rec['side_assumed'] = False
         if rec['credit'] is not None and rec['debit'] is None \
                 and not has_credit_col and not saw_negative_amount:
             side = rec['direction'] or _direction_of(rec['label'])
             if side == 'debit' or side is None:
-                if side is None:
-                    alerts.append(Alert(
-                        'side_assumed_debit', 'warning',
-                        'Montant positif sans signal de direction : sens '
-                        'supposé « débit » — vérifiez cette transaction.',
-                        transaction_index=len(transactions) + 1))
+                rec['side_assumed'] = side is None
                 rec['debit'], rec['credit'] = rec['credit'], None
 
     for rec in recs:
+        if rec['side_assumed']:
+            # l'alerte est créée quand la transaction existe : index correct
+            alerts.append(Alert(
+                'side_assumed_debit', 'warning',
+                'Montant positif sans signal de direction : sens '
+                'supposé « débit » — vérifiez cette transaction.',
+                transaction_index=len(transactions) + 1))
         if rec['debit'] is None and rec['credit'] is None:
             if rec['balance'] is None and not rec['label']:
                 continue
@@ -516,8 +541,10 @@ def parse_bytes(data: bytes, filename: str, config: Config | None = None,
             sample_rows = []
         adapter = detect_adapter('tabular', '', sample_rows)
 
-    # normalisation du libellé (espaces multiples)
+    # normalisation du libellé (espaces multiples) — l'original est conservé
+    # dans original_description (traçabilité de la source)
     for tx in transactions:
+        tx.original_label = tx.label
         tx.label = ' '.join(tx.label.split())
 
     # correctif n°4 : devise jamais inventée
@@ -535,25 +562,64 @@ def parse_bytes(data: bytes, filename: str, config: Config | None = None,
             'closing_missing', 'info',
             'Solde de clôture non trouvé dans le document.'))
     for tx in transactions:
-        if tx.currency is None:
-            tx.currency = currency
+        tx.currency = _norm_currency(tx.currency) or currency
+    # cohérence de devise (v0.2.0) : cellule de devise contredisant la devise
+    # du document → avertissement (ex. ligne « EUR » dans un compte XOF)
+    for tx in transactions:
+        if tx.currency and currency and tx.currency != currency:
+            alerts.append(Alert(
+                'currency_mismatch', 'warning',
+                f'Devise « {tx.currency} » sur la transaction {tx.index} '
+                f'contredit la devise du document ({currency}).',
+                transaction_index=tx.index))
 
-    # doublons puis contrôles comptables
-    transactions, dedupe_alerts = deduplicate(transactions)
+    # doublons puis contrôles comptables : les alertes de parsing émises
+    # avant la déduplication sont remappées sur les index finaux
+    pre_dedupe_alerts = alerts
+    transactions, dedupe_alerts, index_map = deduplicate(transactions)
+    for a in pre_dedupe_alerts:
+        if a.transaction_index is not None:
+            a.transaction_index = index_map.get(a.transaction_index)
     checks, check_alerts = compute_checks(
         transactions, opening, closing, config.tolerance)
+    alerts = pre_dedupe_alerts
     alerts.extend(dedupe_alerts)
     alerts.extend(check_alerts)
+
+    # identifiants stables + alertes par transaction (v0.2.0) — indexation
+    # des alertes en O(n) (un rescann par transaction serait quadratique)
+    doc_id = document_id_for(data)
+    alerts_by_index: dict[int, set] = {}
+    for a in alerts:
+        if a.transaction_index is not None:
+            alerts_by_index.setdefault(a.transaction_index, set()).add(a.code)
+    for tx in transactions:
+        tx.transaction_id = transaction_id_for(
+            doc_id, tx.index, tx.date, tx.debit, tx.credit)
+        tx.alerts = sorted(alerts_by_index.get(tx.index, ()))
+    dates = sorted(t.date for t in transactions if t.date)
 
     return {
         'schema': SCHEMA_VERSION,
         'document': {
+            'document_id': doc_id,
+            'schema_version': SCHEMA_VERSION,
             'filename': os.path.basename(filename),
             'kind': kind,
             'pages': pages,
             'method': method,
             'parser': PARSER_NAME,
             'adapter': adapter.name,
+            'statement_period': {'start': dates[0], 'end': dates[-1]}
+                                if dates else None,
+            'account_currency': currency,
+        },
+        'metadata': {
+            'date_interpretation': 'JOUR/MOIS (Europe/UEMOA) pour les formats '
+                                   'non ISO ; ISO YYYY-MM-DD accepté tel quel',
+            'confidence_rule': 'heuristique documentée (texte 1.0, OCR 0.75, '
+                               'OCR faible 0.6 ; −0.25 par donnée manquante ; '
+                               'plafond 0.5 si alerte d\'erreur) — non calibrée',
         },
         'currency': currency,
         'opening_balance': opening,
@@ -562,6 +628,7 @@ def parse_bytes(data: bytes, filename: str, config: Config | None = None,
         'transactions': [tx.to_dict() for tx in transactions],
         'totals': checks['totals'],
         'checks': checks,
+        'validation': validation_status(checks, alerts),
         'alerts': [a.to_dict() for a in alerts],
         'confidence': document_confidence(transactions, alerts),
         'usage': {'pages': pages, 'transactions': len(transactions)},
