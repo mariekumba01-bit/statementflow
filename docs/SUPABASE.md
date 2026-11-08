@@ -1,89 +1,145 @@
-# Migration Supabase / PostgreSQL — StatementFlow
+# Supabase / PostgreSQL — persistance réelle de StatementFlow
 
-**État : migrations PRÊTES mais NON APPLIQUÉES.** Cette page décrit le
-schéma préparé, comment l'appliquer sur le projet Supabase dédié, et la
-correspondance exacte avec le code actuel. Aucune migration n'a été
-exécutée sur une base réelle depuis ce dépôt : l'application est une
-action opérateur (voir « Procédure » ci-dessous).
+**État : IMPLÉMENTÉ et TESTÉ (v0.4.0).** Dès que
+`STATEMENTFLOW_DATABASE_URL` est défini, l'API utilise PostgreSQL pour
+toutes ses données commerciales : clés gérées, soldes de crédits,
+rechargements, usage, métadonnées de jobs, journal d'audit. Sans cette
+variable, elle retombe sur les magasins JSON locaux (mode test).
 
-## Pourquoi migrer
+L'adaptateur (`statementflow.pg`, classe `PgStore`) expose les MÊMES
+méthodes que les magasins JSON : l'API, la CLI et les tests permutent
+sans changer un appel. Les 28 tests de `tests/test_pg.py` l'exécutent
+contre un vrai PostgreSQL (migrations réelles appliquées), en local
+(pgserver) comme en CI (service conteneurisé postgres:16).
 
-La persistance actuelle (fichiers JSON : `keys.json`, `billing.json`,
-`usage_store.json`) est fiable pour un poste unique, pas pour un service
-hébergé multi-instances (Render Free redémarre les processus ; deux
-instances de l'API ne peuvent pas partager un fichier). PostgreSQL via
-Supabase apporte :
+## Pourquoi PostgreSQL
 
-- des **transactions ACID** pour les opérations financières (crédits,
-  activations de paiements) — le verrou fichier actuel ne protège que
-  les threads d'un même processus ;
-- une **idempotence structurelle** (contraintes `UNIQUE`) : un webhook
+- **Transactions ACID** pour les opérations financières (réservations,
+  activations de paiements) — le verrou fichier JSON ne protège que
+  les threads d'un même processus, pas plusieurs instances.
+- **Idempotence structurelle** (contraintes `UNIQUE` sur
+  `credit_ledger (key_id, idempotency_key)`,
+  `topups.transaction_id`, `webhook_events.event_key`) : un webhook
   rejoué ou un doublon de polling ne peut pas créditer deux fois, même
-  après un redémarrage entre les deux ;
-- la **traçabilité** (grand livre immuable des crédits, journal
-  d'audit) exigée par un service commercial.
+  après un redémarrage entre les deux.
+- **Grand livre immuable** : le solde est dérivé de la somme des
+  mouvements (vue `api_key_balances`), jamais mis à jour « en place ».
+- **Traçabilité** : journal d'audit, historique complet des
+  opérations — exigences d'un service commercial.
 
 ## Correspondance code ↔ schéma
 
-| Code actuel (v0.3.1) | Table / fonction SQL |
+| Code (JSON) | PostgreSQL |
 |---|---|
-| `ManagedKeyStore` (`security.py`, keys.json) | `api_keys` + vue `api_key_balances` |
-| `ManagedKeyStore.reserve()` | `reserve_credits()` (verrou `for update`) |
-| `ManagedKeyStore.settle()` / `refund()` | `settle_credits()` |
-| `BillingStore.activate()` + `add_credits()` | `activate_topup()` (transaction unique) |
-| `BillingStore.mark_failed()` | `fail_topup()` |
-| `BillingStore.mark_webhook()` / `webhook_seen()` | `record_webhook_event()` + `webhook_events.event_key` UNIQUE |
-| `UsageStore.record()` | `record_usage()` (upsert atomique) |
-| `BillingStore.create_topup()` | insert `topups` |
-| `_jobs` (mémoire, TTL 900 s) | `jobs` (métadonnées seulement, `expires_at`) |
-| — (nouveau) | `organizations`, `credit_ledger`, `audit_log` |
+| `ManagedKeyStore` (`security.py`, keys.json) | `api_keys` + vue `api_key_balances` + `credit_ledger` |
+| `BillingStore` (`billing.py`, billing.json) | `topups` + `webhook_events` |
+| `UsageStore` (`usage.py`, usage_store.json) | `usage_counters` |
+| `_jobs` (mémoire, TTL 900 s) | `jobs` (métadonnées seules, `expires_at`) |
+| `reserve/settle/refund` (verrous fichier) | fonctions `reserve_credits` / `settle_credits` (verrous `for update`) |
+| `activate` (statut puis crédit) | fonction `activate_topup` (UNE transaction) |
+| — | `organizations`, `audit_log` |
 
-## Choix de conception
+## Brancher en 10 minutes
 
-1. **Solde dérivé, jamais stocké.** Le solde d'une clé est la somme des
-   mouvements du grand livre `credit_ledger` (vue `api_key_balances`).
-   Un mouvement est une insertion immuable : aucune mise à jour « en
-   place » d'un solde → aucune mutation concurrente perdue.
-2. **Idempotence par contraintes, pas par code.** `topups.transaction_id`
-   est UNIQUE : la seconde activation d'un même paiement SasPay échoue
-   en base. `credit_ledger (key_id, idempotency_key)` est UNIQUE : le
-   même job ou le même rechargement ne peut produire deux mouvements.
-3. **RLS partout, zéro policy.** Le modèle d'autorisation réel est :
-   les clients s'authentifient auprès de l'API StatementFlow
-   (X-API-Key) ; **aucun client n'accède directement à Supabase**.
-   RLS est donc activé sur toutes les tables sans aucune policy → tout
-   est refusé pour `anon`/`authenticated`. Seul le rôle `service_role`
-   (utilisé par l'API côté serveur, jamais exposé) contourne RLS.
-4. **Aucun secret dans le dépôt.** L'URL et la clé `service_role`
-   vivent dans les variables d'environnement de l'hébergeur
-   (`STATEMENTFLOW_DATABASE_URL`), jamais dans le code ni dans GitHub.
-5. **Les documents restent éphémères.** La table `jobs` ne stocke que
-   les métadonnées et statuts (traçabilité), pas les relevés ni les
-   transactions extraites : la politique produit « aucun document
-   conservé » est préservée.
+### 1. Récupérer la chaîne de connexion
 
-## Procédure d'application (action opérateur)
+Dashboard Supabase → **Project Settings → Database → Connection string
+→ URI**. Format :
+`postgresql://postgres.PROJET:PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres`.
 
-1. Créer le projet Supabase dédié (région UE de préférence, données
-   financières francophones → RGPD/CDP).
-2. Éditeur SQL → exécuter dans l'ordre :
-   - `supabase/migrations/20261108000001_schema_initial.sql`
-   - `supabase/migrations/20261108000002_fonctions_financieres.sql`
-3. Exécuter `supabase/migrations/20261108000003_verification.sql` :
-   chaque requête commentée doit renvoyer le résultat attendu
-   (RLS actif, 0 policy, tests fonctionnels dans une transaction
-   `begin…rollback` qui n'écrit rien).
-4. Configurer l'API (Render) : `STATEMENTFLOW_DATABASE_URL` avec la
-   chaîne de connexion **service_role** (Settings → Database).
+Pour Render, prenez la chaîne **pooler** (port 6543, mode transaction)
+: elle survit aux connexions courtes d'un pool psycopg. La chaîne
+directe (port 5432) fonctionne aussi pour un trafic faible.
 
-## Ce que cette migration NE fait PAS
+> Projet Supabase de production : `kpkywpsflnhkkfvrhuwh`.
 
-- Elle ne migre pas automatiquement les données JSON existantes
-  (pilote local) : un script d'import sera fourni si le pilote doit
-  être basculé ; à ce jour le volume pilote est re-émissible via
-  `statementflow keys issue`.
-- Elle ne modifie pas le code Python : l'adaptation de
-  `ManagedKeyStore`/`BillingStore` vers PostgreSQL est le chantier
-  suivant (une interface stockage est déjà implicite : mêmes méthodes
-  `reserve/settle/refund/activate` — les fonctions SQL portent les
-  mêmes noms pour faciliter l'adaptateur).
+### 2. Appliquer les migrations (dans l'ordre)
+
+Dashboard Supabase → **SQL Editor** → coller puis exécuter chaque
+fichier de `supabase/migrations/` :
+
+1. `20261108000001_schema_initial.sql` — tables, index, vue des
+   soldes, RLS deny-all ;
+2. `20261108000002_fonctions_financieres.sql` — fonctions
+   transactionnelles ;
+3. `20261108000003_verification.sql` — requêtes de contrôle ;
+4. `20261108000004_correctifs_integrite.sql` — **correctifs d'intégrité
+   (indispensables)** : `settle_credits` idempotent + plafonné au
+   solde (jamais négatif), `reserve_credits` idempotent par job.
+
+Les fichiers sont idempotents (`create or replace`, `if not exists`)
+mais respectez l'ordre. Les quatre ont été exécutés et validés sur un
+PostgreSQL 16 réel par la CI (job `pg-tests`) : migration du schéma,
+scénario de vérification complet (réservation sans solde refusée,
+activation idempotente, solde exact, rejeu sans erreur).
+
+### 3. Vérifier (requêtes de contrôle)
+
+```sql
+-- RLS actif sur les 8 tables (rowsecurity = true partout)
+select tablename, rowsecurity from pg_tables
+where schemaname = 'public' order by tablename;
+
+-- Aucune policy : deny-all pour anon/authenticated
+select count(*) from pg_policies where schemaname = 'public';  -- 0
+
+-- Scénario fonctionnel complet (n'écrit rien : rollback final)
+-- voir le bloc « 4. » de la migration 003
+```
+
+### 4. Configurer Render
+
+- API : variable d'environnement `STATEMENTFLOW_DATABASE_URL` (secret).
+- Cron : même variable sur `statementflow-maintenance`.
+- Redéployer : `/health` doit répondre
+  `"persistence": "postgres+up"`.
+
+### 5. Émettre les clés dans la base
+
+Avec la CLI (mêmes commandes, autre backend) :
+
+```bash
+export STATEMENTFLOW_DATABASE_URL="postgresql://…"
+statementflow keys issue "Pilote ACME" --credits 500
+# → affiche la clé sf_… UNE SEULE FOIS + son hash
+```
+
+La clé en clair n'est jamais stockée : uniquement son SHA-256 dans
+`api_keys.key_hash`. Les crédits initiaux passent par le grand livre.
+
+## Sécurité
+
+- **RLS activé sur toutes les tables, aucune policy** : aucun client
+  Supabase (clé `anon`) ne peut rien lire ni écrire. Seul le processus
+  serveur (chaîne complète PostgreSQL, rôle `postgres`/`service_role`)
+  accède aux données ; les clients s'authentifient auprès de l'API par
+  `X-API-Key`.
+- **Isolation entre utilisateurs** : chaque clé API appartient à une
+  organisation (`api_keys.org_id`) ; les résultats de jobs et
+  rechargements sont filtrés par `key_hash` côté API (404
+  indistinguable pour une référence inconnue et une référence d'autrui).
+- Aucun secret n'est journalisé : l'URL de connexion est masquée
+  (hôte seul) dans les messages d'erreur de `PgStore`.
+
+## Comportement en cas de coupure
+
+- Le pool psycopg retente **une fois** chaque opération sur une
+  connexion reconstruite — sûr car toutes les mutations financières
+  sont idempotentes par contrainte SQL.
+- Base injoignable au démarrage : l'API démarre quand même ;
+  `/health` répond `persistence: "postgres+down"`, `status:
+  "degraded"` ; les routes de traitement échouent proprement (erreur
+  structurée 500) sans corruption d'état.
+- Repli JSON : retirez `STATEMENTFLOW_DATABASE_URL` et redéployez pour
+  revenir aux magasins locaux (les données PostgreSQL restent en
+  place — aucune perte).
+
+## Limites connues
+
+- Les **résultats d'analyse** (transactions extraites) ne sont PAS
+  persistés au-delà du TTL de 900 s : politique produit « traitement
+  éphémère » (aucun document bancaire stocké). Seules les métadonnées
+  de traçabilité sont conservées dans `jobs`.
+- `statementflow keys`/`billing` avec PostgreSQL : les commandes
+  `keys issue|revoke|list|credits` passent par le même adaptateur
+  quand `DATABASE_URL` est défini.

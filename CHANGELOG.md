@@ -1,5 +1,71 @@
 # Changelog
 
+## 0.4.0 (2026-11-08) — persistance PostgreSQL réelle, Cron Job Render, correction du déploiement
+
+### Déploiement (corrections de blocage)
+- **`python-multipart>=0.0.9`** ajouté à l'extra `api` : sans lui,
+  l'API Render plantait au premier upload (`RuntimeError: Form data
+  requires "python-multipart" to be installed`) — cause racine de
+  l'indisponibilité du service.
+- Nouvel extra **`pg`** (`psycopg[binary,pool]>=3.2`) ; le Dockerfile
+  installe `.[api,pg]` (persistance prête sans rebuild).
+
+### Persistance PostgreSQL / Supabase (branchée, testée)
+- **Nouveau module `statementflow.pg` (PgStore)** : adaptateur
+  PostgreSQL remplaçant les magasins JSON quand
+  `STATEMENTFLOW_DATABASE_URL` est défini — MÊMES méthodes publiques
+  que `ManagedKeyStore`/`BillingStore` (l'API, la CLI et les tests
+  permutent sans changer d'appel). Pool de connexions psycopg3,
+  reconnexion après coupure, DSN masqué dans les erreurs (aucun
+  secret journalisé).
+- L'API utilise PostgreSQL automatiquement : clés gérées, soldes,
+  rechargements, usage, métadonnées de jobs. `/health` expose
+  `persistence: "postgres+up|down"` (ou `"json"`).
+- Les opérations financières passent par les fonctions SQL
+  transactionnelles (verrous `for update`, grand livre immuable) ;
+  **toute l'opération reserve/settle/refund partage le job_id** →
+  idempotence par job réelle.
+- Migration **004** (correctifs d'intégrité) : `settle_credits`
+  idempotent (rejeu sans violation UNIQUE) et plafonné au solde
+  disponible (**jamais de solde négatif**) ; `reserve_credits`
+  idempotent par job. Corrections SQL : `in schema public` (revoke),
+  pgcrypto tolérant (natif PG13+), rôle `anon` tolérant hors Supabase.
+- **Tests : 28 nouveaux** (`tests/test_pg.py`) exécutés contre un
+  VRAI PostgreSQL (pgserver local / service conteneurisé en CI) :
+  migrations appliquées, RLS deny-all vérifié, cycle complet analyse
+  facturée → achat → webhook signé → activation → rejeu sans double
+  crédit → isolation entre clés, réconciliation cron, verrou
+  consultatif. CI : job `pg-tests` dédié (postgres:16).
+
+### Facturation — conformité à la règle publique
+- La consommation tabulaire compte désormais les **lignes réelles**
+  du document (`usage.rows`, en-tête inclus) et non le nombre de
+  transactions reconnues : « 1 crédit = 1 page PDF ou 50 lignes
+  CSV/TSV/XLSX » est maintenant exact (31 lignes → 1 crédit,
+  121 → 3). Repli sur `transactions` pour les résultats antérieurs.
+
+### Cron Job Render (nouveau)
+- **`statementflow.maintenance`** (module) + service `cron` dans
+  `render.yaml` : nettoyage (jobs expirés, webhooks > 30 j),
+  réconciliation SasPay (pending > 1 h interrogés réellement,
+  activation/échec via les fonctions idempotentes), intégrité
+  financière (soldes négatifs, crédits sans paiement, paiements sans
+  crédit — signalés en CRITIQUE, jamais corrigés automatiquement),
+  surveillance (ping base, journal d'audit, code de sortie 2 sur
+  anomalie critique). Verrou `pg_try_advisory_lock` sur connexion
+  dédiée contre les exécutions simultanées ; sans
+  `DATABASE_URL`, sortie 0 (rien à maintenir). Fréquence horaire
+  justifiée dans `docs/CRON.md` (renvois SasPay ~2 h 30).
+- ⚠️ Les Cron Jobs Render ne sont pas disponibles sur le plan free
+  (minimum 0.5c-512mb) : le service cron du blueprint est optionnel.
+
+### Documentation
+- `docs/SUPABASE.md` réécrit (branchez en 10 minutes, migrations
+  001→004, vérifications, repli JSON) ; `docs/CRON.md` nouveau ;
+  `docs/BILLING.md` aligné sur l'implémentation réelle (il décrivait
+  la facturation comme « future » alors qu'elle est livrée) ;
+  `docs/DEPLOYMENT.md` (variables, cron, health) ; CHANGELOG.
+
 ## 0.3.1 (2026-11-08) — durcissement commercial : verrouillage par défaut, crédits atomiques, Supabase, Render
 
 ### Sécurité (rupture de compatibilité volontaire)

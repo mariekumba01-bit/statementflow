@@ -74,12 +74,16 @@ print(r['totals'], r['checks']['opening_closing_ok'], r['confidence'])
 Full engine-generated examples: [`outputs/`](outputs/) (French statement, Wave CSV
 export, scanned PDF with alerts). Schema reference: [`docs/API.md`](docs/API.md).
 
-## Self-hosting
+## Hosting
 
-A `Dockerfile` is provided for local or private-network use
-(`docker run --rm -p 127.0.0.1:8080:8080 statementflow`). **Do not expose it
-publicly as-is** — see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for what is
-ready, what needs configuration, and what must be secured first.
+The managed API runs on Render (`https://statementflow-api-ch0f.onrender.com`)
+with **PostgreSQL persistence** (Supabase) and an hourly **maintenance cron**
+(cleanup, payment reconciliation, financial integrity checks). A `Dockerfile`
+and a `render.yaml` blueprint are provided for your own deployment; a
+`Dockerfile` is also fine for local or private-network use
+(`docker run --rm -p 127.0.0.1:8080:8080 statementflow`). See
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) (variables, supervision, incident
+recovery) and [`docs/SUPABASE.md`](docs/SUPABASE.md) (database setup).
 
 ## The four interfaces
 
@@ -198,7 +202,7 @@ every result as unverified until a pilot on documents you are authorized to
 process confirms it (`docs/PILOT.md`). Not certified for any compliance
 framework.
 
-## Commercial offer (v0.3.1)
+## Commercial offer (v0.4.0)
 
 StatementFlow is open source (MIT) and fully usable self-hosted for free.
 A **managed service** is also available as prepaid credits:
@@ -213,9 +217,11 @@ successful processing).
 
 Payments via mobile money/card (SasPay); credits activate only after
 server-side payment confirmation (signed webhook + gateway status
-re-check). Managed keys carry a prepaid balance (`402` when exhausted),
-usage is metered, and the whole purchase flow is testable locally with
-the built-in payment simulator. Full details: [`docs/PRICING.md`](docs/PRICING.md)
+re-check), and are recorded in an **immutable ledger** (PostgreSQL —
+balance derived from movements, idempotent by design). Managed keys
+carry a prepaid balance (`402` when exhausted), usage is metered, and
+the whole purchase flow is testable locally with the built-in payment
+simulator. Full details: [`docs/PRICING.md`](docs/PRICING.md)
 (grille), [`docs/BUSINESS_CASE.md`](docs/BUSINESS_CASE.md) (market
 analysis, financial simulation, license strategy),
 [`docs/TERMS.md`](docs/TERMS.md) / [`docs/PRIVACY.md`](docs/PRIVACY.md)
@@ -245,8 +251,10 @@ analysis, financial simulation, license strategy),
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — design, adapters, extension guide
 - [`docs/FORMATS.md`](docs/FORMATS.md) — supported formats and statement templates
 - [`docs/SECURITY.md`](docs/SECURITY.md) — data handling, limits, legal notes
-- [`docs/BILLING.md`](docs/BILLING.md) — usage metering, quotas, future billing (no gateway integrated)
-- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — self-hosting: ready / needs config / must secure
+- [`docs/BILLING.md`](docs/BILLING.md) — prepaid credits, SasPay payment cycle, financial integrity
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — Render + Supabase deployment, supervision, incident recovery
+- [`docs/SUPABASE.md`](docs/SUPABASE.md) — PostgreSQL persistence (schema, migrations, procedure)
+- [`docs/CRON.md`](docs/CRON.md) — Render Cron Job: cleanup, reconciliation, integrity checks
 - [`docs/PILOT.md`](docs/PILOT.md) — zero-budget pilot kit: demo script, evaluation sheet, templates
 - [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) — common errors and fixes
 - [`docs/DEPENDENCIES.md`](docs/DEPENDENCIES.md) — dependency licenses
