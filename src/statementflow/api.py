@@ -55,6 +55,7 @@ from .billing import (CREDIT_PACKS, BillingStore, FakeSasPay, SasPayError,
                       verify_webhook_signature)
 from .config import Config
 from .engine import ParseError, parse_bytes
+from .pg import PgUsageStore, pgstore_from_env
 from .security import (AdminAuthorizer, ApiKeyStore, ManagedKeyStore,
                        hash_key, mask_key, sanitize_filename)
 from .usage import Quota, UsageStore
@@ -65,6 +66,16 @@ api_keys = ApiKeyStore.from_env()
 admin_auth = AdminAuthorizer.from_env()
 managed_keys = ManagedKeyStore(config.keys_path)
 billing_store = BillingStore(config.billing_store_path)
+# persistance PostgreSQL (Supabase) : quand STATEMENTFLOW_DATABASE_URL est
+# défini, les clés gérées, rechargements, usage et jobs vivnent dans la
+# base (voir pg.py) — sinon les magasins JSON locaux sont utilisés.
+# Un store JSON reste nécessaire en repli pour les clés non gérées
+# (déclarées via STATEMENTFLOW_API_KEY_HASHES, sans crédits).
+_pg_store, persistence_mode = pgstore_from_env()
+if _pg_store is not None:
+    managed_keys = _pg_store
+    billing_store = _pg_store
+    usage_store = PgUsageStore(_pg_store)
 # passerelle d'encaissement : SasPay (si clé secrète configurée) ou
 # simulateur local (mode test, aucune connexion, aucun paiement réel)
 saspay, billing_mode = provider_from_env()
@@ -100,6 +111,7 @@ class HealthResponse(BaseModel):
     status: str
     version: str
     auth_mode: str
+    persistence: str
     limits: dict
 
 
@@ -207,9 +219,15 @@ def _sweep_jobs():
 # ── routes publiques (aucune donnée sensible) ───────────────────────
 @app.get('/health', response_model=HealthResponse)
 def health():
+    db_ok = _pg_store.ping() if _pg_store is not None else None
+    status = 'ok' if _auth_mode() != 'locked' else 'degraded'
+    if db_ok is False:
+        status = 'degraded'   # base configurée mais injoignable
     return HealthResponse(
-        status='ok' if _auth_mode() != 'locked' else 'degraded',
+        status=status,
         version=__version__, auth_mode=_auth_mode(),
+        persistence=persistence_mode + ('' if db_ok is None
+                                        else ('+up' if db_ok else '+down')),
         limits={'max_file_mb': config.max_file_mb, 'max_pages': config.max_pages,
                 'max_rows': config.max_rows, 'results_ttl_s': config.results_ttl_s})
 
@@ -260,16 +278,31 @@ async def analyze(
     # échec restitue la réservation : rien n'est consommé sur erreur.
     managed = managed_keys.lookup(key_hash)
     reserved = 0.0
+    filename = sanitize_filename(file.filename)
+    job_id = uuid.uuid4().hex  # non dévinable — identifiant UNIQUE de
+    # l'opération financière : réserve, settle et refund partagent ce
+    # même job_id → idempotence par job garantie (PostgreSQL)
     if managed is not None:
-        if not managed_keys.reserve(key_hash, 1.0):
+        if _pg_backend(managed_keys):
+            if not managed_keys.reserve(key_hash, 1.0, job_id=job_id):
+                raise HTTPException(
+                    402, 'Crédits épuisés : rechargez sur /v1/billing/topup '
+                         '(voir /v1/billing/packs).')
+        elif not managed_keys.reserve(key_hash, 1.0):
             raise HTTPException(
                 402, 'Crédits épuisés : rechargez sur /v1/billing/topup '
                      '(voir /v1/billing/packs).')
         reserved = 1.0
-    filename = sanitize_filename(file.filename)
-    job_id = uuid.uuid4().hex  # non dévinable
     _jobs[job_id] = {'status': 'processing', 'created': time.time(),
                      'key_hash': key_hash}
+    # journalisation des métadonnées du job (traçabilité PostgreSQL ;
+    # jamais le résultat bancaire — politique « traitement éphémère »)
+    if _pg_backend(managed_keys):
+        try:
+            managed_keys.record_job(job_id, key_hash, filename,
+                                    detect_kind_hint(filename), 'processing')
+        except Exception:
+            pass  # la traçabilité ne doit jamais bloquer le traitement
     # traitement en threadpool (CPU-bound : OCR, parsing) : ne bloque pas
     # la boucle d'événements ; le client récupère le résultat via
     # /v1/results/{job_id}
@@ -282,7 +315,11 @@ async def analyze(
             # décompte APRÈS un traitement réussi (règle publique :
             # 1 crédit = 1 page PDF ou 50 lignes tabulaires)
             cost = credits_for(result['usage'], result['document']['kind'])
-            remaining = managed_keys.settle(key_hash, cost - reserved)
+            if _pg_backend(managed_keys):
+                remaining = managed_keys.settle(key_hash, cost - reserved,
+                                                job_id=job_id)
+            else:
+                remaining = managed_keys.settle(key_hash, cost - reserved)
             result['billing'] = {
                 'credits_charged': cost,
                 'credits_remaining': round(remaining, 2) if remaining >= 0 else None,
@@ -291,14 +328,34 @@ async def analyze(
         else:
             result['billing'] = {'billing_mode': 'unmanaged'}
         _jobs[job_id].update(status='done', result=result)
+        if _pg_backend(managed_keys):
+            try:
+                managed_keys.record_job(
+                    job_id, key_hash, filename,
+                    result['document']['kind'], 'done',
+                    pages=result['usage']['pages'],
+                    rows=result['usage'].get('rows'),
+                    transactions=result['usage']['transactions'],
+                    credits_charged=result['billing'].get('credits_charged'),
+                    ttl_s=config.results_ttl_s)
+            except Exception:
+                pass
     except ParseError as e:
         if managed is not None and reserved:
-            managed_keys.refund(key_hash, reserved)
+            if _pg_backend(managed_keys):
+                managed_keys.refund(key_hash, reserved, job_id=job_id)
+            else:
+                managed_keys.refund(key_hash, reserved)
         _jobs[job_id].update(status='error', error=str(e))
+        _record_job_error(job_id, key_hash, filename, str(e))
     except Exception as e:  # défensif : aucune trace interne ne fuite
         if managed is not None and reserved:
-            managed_keys.refund(key_hash, reserved)
+            if _pg_backend(managed_keys):
+                managed_keys.refund(key_hash, reserved, job_id=job_id)
+            else:
+                managed_keys.refund(key_hash, reserved)
         _jobs[job_id].update(status='error', error=str(e))
+        _record_job_error(job_id, key_hash, filename, str(e))
     return AnalyzeAccepted(job_id=job_id, status=_jobs[job_id]['status'],
                            poll=f'/v1/results/{job_id}')
 
@@ -414,14 +471,53 @@ def billing_status(reference: str,
 
 
 def _activate_topup(record: dict, transaction_id: str) -> Optional[dict]:
-    """Active les crédits d'un rechargement payé (idempotent) : ajoute les
-    crédits puis marque activé. Un échec entre les deux laisse le statut
-    pending → le prochain polling/webhook retente proprement."""
+    """Active les crédits d'un rechargement payé (idempotent).
+
+    Deux backends :
+    - PostgreSQL (PgStore) : activate() crédite DÉJÀ le grand livre dans
+      la même transaction SQL (fonction activate_topup) — aucun crédit
+      supplémentaire à faire ;
+    - JSON (BillingStore + ManagedKeyStore) : activation du statut puis
+      crédit séparé ; un échec entre les deux laisse le statut pending,
+      le prochain polling/webhook retente proprement.
+    """
     activated = billing_store.activate(record['reference'], transaction_id)
     if activated is None:
         return None  # déjà activé, remboursé ou inconnu
-    managed_keys.add_credits(record['key_hash'], record['credits'])
+    if not _pg_backend(managed_keys):
+        managed_keys.add_credits(record['key_hash'], record['credits'])
     return activated
+
+
+def _pg_backend(store) -> bool:
+    """True si le store de clés est l'adaptateur PostgreSQL (persistance
+    réelle) — l'activation y crédite déjà le grand livre."""
+    from . import pg as pg_mod
+    return isinstance(store, pg_mod.PgStore)
+
+
+def detect_kind_hint(filename: str) -> str:
+    """Extension → kind probable (journalisation pré-traitement ; le
+    moteur reste seul juge du format réel)."""
+    name = (filename or '').lower()
+    if name.endswith('.pdf'):
+        return 'pdf'
+    if name.endswith(('.xlsx', '.xls')):
+        return 'xlsx'
+    return 'csv'
+
+
+def _record_job_error(job_id: str, key_hash: str, filename: str,
+                      error: str):
+    """Journalise un job en échec (PostgreSQL) — meilleur effort."""
+    if not _pg_backend(managed_keys):
+        return
+    try:
+        managed_keys.record_job(job_id, key_hash, filename,
+                                detect_kind_hint(filename), 'error',
+                                error=error[:500])
+    except Exception:
+        pass
 
 
 # ── webhook prestataire (SasPay) : signature HMAC obligatoire ────────
