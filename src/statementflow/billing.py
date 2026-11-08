@@ -69,6 +69,8 @@ def credits_for(usage: dict, kind: str) -> int:
     """
     if kind == 'pdf':
         return max(1, int(usage.get('pages') or 1))
+    # lignes RÉELLES du document (v0.4.0) ; repli sur le nombre de
+    # transactions pour les résultats antérieurs qui n'exposaient pas rows
     rows = usage.get('rows') or usage.get('transactions') or 1
     return max(1, math.ceil(rows / TABULAR_ROWS_PER_CREDIT))
 

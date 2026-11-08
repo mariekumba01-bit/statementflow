@@ -528,6 +528,7 @@ def parse_bytes(data: bytes, filename: str, config: Config | None = None,
         raise ParseError('Fichier vide.')
 
     kind = detect_kind(filename, data)
+    _last_rows_count = 0
     if kind == 'pdf':
         transactions, currency, opening, closing, closing_derived, alerts, \
             pages, method = _parse_pdf(data, filename, config, currency_hint)
@@ -536,7 +537,9 @@ def parse_bytes(data: bytes, filename: str, config: Config | None = None,
         transactions, currency, opening, closing, closing_derived, alerts, \
             pages, method = _parse_tabular(data, filename, config, currency_hint)
         try:
-            sample_rows = read_tabular(data, filename)[0][:5]
+            all_rows = read_tabular(data, filename)[0]
+            _last_rows_count = len(all_rows)
+            sample_rows = all_rows[:5]
         except (ValueError, ParseError):
             sample_rows = []
         adapter = detect_adapter('tabular', '', sample_rows)
@@ -631,7 +634,11 @@ def parse_bytes(data: bytes, filename: str, config: Config | None = None,
         'validation': validation_status(checks, alerts),
         'alerts': [a.to_dict() for a in alerts],
         'confidence': document_confidence(transactions, alerts),
-        'usage': {'pages': pages, 'transactions': len(transactions)},
+        'usage': {'pages': pages, 'transactions': len(transactions),
+                  # lignes du document tabulaire (0 pour un PDF) — la
+                  # facturation publique est « 1 crédit / 50 lignes »,
+                  # indépendante du nombre de transactions reconnues
+                  'rows': _last_rows_count},
     }
 
 
