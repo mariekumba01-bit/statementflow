@@ -18,7 +18,7 @@ WORKDIR /app
 
 COPY pyproject.toml README.md ./
 COPY src ./src
-RUN pip install --no-cache-dir ".[api]"
+RUN pip install --no-cache-dir ".[api,pg]"
 
 # non-root
 RUN useradd --create-home sf && chown -R sf:sf /app
