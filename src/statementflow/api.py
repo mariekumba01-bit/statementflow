@@ -113,6 +113,11 @@ class HealthResponse(BaseModel):
     auth_mode: str
     persistence: str
     limits: dict
+    # type d'échec PostgreSQL le plus récent ('dsn_invalid',
+    # 'auth_failed', 'tls_error', 'unreachable', 'unknown') — diagnostic
+    # SANS secret : les messages libpq bruts peuvent porter le mot de
+    # passe et ne sont jamais exposés
+    pg_error: Optional[str] = None
 
 
 class AnalyzeAccepted(BaseModel):
@@ -156,9 +161,12 @@ def _allow_open_auth() -> bool:
 
 
 def _auth_mode() -> str:
-    """Mode d'authentification signalé par /health."""
+    """Mode d'authentification signalé par /health. Avec PostgreSQL, les
+    deux registres coexistent souvent : hash-list serveur (clés techniques
+    non facturées) + clés gérées de la base (clients facturés)."""
     if api_keys.configured:
-        return 'key-hash-list'
+        return 'key-hash-list+managed-keys' \
+            if managed_keys.path_configured else 'key-hash-list'
     if managed_keys.path_configured:
         return 'managed-keys'
     return 'open' if _allow_open_auth() else 'locked'
@@ -169,7 +177,14 @@ def _require_key(x_api_key: str | None) -> str:
     401 si l'en-tête est absent ou vide ; 401 si la clé est inconnue
     (mode fermé) ; 503 si AUCUNE clé n'est configurée (l'API n'est jamais
     accessible sans authentification, sauf mode ouvert explicite).
-    La clé en clair ne sort jamais de cette fonction."""
+    La clé en clair ne sort jamais de cette fonction.
+
+    Une clé est acceptée si elle figure dans la hash-list serveur
+    (STATEMENTFLOW_API_KEY_HASHES — clés techniques, non facturées) OU
+    dans le magasin des clés gérées (fichier JSON ou base PostgreSQL —
+    clients avec crédits). C'est ce qui rend les opérations financières
+    possibles quand PostgreSQL est activé alors que la hash-list est
+    également configurée."""
     if not x_api_key or not x_api_key.strip():
         raise HTTPException(
             401, 'Clé d\'API manquante : fournissez l\'en-tête X-API-Key.')
@@ -186,12 +201,14 @@ def _require_key(x_api_key: str | None) -> str:
         if managed_keys.is_revoked(hash_key(key)):
             raise HTTPException(401, 'Clé d\'API révoquée.')
         return key
-    if not api_keys.verify(key):
-        raise HTTPException(401, 'Clé d\'API invalide.')
     key_hash = hash_key(key)
-    # en mode « clés gérées » (KEYS_PATH sans API_KEY_HASHES), une clé
-    # inconnue du magasin géré est refusée (fermeture complète)
-    if not api_keys.configured and managed_keys.lookup(key_hash) is None:
+    in_hash_list = api_keys.verify(key)
+    in_managed = managed_keys.lookup(key_hash) is not None
+    if not in_hash_list and not in_managed:
+        raise HTTPException(401, 'Clé d\'API invalide.')
+    # en mode « clés gérées » seul (KEYS_PATH/PgStore sans
+    # API_KEY_HASHES), la clé DOIT être gérée (fermeture complète)
+    if not api_keys.configured and not in_managed:
         raise HTTPException(401, 'Clé d\'API invalide.')
     if managed_keys.is_revoked(key_hash):
         raise HTTPException(401, 'Clé d\'API révoquée.')
@@ -221,15 +238,18 @@ def _sweep_jobs():
 def health():
     db_ok = _pg_store.ping() if _pg_store is not None else None
     status = 'ok' if _auth_mode() != 'locked' else 'degraded'
+    pg_error = None
     if db_ok is False:
         status = 'degraded'   # base configurée mais injoignable
+        pg_error = getattr(_pg_store, 'last_error_kind', None)
     return HealthResponse(
         status=status,
         version=__version__, auth_mode=_auth_mode(),
         persistence=persistence_mode + ('' if db_ok is None
                                         else ('+up' if db_ok else '+down')),
         limits={'max_file_mb': config.max_file_mb, 'max_pages': config.max_pages,
-                'max_rows': config.max_rows, 'results_ttl_s': config.results_ttl_s})
+                'max_rows': config.max_rows, 'results_ttl_s': config.results_ttl_s},
+        pg_error=pg_error)
 
 
 # ── routes privées (X-API-Key requis) ───────────────────────────────

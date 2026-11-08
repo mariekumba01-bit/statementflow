@@ -36,6 +36,7 @@ from __future__ import annotations
 import json
 import os
 import threading
+import unicodedata
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
@@ -55,9 +56,48 @@ POOL_TIMEOUT_S = 15.0
 # (fonction SQL transactionnelle) — l'appelant ne doit PAS re-créditer.
 COMBINED_CREDIT_ACTIVATION = True
 
+# Catégories Unicode retirées d'un DSN : Cf (marques bidi U+200E/U+200F,
+# BOM U+FEFF, zero-width U+200B-U+200D, LRE/LRI…) et Cc (contrôles).
+# str.strip() NE LES RETIRE PAS (isspace() == False) et libpq refuse alors
+# l'URI (« missing "=" after "postgresql://…" in connection info string »
+# — incident Render du 2026-11-08 : un U+200E copié-collé devant la
+# chaîne de connexion Supabase).
+_INVISIBLE_CATS = frozenset({'Cf', 'Cc'})
+
 
 class PgStoreError(RuntimeError):
     """Erreur de persistance PostgreSQL (message sans secret)."""
+
+
+def sanitize_dsn(raw: str) -> str:
+    """Nettoie une URL de connexion PostgreSQL : retire les caractères
+    Unicode invisibles (copier-coller depuis une interface web ou un
+    traitement de texte) puis les espaces en tête/queue. Le reste de la
+    chaîne est préservé à l'identique."""
+    if not raw:
+        return raw
+    cleaned = ''.join(
+        ch for ch in raw if unicodedata.category(ch) not in _INVISIBLE_CATS)
+    return cleaned.strip()
+
+
+def classify_pg_error(e: BaseException) -> str:
+    """Type d'échec de connexion pour /health (diagnostic SANS secret :
+    les messages libpq de parsing contiennent la chaîne complète, mot de
+    passe compris — ils ne doivent jamais être exposés ni journalisés)."""
+    msg = str(e).lower()
+    connish = isinstance(e, psycopg.OperationalError) \
+        or isinstance(e, PoolTimeout) or 'connection' in msg
+    if not connish:
+        return 'unknown'
+    if ('missing' in msg and '=' in msg) or 'connection info' in msg \
+            or 'invalid connection' in msg:
+        return 'dsn_invalid'
+    if 'password authentication' in msg or 'authentication failed' in msg:
+        return 'auth_failed'
+    if 'ssl' in msg or 'tls' in msg or 'certificate' in msg:
+        return 'tls_error'
+    return 'unreachable'
 
 
 def _now_iso() -> str:
@@ -96,21 +136,56 @@ class PgStore:
     les opérations sont de courtes transactions autonomes.
     """
 
-    def __init__(self, dsn: str, pool_min: int = 0, pool_max: int = 4):
+    def __init__(self, dsn: str, pool_min: int = 0, pool_max: int = 4,
+                 pool_timeout: float = POOL_TIMEOUT_S):
         if psycopg is None:
             raise PgStoreError(
                 'psycopg non installé : pip install "psycopg[binary,pool]"')
-        self._dsn = dsn
+        # le DSN est nettoyé UNE fois ici : toute clé gérée, tout appel
+        # financier et tout diagnostic utilisent ensuite la version saine
+        self._dsn = sanitize_dsn(dsn)
         self._pool_min, self._pool_max = int(pool_min), int(pool_max)
+        self._pool_timeout = float(pool_timeout)
         self._pool_lock = threading.Lock()
         self._pool: Optional['ConnectionPool'] = None
+        # dernier type d'échec de connexion (diagnostic /health —
+        # 'dsn_invalid' | 'auth_failed' | 'tls_error' | 'unreachable' |
+        # 'unknown' ; JAMAIS le message brut, qui peut porter le secret)
+        self.last_error_kind: Optional[str] = None
 
     @property
     def dsn(self) -> str:
-        """DSN de connexion (pour les connexions dédiées — verrou cron)."""
+        """DSN de connexion nettoyé (pour les connexions dédiées —
+        verrou cron)."""
         return self._dsn
 
     # ── pool de connexions ────────────────────────────────────────
+    def _validate_dsn(self) -> dict:
+        """Valide le DSN (parsing libpq) AVANT toute tentative de
+        connexion : le message d'erreur de parsing contient la chaîne
+        COMPLÈTE (mot de passe compris) — il ne doit jamais atteindre un
+        journal. Retourne les paramètres de connexion parsés."""
+        try:
+            return psycopg.conninfo.conninfo_to_dict(self._dsn)
+        except Exception:
+            self.last_error_kind = 'dsn_invalid'
+            raise PgStoreError(
+                'DSN PostgreSQL invalide (STATEMENTFLOW_DATABASE_URL) : '
+                'format attendu postgresql://utilisateur:motdepasse@'
+                'hote:port/base — les caractères invisibles de '
+                'copier-coller sont nettoyés automatiquement, mais le '
+                'format doit rester correct') from None
+
+    @staticmethod
+    def _pool_kwargs(params: dict) -> dict:
+        """Arguments psycopg selon le DSN : le pooler Supabase en mode
+        TRANSACTION (port 6543, pgBouncer) n'accepte pas les requêtes
+        préparées persistantes — psycopg3 les active par défaut et doit
+        les voir désactivées. Le mode session (5432) les supporte."""
+        if str(params.get('port') or '') == '6543':
+            return {'prepare_threshold': None}
+        return {}
+
     @property
     def pool(self) -> 'ConnectionPool':
         pool = self._pool
@@ -118,29 +193,45 @@ class PgStore:
             return pool
         with self._pool_lock:
             if self._pool is None or self._pool.closed:
+                params = self._validate_dsn()
                 try:
                     self._pool = ConnectionPool(
                         self._dsn, min_size=self._pool_min,
-                        max_size=self._pool_max, timeout=POOL_TIMEOUT_S,
-                        open=True)
+                        max_size=self._pool_max,
+                        timeout=self._pool_timeout, open=True,
+                        kwargs=self._pool_kwargs(params),
+                        name='statementflow')
                 except Exception as e:
                     self._pool = None
+                    self._note_error(e)
                     raise PgStoreError(
                         f'PostgreSQL injoignable ({_mask_dsn(self._dsn)}) : '
-                        f'{type(e).__name__}') from None
+                        f'{self.last_error_kind}') from None
             return self._pool
+
+    def _note_error(self, e: BaseException) -> None:
+        self.last_error_kind = classify_pg_error(e)
 
     def _call(self, fn):
         """Exécute fn(conn) sur une connexion du pool ; UNE relance si la
         connexion était périmée (les mutations SQL étant idempotentes, un
-        rejeu après coupure ne double jamais un mouvement financier)."""
+        rejeu après coupure ne double jamais un mouvement financier).
+        Un échec de CONNEXION est converti en PgStoreError classée : le
+        message psycopg brut ne remonte jamais (risque de secret)."""
         try:
             with self.pool.connection() as conn:
                 return fn(conn)
-        except (PoolTimeout, psycopg.OperationalError):
+        except (PoolTimeout, psycopg.OperationalError) as e:
+            self._note_error(e)
             self._reset_pool()
-            with self.pool.connection() as conn:
-                return fn(conn)
+            try:
+                with self.pool.connection() as conn:
+                    return fn(conn)
+            except (PoolTimeout, psycopg.OperationalError) as e2:
+                self._note_error(e2)
+                raise PgStoreError(
+                    f'PostgreSQL indisponible ({_mask_dsn(self._dsn)}) : '
+                    f'{self.last_error_kind}') from None
 
     def _reset_pool(self):
         with self._pool_lock:
@@ -160,11 +251,18 @@ class PgStore:
                 pool.close()
 
     def ping(self) -> bool:
-        """Sonde la base (true/false) — /health et cron."""
+        """Sonde la base (true/false) — /health et cron. En cas d'échec,
+        last_error_kind porte le TYPE d'erreur (jamais le message)."""
         try:
             self._call(lambda c: c.execute('select 1'))
+            self.last_error_kind = None
             return True
-        except Exception:
+        except PgStoreError:
+            # déjà classifiée (dsn_invalid / unreachable / …) par le
+            # chemin qui l'a levée — ne pas écraser par 'unknown'
+            return False
+        except Exception as e:
+            self._note_error(e)
             return False
 
     # ── interface ManagedKeyStore ─────────────────────────────────
@@ -630,6 +728,16 @@ class PgStore:
         return self._call(q)
 
 
+    def connect_direct(self):
+        """Connexion directe (hors pool) pour le verrou consultatif du
+        cron : pré-validée comme le pool — un DSN invalide lève
+        PgStoreError SANS jamais exposer la chaîne (mot de passe)."""
+        params = self._validate_dsn()
+        return psycopg.connect(self._dsn,
+                               connect_timeout=int(self._pool_timeout),
+                               **self._pool_kwargs(params))
+
+
 def _topup_row_to_dict(r) -> dict:
     return {
         'reference': r[0], 'session_id': r[1], 'checkout_url': r[2],
@@ -661,7 +769,9 @@ class PgUsageStore:
 
 def pgstore_from_env() -> tuple[Optional[PgStore], str]:
     """(store, mode) selon l'environnement : PgStore si DATABASE_URL est
-    défini, sinon (None, 'json') — l'appelant garde ses magasins JSON."""
+    défini, sinon (None, 'json') — l'appelant garde ses magasins JSON.
+    Le DSN est SANITISÉ dans PgStore (caractères invisibles de
+    copier-coller : marques bidi U+200E/U+200F, BOM, zero-width…)."""
     dsn = os.environ.get(ENV_PREFIX + 'DATABASE_URL', '').strip()
     if not dsn:
         return None, 'json'

@@ -215,9 +215,12 @@ def main(argv: Optional[list[str]] = None) -> int:
             after_hours = DEFAULT_RECONCILE_AFTER_HOURS
         saspay, gw_mode = provider_from_env()
         # verrou anti-exécutions simultanées sur une connexion DÉDIÉE :
-        # le verrou de session survit tant que la connexion est ouverte
-        import psycopg
-        with psycopg.connect(store.dsn) as lock_conn:
+        # le verrou de session survit tant que la connexion est ouverte.
+        # connect_direct() pré-valide le DSN (sanitisation + parsing) :
+        # une erreur de format ne JAMAIS exposer la chaîne (mot de passe)
+        # — le message libpq brut ne sort pas du store.
+        from .pg import PgStoreError
+        with store.connect_direct() as lock_conn:
             with lock_conn.cursor() as cur:
                 locked = cur.execute(
                     'select pg_try_advisory_lock(hashtext(%s))',
@@ -234,8 +237,12 @@ def main(argv: Optional[list[str]] = None) -> int:
                                 (ADVISORY_LOCK_KEY,))
                 lock_conn.commit()
         return rc
+    except PgStoreError as e:
+        # erreur déjà sans secret (DSN masqué, type classifié)
+        print(f'!! PostgreSQL indisponible : {e}', file=sys.stderr, flush=True)
+        return 3
     except Exception as e:
-        print(f'!! échec de la maintenance : {type(e).__name__}: {e}',
+        print(f'!! échec de la maintenance : {type(e).__name__}', 
               file=sys.stderr, flush=True)
         return 3
     finally:
