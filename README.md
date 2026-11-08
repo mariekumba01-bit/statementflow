@@ -195,6 +195,29 @@ every result as unverified until a pilot on documents you are authorized to
 process confirms it (`docs/PILOT.md`). Not certified for any compliance
 framework.
 
+## Commercial offer (v0.3.0)
+
+StatementFlow is open source (MIT) and fully usable self-hosted for free.
+A **managed service** is also available as prepaid credits:
+**1 credit = 1 PDF page or 50 CSV/TSV/XLSX rows** (charged only on
+successful processing).
+
+| Pack | Credits | Price (XOF) |
+|---|---|---|
+| Starter | 500 | 5,000 FCFA |
+| Pro | 2,500 | 20,000 FCFA |
+| Business | 10,000 | 60,000 FCFA |
+
+Payments via mobile money/card (SasPay); credits activate only after
+server-side payment confirmation (signed webhook + gateway status
+re-check). Managed keys carry a prepaid balance (`402` when exhausted),
+usage is metered, and the whole purchase flow is testable locally with
+the built-in payment simulator. Full details: [`docs/PRICING.md`](docs/PRICING.md)
+(grille), [`docs/BUSINESS_CASE.md`](docs/BUSINESS_CASE.md) (market
+analysis, financial simulation, license strategy),
+[`docs/TERMS.md`](docs/TERMS.md) / [`docs/PRIVACY.md`](docs/PRIVACY.md)
+(templates pending legal review).
+
 ## Known limitations
 
 1. Metrics come from a **synthetic corpus**; real statements (batch layouts, exotic

@@ -141,6 +141,27 @@ chaque résultat comme non vérifié tant qu'un pilote sur des documents que
 vous êtes autorisé à traiter ne l'a confirmé (`docs/PILOT.md`). Aucune
 certification de conformité.
 
+## Offre commerciale (v0.3.0)
+
+StatementFlow est open source (MIT) et utilisable gratuitement en
+auto-hébergement. Un **service géré** est proposé en crédits prépayés :
+**1 crédit = 1 page PDF ou 50 lignes CSV/TSV/XLSX** (décompté seulement
+sur traitement réussi).
+
+| Pack | Crédits | Prix (XOF) |
+|---|---|---|
+| Starter | 500 | 5 000 FCFA |
+| Pro | 2 500 | 20 000 FCFA |
+| Business | 10 000 | 60 000 FCFA |
+
+Encaissement mobile money/carte (SasPay) ; crédits activés uniquement
+après confirmation serveur (webhook signé + re-vérification passerelle).
+Parcours d'achat intégralement testable en local grâce au simulateur de
+paiement inclus. Détails : [`docs/PRICING.md`](docs/PRICING.md),
+[`docs/BUSINESS_CASE.md`](docs/BUSINESS_CASE.md) (analyse marché,
+simulation financière, stratégie licence), [`docs/TERMS.md`](docs/TERMS.md)
+/ [`docs/PRIVACY.md`](docs/PRIVACY.md) (modèles à validation juridique).
+
 ## Limites connues
 
 1. Les métriques proviennent d'un **corpus synthétique** ; les relevés réels (mis en page par lots, polices exotiques, en-têtes graphiques) peuvent échouer — les alertes et la confiance sont là pour le signaler.

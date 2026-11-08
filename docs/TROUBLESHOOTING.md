@@ -29,6 +29,7 @@
 | `404` sur `/v1/results/{job_id}` | job expiré (TTL 15 min), inconnu, **ou soumis par une autre clé** | relancer l'analyse avec la clé propriétaire |
 | `403 forbidden` sur `/v1/admin/*` | en-tête `X-Admin-Key` absent/invalide, ou `STATEMENTFLOW_ADMIN_KEY` non configuré | configurer la clé admin et l'envoyer dans `X-Admin-Key` |
 | `429 quota_exceeded` | quota de la clé atteint (`STATEMENTFLOW_QUOTA_*`) | attendre la fenêtre suivante ou réinitialiser via admin |
+| `402 payment_required` | crédits prépayés épuisés (clé gérée) | recharger via `/v1/billing/topup` ou `statementflow keys credits` |
 | `413 file_too_large` | fichier > `MAX_FILE_MB` | réduire ou augmenter la limite |
 | `/health` dit `auth_mode: "open"` | aucun hash de clé configuré | mode développement local ; pour la production, configurer les hashes |
 

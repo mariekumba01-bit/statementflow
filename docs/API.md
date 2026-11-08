@@ -118,6 +118,10 @@ n'est jamais fabriquée.
 | GET | `/v1/usage` | X-API-Key | compteurs de la clé appelante (clé masquée + hash) |
 | GET | `/v1/admin/usage` | X-Admin-Key | usage global (hashes uniquement) |
 | POST | `/v1/admin/usage/reset` | X-Admin-Key | réinitialise un compteur (`{"key_hash": "…"}`) |
+| GET | `/v1/billing/packs` | public | catalogue des packs de crédits |
+| POST | `/v1/billing/topup` | X-API-Key | démarre l'achat d'un pack → URL de paiement |
+| GET | `/v1/billing/status/{reference}` | X-API-Key | statut d'un rechargement (interroge l'état réel) |
+| POST | `/v1/billing/webhook` | signature SasPay | webhook d'encaissement (HMAC obligatoire) |
 | GET | `/openapi.json`, `/docs` | public | spécification et documentation interactive |
 
 ### Authentification (obligatoire depuis v0.2.0)
@@ -158,6 +162,55 @@ appliqué pendant la lecture — protection ZIP bomb) · `OCR_DPI` (300) ·
 `USAGE_STORE_PATH` · `API_KEY_HASHES` · `ADMIN_KEY` ·
 `QUOTA_DOCUMENTS` · `QUOTA_PAGES`.
 
+## Facturation prépayée (v0.3.0)
+
+Le service géré se paie en crédits : **1 crédit = 1 page PDF ou 50 lignes
+CSV/TSV/XLSX** (minimum 1 par document, décompté après un traitement
+réussi — un document rejeté ne consomme rien). Packs et prix :
+docs/PRICING.md (5 000 / 20 000 / 60 000 FCFA).
+
+Parcours d'achat :
+1. `GET /v1/billing/packs` — catalogue public ;
+2. `POST /v1/billing/topup` `{"pack": "pro", "customer_email": "…",
+   "customer_name": "…"}` → `{reference, checkout_url}` (paiement mobile
+   money/carte via SasPay) ;
+3. le client paie sur `checkout_url` ;
+4. les crédits sont activés **uniquement** après confirmation serveur :
+   webhook `transaction.success` signé (HMAC-SHA256 sur
+   `{timestamp}.{corps brut}`, tolérance 300 s, idempotence par
+   événement) **ET** re-vérification du paiement auprès du prestataire ;
+5. `GET /v1/billing/status/{reference}` — statut (pending/activated/
+   failed) ; le polling rattrape tout webhook manqué.
+
+Une clé sans crédits suffisants reçoit **402** sur `/v1/analyze`
+(`billing_mode: "managed"`). Les clés déclarées via
+`STATEMENTFLOW_API_KEY_HASHES` restent non facturées (`unmanaged`).
+`GET /v1/usage` renvoie `credits_remaining` et `billing_mode`.
+
+Encaissement : SasPay (docs.saspay.me). Production : configurer
+`STATEMENTFLOW_SASPAY_SECRET_KEY` (clé sk_live), un secret webhook
+(`STATEMENTFLOW_SASPAY_WEBHOOK_SECRET`, configuré dans le dashboard
+SasPay) et `STATEMENTFLOW_BILLING_STORE_PATH`. Sans clé SasPay, le mode
+test simule la passerelle localement (mêmes contrats, aucun paiement
+réel) : voir `statementflow billing simulate`.
+
+En mode test uniquement (aucune clé SasPay réelle ET
+`STATEMENTFLOW_TEST_PAYMENT=1`), la route `POST /v1/billing/_test/pay`
+simule un paiement et renvoie le webhook signé (corps en base64 pour un
+transport byte-exact) ; avec une clé SasPay réelle elle répond toujours
+404 — aucune simulation possible en production.
+
+Gestion des clés par l'opérateur (voir CLI) :
+```
+statementflow keys issue <label> --credits 100   # clé client + crédits
+statementflow keys list                          # hashes + soldes
+statementflow keys credits <clé|hash> 500        # ajuster
+statementflow keys revoke <clé|hash>             # révoquer
+statementflow billing pending|check|simulate     # rechargements
+```
+Variables : `STATEMENTFLOW_KEYS_PATH` (fichier JSON des clés gérées,
+rechargé à chaud), `STATEMENTFLOW_BILLING_STORE_PATH`.
+
 ## CLI
 
 ```
@@ -166,4 +219,7 @@ statementflow parse <fichier|dossier> [-o out.json] [--outdir dir] [--pretty]
 statementflow check <resultat.json>     # code retour 2 si déséquilibré
 statementflow keys create [--count N]   # clé aléatoire + hash (rotation documentée)
 statementflow keys hash [clé]           # empreinte SHA-256 (stdin si omise)
+statementflow keys issue <label> [--credits N]  # clé client gérée (KEYS_PATH)
+statementflow keys list|revoke|credits <clé|hash>       # gestion
+statementflow billing pending|check <ref>|simulate <session>  # rechargements
 ```
