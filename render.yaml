@@ -1,14 +1,29 @@
-# Render Blueprint — service API StatementFlow
+# Render Blueprint — StatementFlow : API web + Cron Job de maintenance
 #
 # Ce fichier peut être importé dans Render (New → Blueprint) pour créer
-# le service web. AUCUN secret n'y figure : les variables sensibles
-# sont à définir dans l'interface Render (elles y sont chiffrées).
+# les services. AUCUN secret n'y figure : les variables sensibles sont
+# à définir dans l'interface Render (elles y sont chiffrées).
+#
+# Services :
+# 1. statementflow-api (web, plan free) — l'API REST ;
+# 2. statementflow-maintenance (cron, plan starter payant) — tâches
+#    périodiques : nettoyage, réconciliation SasPay, intégrité
+#    financière, surveillance (voir docs/CRON.md).
+#
+# ⚠️ Les Cron Jobs Render ne sont PAS disponibles sur le plan free
+#    (minimum 0.5 CPU / 512 MB, facturé à l'usage — quelques secondes
+#    par exécution). Le cron est OPTIONNEL : sans lui, le polling
+#    client (/v1/billing/status/{ref}) et les webhooks SasPay suffisent
+#    à activer les crédits ; le cron n'est qu'un filet de sécurité
+#    (rattrapage des webhooks manqués + détection d'incohérences).
 services:
+  # ── 1. API REST ───────────────────────────────────────────────────
   - type: web
     name: statementflow-api
     runtime: docker
     plan: free
     # Dockerfile inclus : python:3.12-slim + tesseract + poppler (OCR)
+    # + extras api (fastapi, uvicorn, python-multipart) et pg (psycopg)
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
     autoDeploy: true
@@ -22,23 +37,53 @@ services:
       #   sync: false
       - key: STATEMENTFLOW_ADMIN_KEY
         sync: false                # clé d'administration (routes /v1/admin/*)
+      # ── persistance PostgreSQL / Supabase ─────────────────────────
+      # Chaîne de connexion complète (Project Settings → Database).
+      # SANS cette variable, l'API retombe sur les magasins JSON locaux
+      # (plan free : disque éphémère — clés/rechargements perdus à
+      # chaque redéploiement). AVEC elle : clés gérées, rechargements,
+      # usage et jobs vivent dans PostgreSQL (migrations à appliquer,
+      # voir docs/SUPABASE.md).
+      - key: STATEMENTFLOW_DATABASE_URL
+        sync: false
       # ── encaissement SasPay ───────────────────────────────────────
       - key: STATEMENTFLOW_SASPAY_SECRET_KEY
         sync: false                # sk_live_… (mode production)
       - key: STATEMENTFLOW_SASPAY_WEBHOOK_SECRET
         sync: false                # secret de signature des webhooks
-      # ── persistance (voir docs/SUPABASE.md) ───────────────────────
-      # Le plan free n'a PAS de disque persistante : les fichiers JSON
-      # (keys/billing) sont perdus à chaque redéploiement. Brancher
-      # Supabase (migrations supabase/migrations/) avant tout usage
-      # réel ; en attendant, les clés peuvent être déclarées par hash
-      # via STATEMENTFLOW_API_KEY_HASHES (sans état).
-      # - key: STATEMENTFLOW_DATABASE_URL
-      #   sync: false
       # ── limites de traitement (défauts raisonnables) ─────────────
       - key: STATEMENTFLOW_MAX_FILE_MB
         value: "20"
       - key: STATEMENTFLOW_MAX_PAGES
         value: "200"
+      - key: STATEMENTFLOW_MAX_ROWS
+        value: "200000"
       - key: STATEMENTFLOW_RESULTS_TTL_S
         value: "900"
+
+  # ── 2. Cron Job de maintenance ────────────────────────────────────
+  # Fréquence : horaire ('15 * * * *', décalé du passage à l'heure
+  # pile). Justification complète dans docs/CRON.md : les renvois de
+  # webhook SasPay s'étalent sur ~2 h 30 (0/+30 s/+5 min/+30 min/+2 h) ;
+  # une réconciliation horaire rattrape tout événement manqué en moins
+  # d'une heure. Idempotent, verrouillé contre les exécutions
+  # simultanées (pg_try_advisory_lock), aucun secret en dur.
+  - type: cron
+    name: statementflow-maintenance
+    runtime: docker
+    plan: starter                  # 0.5 CPU / 512 MB (pas de plan free)
+    schedule: "15 * * * *"
+    dockerfilePath: ./Dockerfile
+    dockerCommand: python -m statementflow.maintenance
+    envVars:
+      # le cron a besoin de la base (nettoyage + réconciliation) mais
+      # d'AUCUNE clé d'API : variables minimales.
+      - key: STATEMENTFLOW_DATABASE_URL
+        sync: false
+      # clé SasPay en LECTURE (statut des sessions pending) — sans
+      # elle, la réconciliation est sautée proprement (mode test)
+      - key: STATEMENTFLOW_SASPAY_SECRET_KEY
+        sync: false
+      # réconcilier les rechargements pending de plus d'1 heure
+      - key: STATEMENTFLOW_RECONCILE_AFTER_HOURS
+        value: "1"
