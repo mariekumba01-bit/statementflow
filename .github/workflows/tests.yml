@@ -32,13 +32,65 @@ jobs:
       # Aucun secret requis : les paiements passent par le simulateur
       # FakeSasPay (mêmes contrats), les webhooks par des HMAC de test.
       - name: Run test suite (fail on any test failure)
-        run: python -m pytest tests/ -v
+        run: python -m pytest tests/ -v --ignore=tests/test_pg.py --ignore=tests/run_pg_tests.py
 
       - name: Smoke test — CLI on the corpus
         run: |
           statementflow --version
           statementflow parse tests/data/corpus/SYNTH_fr_societegenerale_A.pdf --quiet -o /tmp/smoke.json
           statementflow check /tmp/smoke.json
+
+  pg-tests:
+    # Tests de persistance PostgreSQL : adaptateur Supabase (pg.py),
+    # migrations réelles, cycle de paiement complet, tâches cron —
+    # contre un vrai serveur PostgreSQL (conteneur de service).
+    name: pytest postgresql (Supabase adapter)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: statementflow
+          POSTGRES_PASSWORD: statementflow
+          POSTGRES_DB: statementflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      SF_PG_TEST_URI: postgresql://statementflow:statementflow@localhost:5432/statementflow
+      PGHOST: localhost
+      PGUSER: statementflow
+      PGPASSWORD: statementflow
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install system dependencies (OCR for scanned-PDF tests)
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr poppler-utils
+      - name: Install package with pg dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,api,pg]"
+      - name: Apply migrations to the service database
+        run: |
+          python - <<'EOF'
+          import os, psycopg
+          dsn = os.environ['SF_PG_TEST_URI']
+          with psycopg.connect(dsn, autocommit=True) as c:
+              for name in sorted(os.listdir('supabase/migrations')):
+                  if name.endswith('.sql'):
+                      print('applying', name)
+                      with open(f'supabase/migrations/{name}') as f:
+                          c.execute(f.read())
+          print('migrations applied')
+          EOF
+      - name: Run PostgreSQL adapter tests
+        run: python -m pytest tests/test_pg.py -v
 
   build:
     name: build distribution
