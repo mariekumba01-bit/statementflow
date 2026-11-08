@@ -41,9 +41,30 @@ def closed_client(monkeypatch):
 
 @pytest.fixture()
 def open_client(monkeypatch):
-    """API en mode ouvert (développement local, défaut sans config)."""
+    """API en mode ouvert EXPLICITE (développement local uniquement :
+    STATEMENTFLOW_ALLOW_OPEN_AUTH=1, aucune clé configurée)."""
     monkeypatch.setattr(api_mod, 'api_keys', ApiKeyStore([]))
     monkeypatch.setattr(api_mod, 'admin_auth', AdminAuthorizer())
+    monkeypatch.setattr(api_mod, 'managed_keys',
+                        __import__('statementflow.security',
+                                   fromlist=['ManagedKeyStore'])
+                        .ManagedKeyStore(''))
+    monkeypatch.setenv('STATEMENTFLOW_ALLOW_OPEN_AUTH', '1')
+    api_mod._jobs.clear()
+    return TestClient(api_mod.app)
+
+
+@pytest.fixture()
+def locked_client(monkeypatch):
+    """API sans AUCUNE clé configurée et sans drapeau d'ouverture :
+    comportement par défaut en production — routes privées verrouillées."""
+    monkeypatch.setattr(api_mod, 'api_keys', ApiKeyStore([]))
+    monkeypatch.setattr(api_mod, 'admin_auth', AdminAuthorizer())
+    monkeypatch.setattr(api_mod, 'managed_keys',
+                        __import__('statementflow.security',
+                                   fromlist=['ManagedKeyStore'])
+                        .ManagedKeyStore(''))
+    monkeypatch.delenv('STATEMENTFLOW_ALLOW_OPEN_AUTH', raising=False)
     api_mod._jobs.clear()
     return TestClient(api_mod.app)
 
@@ -111,6 +132,37 @@ class TestAuth200:
         r = closed_client.get('/health')
         assert r.status_code == 200
         assert r.json()['auth_mode'] == 'key-hash-list'
+
+
+class TestVerrouillageParDefaut:
+    """v0.3.1 : sans clé configurée ET sans drapeau explicite, l'API n'est
+    JAMAIS accessible sans authentification (503 auth_not_configured)."""
+
+    def test_health_signale_le_verrou(self, locked_client):
+        r = locked_client.get('/health')
+        assert r.status_code == 200
+        body = r.json()
+        assert body['auth_mode'] == 'locked'
+        assert body['status'] == 'degraded'
+
+    def test_analyze_sans_config_refuse_503(self, locked_client):
+        r = _submit(locked_client, 'nimporte-quelle-cle')
+        assert r.status_code == 503
+        assert r.json()['error']['code'] == 'auth_not_configured'
+
+    def test_usage_et_results_refuses_503(self, locked_client):
+        assert locked_client.get(
+            '/v1/usage', headers={'X-API-Key': 'k'}).status_code == 503
+        assert locked_client.get(
+            '/v1/results/abc', headers={'X-API-Key': 'k'}).status_code == 503
+
+    def test_topup_refuse_503(self, locked_client):
+        r = locked_client.post(
+            '/v1/billing/topup',
+            json={'pack': 'starter', 'customer_email': 'a@b.sn',
+                  'customer_name': 'Awa'},
+            headers={'X-API-Key': 'k'})
+        assert r.status_code == 503
 
 
 class TestIsolationResultats:

@@ -19,6 +19,16 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CORPUS = os.path.join(HERE, 'data', 'corpus')
 
 
+@pytest.fixture(autouse=True)
+def _explicit_open_auth(monkeypatch):
+    """Ces tests couvrent le TRAITEMENT nominal, pas l'authentification
+    (matrice complète dans test_security.py) : le mode ouvert y est
+    activé EXPLICITEMENT, comme en développement local
+    (STATEMENTFLOW_ALLOW_OPEN_AUTH=1). Sans ce drapeau — et sans clé
+    configurée — l'API refuse toute requête privée (503)."""
+    monkeypatch.setenv('STATEMENTFLOW_ALLOW_OPEN_AUTH', '1')
+
+
 @pytest.fixture()
 def client():
     return TestClient(app)
@@ -39,7 +49,8 @@ class TestHealth:
         assert body['status'] == 'ok'
         assert body['version'] == __import__('statementflow').__version__
         assert 'max_file_mb' in body['limits']
-        assert body['auth_mode'] in ('open', 'key-hash-list')
+        assert body['auth_mode'] in ('open', 'key-hash-list',
+                                     'managed-keys', 'locked')
 
     def test_openapi_documentee(self, client):
         r = client.get('/openapi.json')

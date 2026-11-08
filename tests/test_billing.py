@@ -27,7 +27,9 @@ WEBHOOK_SECRET = 'whsec-test'
 @pytest.fixture()
 def billing_env(monkeypatch, tmp_path):
     """API en mode facturation gérée : clés en fichier (persistance
-    réelle sur tmp_path), simulateur de passerelle, secret webhook."""
+    réelle sur tmp_path), simulateur de passerelle, secret webhook.
+    La présence de KEYS_PATH ferme l'authentification : seules les clés
+    du magasin géré (ou déclarées via API_KEY_HASHES) sont acceptées."""
     keys_path = tmp_path / 'keys.json'
     billing_path = tmp_path / 'billing.json'
     store = ManagedKeyStore(str(keys_path))
@@ -42,6 +44,27 @@ def billing_env(monkeypatch, tmp_path):
     api_mod._jobs.clear()
     client = TestClient(api_mod.app)
     return client, key, gateway, store
+
+
+@pytest.fixture()
+def billing_env_open(monkeypatch, tmp_path):
+    """Mode ouvert explicite SANS clés gérées (KEYS_PATH vide) : couvre
+    le comportement des clés non facturées en développement local."""
+    billing_path = tmp_path / 'billing_open.json'
+    monkeypatch.setattr(api_mod, 'managed_keys',
+                        __import__('statementflow.security',
+                                   fromlist=['ManagedKeyStore'])
+                        .ManagedKeyStore(''))
+    monkeypatch.setattr(api_mod, 'billing_store',
+                        api_mod.BillingStore(str(billing_path)))
+    gateway = FakeSasPay(webhook_secret=WEBHOOK_SECRET)
+    monkeypatch.setattr(api_mod, 'saspay', gateway)
+    monkeypatch.setenv('STATEMENTFLOW_SASPAY_WEBHOOK_SECRET', WEBHOOK_SECRET)
+    monkeypatch.setattr(api_mod, 'api_keys', ApiKeyStore([]))
+    monkeypatch.setenv('STATEMENTFLOW_ALLOW_OPEN_AUTH', '1')
+    api_mod._jobs.clear()
+    client = TestClient(api_mod.app)
+    return client, 'cle-libre-non-geree', gateway, None
 
 
 def _analyze(client, key, data=CSV_BYTES, filename='doc.csv'):
@@ -108,13 +131,11 @@ class TestAnalyzeBilling:
         assert r.status_code == 402
         assert r.json()['error']['code'] == 'payment_required'
 
-    def test_cle_non_geree_non_facturee(self, billing_env, monkeypatch):
-        client, _, _, _ = billing_env
-        monkeypatch.setattr(api_mod, 'api_keys', ApiKeyStore([]))
-        r = _analyze(client, 'cle-libre-non-geree')
+    def test_cle_non_geree_non_facturee(self, billing_env_open):
+        client, key, _, _ = billing_env_open
+        r = _analyze(client, key)
         assert r.status_code == 202
-        res = _result(client, 'cle-libre-non-geree',
-                      r.json()['job_id']).json()
+        res = _result(client, key, r.json()['job_id']).json()
         assert res['billing']['billing_mode'] == 'unmanaged'
 
     def test_usage_affiche_le_solde(self, billing_env):
@@ -263,13 +284,15 @@ class TestWebhookEtActivation:
         assert r.json()['status'] == 'activated'
         assert store.balance(kh) == 503
 
-    def test_statut_isole_par_cle(self, billing_env, monkeypatch):
-        client, key, gateway, _ = billing_env
-        monkeypatch.setattr(api_mod, 'api_keys', ApiKeyStore([]))
+    def test_statut_isole_par_cle(self, billing_env):
+        """Une clé gérée différente ne voit pas le rechargement d'une
+        autre clé : 404, indistinguable d'une référence inconnue."""
+        client, key, gateway, store = billing_env
         ref = self._buy(client, key)
-        # une AUTRE clé (valide) ne voit pas ce rechargement
+        # une seconde clé gérée, émise dans le MÊME magasin
+        other_key, _ = store.issue('autre-client', credits=0)
         r = client.get(f'/v1/billing/status/{ref}',
-                       headers={'X-API-Key': 'autre-cle-valide'})
+                       headers={'X-API-Key': other_key})
         assert r.status_code == 404
 
     def test_webhook_desactive_sans_secret(self, billing_env, monkeypatch):
