@@ -134,6 +134,35 @@ La clé en clair n'est jamais stockée : uniquement son SHA-256 dans
   revenir aux magasins locaux (les données PostgreSQL restent en
   place — aucune perte).
 
+## Diagnostic : « postgres+down » et l'incident U+200E
+
+`/health` expose `persistence` et, en cas d'échec, `pg_error` — le
+TYPE d'erreur, sans jamais le message brut (les erreurs de parsing
+libpq contiennent la chaîne de connexion complète, mot de passe
+compris) :
+
+| pg_error | Cause | Correction |
+|---|---|---|
+| `dsn_invalid` | `STATEMENTFLOW_DATABASE_URL` mal formée | vérifier le format `postgresql://user:pass@hote:port/db` |
+| `auth_failed` | identifiants refusés | mot de passe / utilisateur de la chaîne (ne pas réinitialiser la base pour autant) |
+| `tls_error` | certificat / SSL | forcer `?sslmode=require` |
+| `unreachable` | hôte/port injoignable | réseau, IP allowlist Supabase, port 6543 (pooler) ouvert |
+
+**Incident réel (2026-11-08)** : un caractère invisible `U+200E`
+(LEFT-TO-RIGHT MARK, catégorie Unicode `Cf`) copié-collé devant la
+chaîne faisait échouer libpq avec
+`missing "=" after "postgresql://…" in connection info string` —
+`str.strip()` ne retire pas ces caractères. **Corrigé dans le code
+(v0.4.1)** : le DSN est sanitisé à l'entrée du `PgStore` (marques
+bidi U+200E/U+200F, BOM, zero-width, NBSP, contrôles) — un copier-
+coller pollué fonctionne désormais tel quel. La valeur Render
+n'a PAS besoin d'être retouchée ; redéployer suffit.
+
+**Pooler Supabase** : la chaîne en mode transaction (port **6543**)
+est supportée — les requêtes préparées persistantes sont désactivées
+automatiquement pour ce port (requis par pgBouncer). Le port 5432
+(mode session) reste utilisable pour un trafic faible.
+
 ## Limites connues
 
 - Les **résultats d'analyse** (transactions extraites) ne sont PAS

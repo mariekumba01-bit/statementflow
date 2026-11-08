@@ -1,5 +1,50 @@
 # Changelog
 
+## 0.4.1 (2026-11-08) — incident PostgreSQL Render : DSN pollué par un caractère invisible, fuite de secret corrigée
+
+### Cause racine (incident production)
+Un `U+200E` (LEFT-TO-RIGHT MARK, catégorie Unicode `Cf`) copié-collé
+devant `STATEMENTFLOW_DATABASE_URL` empêchait libpq de reconnaître
+l'URI (`missing "=" after "postgresql://…" in connection info
+string`). `str.strip()` ne retire PAS ces caractères (`isspace()` est
+False) — la valeur Render semblait propre visuellement.
+
+### Corrections
+- **`sanitize_dsn`** : le DSN est nettoyé à l'entrée du `PgStore`
+  (marques bidi U+200E/U+200F, BOM, zero-width U+200B-U+200D, NBSP,
+  contrôles Cc, espaces) — un copier-coller pollué fonctionne tel
+  quel, sans retoucher la variable Render.
+- **Anti-fuite de secret** : le DSN est pré-validé (parsing libpq)
+  AVANT toute connexion — les messages d'erreur de parsing contiennent
+  la chaîne COMPLÈTE (mot de passe compris) et étaient journalisés par
+  le pool. Désormais : `PgStoreError` actionnable (nom de variable,
+  format attendu), jamais le DSN ; `/health` expose `pg_error` (type
+  classifié : `dsn_invalid`/`auth_failed`/`tls_error`/`unreachable`)
+  et le cron n'imprime plus aucun message d'erreur brut.
+- **Pooler Supabase (port 6543, mode transaction)** : les requêtes
+  préparées persistantes sont désactivées automatiquement pour ce port
+  (requis par pgBouncer) — sinon erreurs intermittentes
+  « prepared statement … does not exist ».
+- **Coexistence des clés** : avec `STATEMENTFLOW_API_KEY_HASHES` (clés
+  techniques) ET PostgreSQL (clés clients gérées), une clé gérée est
+  désormais ACCEPTÉE — auparavant la hash-list seule passait, rendant
+  les opérations financières (réservation/débit de crédits) impossibles
+  en production. `/health` affiche `key-hash-list+managed-keys`.
+- **`connect_direct`** : connexion hors pool (verrou du cron)
+  pré-validée elle aussi.
+- **render.yaml** : service cron COMMENTÉ (prêt à activer) — les Cron
+  Jobs Render exigent un plan payant, aucune dépense n'est engagée ;
+  test manuel gratuit documenté dans docs/CRON.md.
+
+### Tests
+- 15 nouveaux (`tests/test_dsn_diagnostics.py`) : sanitisation
+  (U+200E/U+200F/BOM/ZWSP/NBSP/Cc), no-leak du mot de passe sur les
+  deux chemins d'échec, classification, e2e avec DSN pollué sur un
+  VRAI PostgreSQL (ping + persistance après fermeture/réouverture du
+  pool), pooler 6543, coexistence des clés (analyse facturée sur
+  PostgreSQL avec hash-list configurée), maintenance sortie 3 sans
+  fuite. Total : 289 tests verts (246 base + 28 PG + 15 DSN).
+
 ## 0.4.0 (2026-11-08) — persistance PostgreSQL réelle, Cron Job Render, correction du déploiement
 
 ### Déploiement (corrections de blocage)

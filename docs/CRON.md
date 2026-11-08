@@ -5,14 +5,37 @@ Le service **`statementflow-maintenance`** (type `cron` dans
 requête utilisateur. Il est **indépendant de l'API** (service Render
 séparé, image Docker identique, commande différente).
 
+**État : NON DÉPLOYÉ.** Le service Render Cron n'est pas créé : son
+bloc dans `render.yaml` est **commenté** car les Cron Jobs Render
+exigent un plan payant — aucune dépense n'est engagée sans décision
+explicite (voir « Activation » plus bas). Le code est complet, testé
+(15 tests, dont réconciliation et verrou) et exécutable manuellement.
+
 ## Commande
 
 ```bash
 python -m statementflow.maintenance
 ```
 
-(`dockerCommand` du service cron — l'image est le même Dockerfile que
-l'API, avec les extras `api` et `pg`.)
+(`dockerCommand` du service cron une fois activé — l'image est le
+même Dockerfile que l'API, avec les extras `api` et `pg`.)
+
+## Test manuel gratuit (recommandé avant toute activation)
+
+Sans aucun service Render payant, depuis n'importe quel poste avec
+Python et le dépôt :
+
+```bash
+export STATEMENTFLOW_DATABASE_URL="postgresql://…(chaîne Supabase)"
+# optionnel — sans cette clé, la réconciliation SasPay est sautée :
+export STATEMENTFLOW_SASPAY_SECRET_KEY="sk_live_…"
+python -m statementflow.maintenance
+echo $?   # 0 nominal · 2 anomalie financière critique · 3 erreur technique
+```
+
+Le rapport s'affiche ligne par ligne (une ligne JSON par tâche) et
+l'exécution est journalisée dans `audit_log`. Aucune clé d'API n'est
+requise ; aucun secret n'apparaît dans les sorties (DSN masqué).
 
 ## Les quatre tâches
 
@@ -87,14 +110,22 @@ Aucune clé d'API, aucun secret de signature webhook : le cron n'expose
 rien et ne fait qu'interroger. Aucun secret n'est journalisé (rapport =
 compteurs et références).
 
-## Plan et coût Render
+## Plan et coût Render — activation (action explicite requise)
 
 ⚠️ **Les Cron Jobs Render ne sont pas disponibles sur le plan free**
 (minimum 0.5 CPU / 512 MB, plan `starter`). Facturation à l'usage :
-~24 exécutions/jour de quelques secondes → coût mensuel dérisoire mais
-non nul. Le cron est **optionnel** : sans lui, webhooks + polling
+~24 exécutions/jour de quelques secondes — de l'ordre de quelques
+dollars par mois. **Aucune dépense n'est engagée à ce jour** : le bloc
+du service est commenté dans `render.yaml`. Pour l'activer :
+1. valider le coût estimé ci-dessus ;
+2. décommenter le bloc `statementflow-maintenance` dans `render.yaml` ;
+3. importer/synchroniser le blueprint Render et définir
+   `STATEMENTFLOW_DATABASE_URL` sur le service cron.
+
+Le cron est **optionnel** : sans lui, webhooks + polling client
 suffisent à activer les crédits ; le cron n'est qu'un filet de
-sécurité (rattrapage + intégrité).
+sécurité (rattrapage + intégrité). En attendant, exécutez le test
+manuel gratuit ci-dessus à la fréquence voulue.
 
 ## Exécution manuelle (test, rattrapage)
 

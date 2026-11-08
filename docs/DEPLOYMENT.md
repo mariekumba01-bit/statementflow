@@ -67,7 +67,12 @@ Le webhook SasPay à déclarer dans le tableau de bord SasPay :
 ## Santé et supervision
 
 - `/health` : `status` (`ok`/`degraded`), `auth_mode`, `persistence`
-  (`json` / `postgres+up` / `postgres+down`), limites.
+  (`json` / `postgres+up` / `postgres+down`), `pg_error` (type
+  d'échec PostgreSQL sans secret : `dsn_invalid`/`auth_failed`/
+  `tls_error`/`unreachable`), limites.
+- Cible de production : `status: "ok"` ET `persistence:
+  "postgres+up"`. Si `postgres+down`, lire `pg_error` — la table de
+  correspondance est dans docs/SUPABASE.md (section Diagnostic).
 - Cron : logs du service `statementflow-maintenance` (rapport JSON
   par tâche, code de sortie 2 = anomalie critique → échec visible
   dans le dashboard Render).
