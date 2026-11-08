@@ -68,22 +68,31 @@ services:
   # une réconciliation horaire rattrape tout événement manqué en moins
   # d'une heure. Idempotent, verrouillé contre les exécutions
   # simultanées (pg_try_advisory_lock), aucun secret en dur.
-  - type: cron
-    name: statementflow-maintenance
-    runtime: docker
-    plan: starter                  # 0.5 CPU / 512 MB (pas de plan free)
-    schedule: "15 * * * *"
-    dockerfilePath: ./Dockerfile
-    dockerCommand: python -m statementflow.maintenance
-    envVars:
-      # le cron a besoin de la base (nettoyage + réconciliation) mais
-      # d'AUCUNE clé d'API : variables minimales.
-      - key: STATEMENTFLOW_DATABASE_URL
-        sync: false
-      # clé SasPay en LECTURE (statut des sessions pending) — sans
-      # elle, la réconciliation est sautée proprement (mode test)
-      - key: STATEMENTFLOW_SASPAY_SECRET_KEY
-        sync: false
-      # réconcilier les rechargements pending de plus d'1 heure
-      - key: STATEMENTFLOW_RECONCILE_AFTER_HOURS
-        value: "1"
+  # ── 2. Cron Job de maintenance — PRÊT À ACTIVER, NON DÉPLOYÉ ──────
+  # ⚠️ DÉCOMMENTEZ CE BLOC UNIQUEMENT APRÈS VALIDATION EXPLICITE DE LA
+  # DÉPENSE : les Cron Jobs Render exigent un plan PAYANT (starter,
+  # 0.5 CPU / 512 MB, facturé à l'usage — quelques secondes/heure).
+  # Tant que ce bloc est commenté, l'import du blueprint ne crée AUCUN
+  # service payant. Le test manuel gratuit est documenté dans
+  # docs/CRON.md (section « Test manuel gratuit ») :
+  #   python -m statementflow.maintenance   (env DATABASE_URL + évent.
+  #   SASPAY_SECRET_KEY) — codes de sortie 0/2/3.
+  # - type: cron
+  #   name: statementflow-maintenance
+  #   runtime: docker
+  #   plan: starter                  # 0.5 CPU / 512 MB (payant !)
+  #   schedule: "15 * * * *"
+  #   dockerfilePath: ./Dockerfile
+  #   dockerCommand: python -m statementflow.maintenance
+  #   envVars:
+  #     # le cron a besoin de la base (nettoyage + réconciliation) mais
+  #     # d'AUCUNE clé d'API : variables minimales.
+  #     - key: STATEMENTFLOW_DATABASE_URL
+  #       sync: false
+  #     # clé SasPay en LECTURE (statut des sessions pending) — sans
+  #     # elle, la réconciliation est sautée proprement (mode test)
+  #     - key: STATEMENTFLOW_SASPAY_SECRET_KEY
+  #       sync: false
+  #     # réconcilier les rechargements pending de plus d'1 heure
+  #     - key: STATEMENTFLOW_RECONCILE_AFTER_HOURS
+  #       value: "1"
