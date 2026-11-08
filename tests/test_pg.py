@@ -23,9 +23,18 @@ import shutil
 
 import pytest
 
-pgserver = pytest.importorskip('pgserver')
-pytest.importorskip('psycopg')
-pytest.importorskip('psycopg_pool')
+import os as _os
+if _os.environ.get('SF_PG_TEST_URI'):
+    # serveur PostgreSQL externe (CI : service conteneurisé) — psycopg
+    # suffit, pgserver n'est pas utilisé
+    pytest.importorskip('psycopg')
+    pytest.importorskip('psycopg_pool')
+    pgserver = None
+else:
+    # serveur embarqué local — pgserver requis
+    pgserver = pytest.importorskip('pgserver')
+    pytest.importorskip('psycopg')
+    pytest.importorskip('psycopg_pool')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIGRATIONS = os.path.join(ROOT, 'supabase', 'migrations')
