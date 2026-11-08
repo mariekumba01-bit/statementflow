@@ -27,10 +27,11 @@ Sécurité (v0.2.0 — voir security.py et docs/SECURITY.md) :
 - CORS : désactivé par défaut (même origine) — ne pas utiliser CORS comme
   mécanisme d'authentification.
 
-Mode ouvert (développement local) : sans STATEMENTFLOW_API_KEY_HASHES,
-toute clé NON VIDE est acceptée (séparation par clé et quotas actifs).
-Signalé dans /health via auth_mode. Pour la production, configurez les
-hashes : `statementflow keys create`.
+Mode fermé par défaut (v0.3.1) : sans STATEMENTFLOW_API_KEY_HASHES ni
+STATEMENTFLOW_KEYS_PATH, les routes privées répondent 503
+(auth_not_configured) — l'API n'est JAMAIS accessible sans authentification.
+Le mode ouvert (toute clé non vide acceptée, développement local) doit être
+activé explicitement : STATEMENTFLOW_ALLOW_OPEN_AUTH=1.
 
 Lancer : uvicorn statementflow.api:app --host 127.0.0.1 --port 8080
 Documentation OpenAPI : http://127.0.0.1:8080/docs
@@ -41,14 +42,16 @@ import json
 import os
 import time
 import uuid
+from typing import Optional
 
 from fastapi import FastAPI, File, Header, HTTPException, Request, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from . import __version__
 from .billing import (CREDIT_PACKS, BillingStore, FakeSasPay, SasPayError,
-                      is_failed, is_paid, provider_from_env,
+                      credits_for, is_failed, is_paid, provider_from_env,
                       verify_webhook_signature)
 from .config import Config
 from .engine import ParseError, parse_bytes
@@ -85,7 +88,7 @@ ERROR_CODES = {400: 'invalid_file', 401: 'unauthorized', 403: 'forbidden',
                404: 'not_found', 405: 'method_not_allowed',
                402: 'payment_required', 413: 'file_too_large',
                422: 'processing_error', 429: 'quota_exceeded',
-               500: 'internal_error'}
+               500: 'internal_error', 503: 'auth_not_configured'}
 
 # stock des tâches en mémoire : {job_id: {'status', 'result'|'error',
 # 'created', 'key_hash'}} — le résultat n'est lisible que par la clé
@@ -133,24 +136,53 @@ async def structured_http_error(request: Request, exc: HTTPException):
         }})
 
 
+def _allow_open_auth() -> bool:
+    """Mode ouvert explicite (développement local uniquement) :
+    STATEMENTFLOW_ALLOW_OPEN_AUTH=1. Sans cela, aucune clé configurée
+    (hashes ni clés gérées) → API fermée (503 sur les routes privées)."""
+    return os.environ.get('STATEMENTFLOW_ALLOW_OPEN_AUTH', '') == '1'
+
+
+def _auth_mode() -> str:
+    """Mode d'authentification signalé par /health."""
+    if api_keys.configured:
+        return 'key-hash-list'
+    if managed_keys.path_configured:
+        return 'managed-keys'
+    return 'open' if _allow_open_auth() else 'locked'
+
+
 def _require_key(x_api_key: str | None) -> str:
     """Authentification des routes privées → clé vérifiée.
     401 si l'en-tête est absent ou vide ; 401 si la clé est inconnue
-    (mode fermé). La clé en clair ne sort jamais de cette fonction."""
+    (mode fermé) ; 503 si AUCUNE clé n'est configurée (l'API n'est jamais
+    accessible sans authentification, sauf mode ouvert explicite).
+    La clé en clair ne sort jamais de cette fonction."""
     if not x_api_key or not x_api_key.strip():
         raise HTTPException(
             401, 'Clé d\'API manquante : fournissez l\'en-tête X-API-Key.')
     key = x_api_key.strip()
+    if not api_keys.configured and not managed_keys.path_configured:
+        if not _allow_open_auth():
+            raise HTTPException(
+                503, 'Aucune clé d\'API configurée : définissez '
+                     'STATEMENTFLOW_API_KEY_HASHES ou STATEMENTFLOW_KEYS_PATH '
+                     '(ou STATEMENTFLOW_ALLOW_OPEN_AUTH=1 pour un développement '
+                     'local isolé).')
+        # mode ouvert explicite : toute clé non vide est acceptée, mais
+        # une clé gérée RÉVOQUÉE reste refusée
+        if managed_keys.is_revoked(hash_key(key)):
+            raise HTTPException(401, 'Clé d\'API révoquée.')
+        return key
     if not api_keys.verify(key):
         raise HTTPException(401, 'Clé d\'API invalide.')
-    # clé GÉRÉE révoquée → refusée même en mode ouvert (KEYS_PATH)
-    kh = hash_key(key)
-    managed_keys._load()
-    if managed_keys._path:
-        record = managed_keys._records.get(kh)
-        if record is not None and record.revoked:
-            raise HTTPException(
-                401, 'Clé d\'API révoquée.')
+    key_hash = hash_key(key)
+    # en mode « clés gérées » (KEYS_PATH sans API_KEY_HASHES), une clé
+    # inconnue du magasin géré est refusée (fermeture complète)
+    if not api_keys.configured and managed_keys.lookup(key_hash) is None:
+        raise HTTPException(401, 'Clé d\'API invalide.')
+    if managed_keys.is_revoked(key_hash):
+        raise HTTPException(401, 'Clé d\'API révoquée.')
     return key
 
 
@@ -176,12 +208,32 @@ def _sweep_jobs():
 @app.get('/health', response_model=HealthResponse)
 def health():
     return HealthResponse(
-        status='ok', version=__version__, auth_mode=api_keys.mode,
+        status='ok' if _auth_mode() != 'locked' else 'degraded',
+        version=__version__, auth_mode=_auth_mode(),
         limits={'max_file_mb': config.max_file_mb, 'max_pages': config.max_pages,
                 'max_rows': config.max_rows, 'results_ttl_s': config.results_ttl_s})
 
 
 # ── routes privées (X-API-Key requis) ───────────────────────────────
+async def _read_upload_capped(file: UploadFile, max_bytes: int) -> bytes:
+    """Lit un multipart en respectant la limite de taille AVANT de tout
+    charger en mémoire : un fichier plus volumineux est interrompu dès
+    que la limite est dépassée (pas de OOM sur un upload malveillant)."""
+    chunks: list[bytes] = []
+    total = 0
+    while True:
+        chunk = await file.read(1024 * 1024)  # 1 Mo à la fois
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > max_bytes:
+            raise HTTPException(
+                413, f'Fichier trop volumineux (limite '
+                     f'{max_bytes // (1024 * 1024)} Mo)')
+        chunks.append(chunk)
+    return b''.join(chunks)
+
+
 @app.post('/v1/analyze', response_model=AnalyzeAccepted, status_code=202)
 async def analyze(
     file: UploadFile = File(..., description='PDF, CSV, TSV ou XLSX'),
@@ -194,10 +246,7 @@ async def analyze(
     _sweep_jobs()
     key = _require_key(x_api_key)
     key_hash = hash_key(key)
-    data = await file.read()
-    if len(data) > config.max_file_mb * 1024 * 1024:
-        raise HTTPException(
-            413, f'Fichier trop volumineux (limite {config.max_file_mb} Mo)')
+    data = await _read_upload_capped(file, int(config.max_file_mb * 1024 * 1024))
     if not data:
         raise HTTPException(400, 'Fichier vide')
     if quota is not None and (quota.max_documents is not None
@@ -205,29 +254,35 @@ async def analyze(
         ok, reason = quota.check(usage_store.get(key_hash))
         if not ok:
             raise HTTPException(429, reason)
-    # clés gérées : pré-autorisation par crédits prépayés (une clé non
-    # gérée — déclarée via API_KEY_HASHES — reste non facturée)
+    # clés gérées : RÉSERVATION ATOMIQUE d'un crédit avant traitement
+    # (une clé non gérée — déclarée via API_KEY_HASHES — reste non facturée).
+    # Le coût réel (pages/tranches) est complété après le traitement ; un
+    # échec restitue la réservation : rien n'est consommé sur erreur.
     managed = managed_keys.lookup(key_hash)
-    if managed is not None and managed.credits < 1:
-        raise HTTPException(
-            402, 'Crédits épuisés : rechargez sur /v1/billing/topup '
-                 '(voir /v1/billing/packs).')
+    reserved = 0.0
+    if managed is not None:
+        if not managed_keys.reserve(key_hash, 1.0):
+            raise HTTPException(
+                402, 'Crédits épuisés : rechargez sur /v1/billing/topup '
+                     '(voir /v1/billing/packs).')
+        reserved = 1.0
     filename = sanitize_filename(file.filename)
     job_id = uuid.uuid4().hex  # non dévinable
     _jobs[job_id] = {'status': 'processing', 'created': time.time(),
                      'key_hash': key_hash}
-    # traitement immédiat (CPU-bound, rapide) mais réponse asynchrone :
-    # le client récupère le résultat via /v1/results/{job_id}
+    # traitement en threadpool (CPU-bound : OCR, parsing) : ne bloque pas
+    # la boucle d'événements ; le client récupère le résultat via
+    # /v1/results/{job_id}
     try:
-        result = parse_bytes(data, filename, config, x_currency_hint)
+        result = await run_in_threadpool(
+            parse_bytes, data, filename, config, x_currency_hint)
         usage_store.record(key_hash, result['usage']['pages'],
                            result['usage']['transactions'])
         if managed is not None:
             # décompte APRÈS un traitement réussi (règle publique :
             # 1 crédit = 1 page PDF ou 50 lignes tabulaires)
-            from .billing import credits_for
             cost = credits_for(result['usage'], result['document']['kind'])
-            remaining = managed_keys.deduct(key_hash, cost)
+            remaining = managed_keys.settle(key_hash, cost - reserved)
             result['billing'] = {
                 'credits_charged': cost,
                 'credits_remaining': round(remaining, 2) if remaining >= 0 else None,
@@ -237,6 +292,12 @@ async def analyze(
             result['billing'] = {'billing_mode': 'unmanaged'}
         _jobs[job_id].update(status='done', result=result)
     except ParseError as e:
+        if managed is not None and reserved:
+            managed_keys.refund(key_hash, reserved)
+        _jobs[job_id].update(status='error', error=str(e))
+    except Exception as e:  # défensif : aucune trace interne ne fuite
+        if managed is not None and reserved:
+            managed_keys.refund(key_hash, reserved)
         _jobs[job_id].update(status='error', error=str(e))
     return AnalyzeAccepted(job_id=job_id, status=_jobs[job_id]['status'],
                            poll=f'/v1/results/{job_id}')
@@ -414,15 +475,20 @@ async def billing_webhook(request: Request):
         return {'received': True, 'failed': record['reference']}
     # succès : re-vérification SERVEUR obligatoire avant créditation
     try:
-        tx = saspay.verify_payment(tx_id)
+        tx = await run_in_threadpool(saspay.verify_payment, tx_id)
     except SasPayError as e:
         # injoignable : ne rien créditer, le polling rattrapera
         return JSONResponse({'error': {'code': 'gateway_unreachable',
                                        'message': f'Vérification impossible: {e}',
                                        'request_id': ''}}, status_code=502)
     if not is_paid(tx):
-        billing_store.mark_failed(record['reference'], tx_id)
-        return {'received': True, 'not_paid': tx.get('status')}
+        # PENDING ou statut inconnu : NE PAS marquer failed — le paiement
+        # peut être en cours de confirmation côté passerelle ; le polling
+        # de /v1/billing/status/{ref} tranchera sur l'état définitif.
+        if is_failed(tx):
+            billing_store.mark_failed(record['reference'], tx_id)
+            return {'received': True, 'failed': record['reference']}
+        return {'received': True, 'pending': tx.get('status')}
     activated = _activate_topup(record, tx_id)
     return {'received': True, 'activated': bool(activated)}
 
@@ -480,11 +546,8 @@ async def billing_test_pay(body: dict):
 def admin_usage(x_admin_key: str | None = Header(default=None)):
     """Usage global. Les clés n'apparaissent que sous forme de hash."""
     _require_admin(x_admin_key)
-    with usage_store._lock:
-        return {'records': [
-            {'key_hash': k, 'documents': r.documents, 'pages': r.pages,
-             'transactions': r.transactions}
-            for k, r in usage_store._records.items()]}
+    return {'records': [
+        {'key_hash': k, **v} for k, v in usage_store.snapshot().items()]}
 
 
 @app.post('/v1/admin/usage/reset')
