@@ -28,6 +28,13 @@ a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 img { max-width: 100%; }
 code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+/* mobile : les longues lignes de code se coupent au lieu de forcer
+   un scroll horizontal de toute la page (code inline des pages
+   démo/API ; les <pre> gardent leur défilement interne) */
+@media (max-width: 759px) {
+  code { overflow-wrap: anywhere; }
+  .tbl-scroll, .card > .tbl, section .tbl { display: block; overflow-x: auto; }
+}
 pre {
   background: #0a0f1d; border: 1px solid var(--line); border-radius: var(--radius);
   padding: 14px; overflow-x: auto; line-height: 1.5;
@@ -42,6 +49,13 @@ header.site {
   border-bottom: 1px solid var(--line);
 }
 .nav { display: flex; align-items: center; gap: 14px; padding: 12px 0; }
+/* mobile : la navigation passe sur plusieurs lignes plutôt que de
+   déborder de l'écran (scroll horizontal interdit) */
+@media (max-width: 759px) {
+  .nav { flex-wrap: wrap; row-gap: 8px; gap: 10px; }
+  .nav a.navlink { font-size: 0.9rem; padding: 5px 1px; }
+  .nav .btn.small { padding: 6px 10px; font-size: 0.85rem; }
+}
 .brand { font-weight: 800; font-size: 1.12rem; color: var(--txt); display: flex; align-items: center; gap: 8px; }
 .brand:hover { text-decoration: none; }
 .brand .logo {
