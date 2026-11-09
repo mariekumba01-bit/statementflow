@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StatementFlow — Convertissez vos relevés bancaires et mobile money en JSON fiable</title>
+  <meta name="description" content="Transformez vos relevés PDF, CSV, TSV et XLSX (banques et mobile money) en transactions JSON normalisées avec contrôles de cohérence comptable. Essai gratuit, packs à partir de 5 000 FCFA.">
+  <meta name="keywords" content="relevé bancaire, mobile money, PDF vers JSON, CSV vers JSON, extraction transactions, Orange Money, Wave, comptabilité, fintech">
+  <link rel="canonical" href="https://statementflow-api-ch0f.onrender.com/">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="StatementFlow — relevés bancaires et mobile money en JSON">
+  <meta property="og:description" content="PDF, CSV, TSV, XLSX → transactions JSON normalisées avec contrôles comptables. Essai gratuit dès l'inscription.">
+  <meta property="og:url" content="https://statementflow-api-ch0f.onrender.com/">
+  <meta property="og:locale" content="fr_FR">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#0d1220">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication",
+   "name":"StatementFlow",
+   "applicationCategory":"BusinessApplication",
+   "operatingSystem":"Web",
+   "description":"Conversion de relevés bancaires et mobile money (PDF, CSV, TSV, XLSX) en transactions JSON normalisées avec contrôles de cohérence comptable.",
+   "offers":{"@type":"Offer","price":"5000","priceCurrency":"XOF"}}
+  </script>
+</head>
+<body data-page="home">
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="/"><span class="logo"></span>StatementFlow</a>
+    <span class="spacer"></span>
+    <a class="navlink" href="/demo.html">Démo</a>
+    <a class="navlink" href="#tarifs">Tarifs</a>
+    <a class="navlink" href="/api.html">API</a>
+    <a class="navlink" href="/login.html">Connexion</a>
+    <a class="btn small" data-signup href="/signup.html">Créer un compte</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="badge">PDF · CSV · TSV · XLSX — banques &amp; mobile money</span>
+    <h1>Vos relevés bancaires deviennent des <em>données exploitables</em></h1>
+    <p class="lead">Déposez un relevé PDF, un export CSV ou un fichier Excel :
+    StatementFlow extrait chaque transaction, la normalise en JSON et
+    vérifie la cohérence comptable (soldes, totaux, dates).</p>
+    <div class="cta">
+      <a class="btn ok" data-signup href="/signup.html">Essayer gratuitement</a>
+      <a class="btn sec" href="/demo.html">Voir la démo</a>
+    </div>
+    <p class="muted small mt2">Crédits d'accueil offerts à l'inscription — aucune carte bancaire requise pour commencer.</p>
+  </div>
+</section>
+
+<section id="probleme">
+  <div class="wrap">
+    <h2>Le problème que StatementFlow résout</h2>
+    <p class="sub">Les relevés arrivent dans des formats impossibles à
+    exploiter : PDF scannés, exports mobile money hétérogènes, colonnes
+    différentes selon les banques. Les copier à la main prend des heures
+    et génère des erreurs.</p>
+    <div class="grid c3">
+      <div class="card">
+        <h3>📄 PDF natifs ou scannés</h3>
+        <p>Extraction des tableaux de transactions, même dans des PDF à
+        mise en page complexe, avec OCR (tesseract) en repli pour les
+        pages scannées.</p>
+      </div>
+      <div class="card">
+        <h3>📱 Mobile money</h3>
+        <p>Formats d'exports Orange Money, Wave et opérateurs : montants,
+        frais, types d'opération reconnus et normalisés.</p>
+      </div>
+      <div class="card">
+        <h3>🧮 Contrôles comptables</h3>
+        <p>Chaque conversion inclut des contrôles de cohérence : soldes
+        successifs, égalité débits/crédits, doublons, écarts détectés —
+        signalés explicitement dans le résultat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="demonstration" style="background:var(--bg2)">
+  <div class="wrap">
+    <h2>Avant / après : une conversion réelle</h2>
+    <p class="sub">Pas une maquette : la démo exécute le moteur de
+    production sur vos fichiers ou sur nos échantillons, sans compte et
+    sans débit de crédits.</p>
+    <div class="center">
+      <a class="btn" href="/demo.html">Ouvrir la démo interactive</a>
+      <p class="muted small mt1">Échantillons fournis : relevé mobile
+      money (CSV), relevé bancaire (CSV), exemple de résultat JSON.</p>
+    </div>
+  </div>
+</section>
+
+<section id="cas-usage">
+  <div class="wrap">
+    <h2>Pour qui&nbsp;?</h2>
+    <div class="grid c4">
+      <div class="card"><h3>🏦 Fintechs</h3>
+        <p>Importez les relevés de vos clients pour la vérification de
+        revenus, l'octroi de crédit ou la catégorisation des dépenses.</p></div>
+      <div class="card"><h3>📊 Cabinets comptables</h3>
+        <p>Éliminez la ressaisie : les transactions extraites alimentent
+        vos outils de comptabilité au format JSON normalisé.</p></div>
+      <div class="card"><h3>👩‍💻 Développeurs</h3>
+        <p>API REST simple (multipart → JSON), clé personnelle, même
+        moteur que le tableau de bord. Exemples Python, JavaScript et n8n.</p></div>
+      <div class="card"><h3>🏢 Entreprises</h3>
+        <p>Rapprochement bancaire, audit interne, suivi des comptes mobile
+        money de vos agences — sans développement spécifique.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="tarifs" style="background:var(--bg2)">
+  <div class="wrap">
+    <h2 id="tarifs-titre">Tarification simple, prépayée</h2>
+    <p class="sub">1 crédit ≈ 1 page PDF ou 50 lignes de tableau. Les
+    crédits ne sont débités que si le traitement réussit — minimum
+    1 crédit par conversion réussie.</p>
+    <div class="grid c3">
+      <div class="card price">
+        <h3>Starter</h3>
+        <div class="amount">5 000 FCFA</div>
+        <ul>
+          <li>500 crédits</li>
+          <li>≈ 500 pages PDF</li>
+          <li>10 FCFA / crédit effectif*</li>
+        </ul>
+        <a class="btn sec block" data-signup href="/signup.html">Commencer</a>
+      </div>
+      <div class="card price popular">
+        <span class="tag">Le plus choisi</span>
+        <h3>Pro</h3>
+        <div class="amount">20 000 FCFA</div>
+        <ul>
+          <li>2 500 crédits</li>
+          <li>≈ 2 500 pages PDF</li>
+          <li>8 FCFA / crédit effectif*</li>
+        </ul>
+        <a class="btn block" data-signup href="/signup.html">Commencer</a>
+      </div>
+      <div class="card price">
+        <h3>Business</h3>
+        <div class="amount">60 000 FCFA</div>
+        <ul>
+          <li>10 000 crédits</li>
+          <li>≈ 10 000 pages PDF</li>
+          <li>6 FCFA / crédit effectif*</li>
+        </ul>
+        <a class="btn sec block" data-signup href="/signup.html">Commencer</a>
+      </div>
+    </div>
+    <p class="muted small center mt2">*Prix par page PDF ; un document
+    tabulaire consomme 1 crédit par tranche de 50 lignes. Les crédits
+    n'expirent pas. Paiement par SasPay.</p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2 id="faq-titre">FAQ — Questions fréquentes</h2>
+    <details>
+      <summary>Mes documents sont-ils conservés&nbsp;?</summary>
+      <p>Non. Le traitement est éphémère : le fichier est analysé en
+      mémoire et jamais écrit sur disque. Seules des métadonnées (nom du
+      fichier, nombre de transactions, crédits consommés) sont
+      conservées pour votre historique. Le résultat complet reste
+      récupérable quelques minutes (TTL 15 minutes), puis il est
+      supprimé.</p>
+    </details>
+    <details>
+      <summary>Quels formats sont acceptés&nbsp;?</summary>
+      <p>PDF (natifs et scannés), CSV, TSV et XLSX, jusqu'à 20 Mo, 200
+      pages et 200 000 lignes par document.</p>
+    </details>
+    <details>
+      <summary>Que se passe-t-il si mon fichier échoue&nbsp;?</summary>
+      <p>Le crédit réservé est intégralement restitué : vous ne payez
+      que les conversions réussies. Le mécanisme (réservation → règlement
+      → remboursement) est atomique et idempotent.</p>
+    </details>
+    <details>
+      <summary>Comment sont encaissés les paiements&nbsp;?</summary>
+      <p>Par SasPay. Les crédits sont ajoutés uniquement après
+      confirmation serveur du paiement (webhook signé cryptographiquement
+      + vérification du statut réel auprès de la passerelle) — jamais
+      sur simple retour de navigateur.</p>
+    </details>
+    <details>
+      <summary>Puis-je utiliser l'API sans le tableau de bord&nbsp;?</summary>
+      <p>Oui : chaque compte dispose d'une clé API personnelle
+      (régénérable) et des exemples d'intégration Python, JavaScript et
+      n8n sont fournis sur la page API.</p>
+    </details>
+    <details>
+      <summary>Quelle précision de conversion&nbsp;?</summary>
+      <p>La conversion est automatique et inclut des contrôles de
+      cohérence (soldes successifs, totaux) dont les alertes accompagnent
+      chaque résultat : nous ne promettons pas une exactitude
+      inconditionnelle, nous vous donnons les moyens de la vérifier.</p>
+    </details>
+  </div>
+</section>
+
+<section class="center" style="background:var(--bg2)">
+  <div class="wrap">
+    <h2>Prêt à convertir votre premier relevé&nbsp;?</h2>
+    <p class="sub">Créez votre compte en 30 secondes, recevez vos crédits
+    d'accueil et déposez votre premier fichier.</p>
+    <a class="btn ok" data-signup href="/signup.html">Créer mon compte gratuitement</a>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap cols">
+    <div>
+      <div class="brand" style="margin-bottom:8px"><span class="logo"></span>StatementFlow</div>
+      <p>Conversion de relevés bancaires et mobile money<br>en données exploitables.</p>
+    </div>
+    <div>
+      <p><a href="/demo.html">Démo</a><br>
+      <a href="#tarifs">Tarifs</a><br>
+      <a href="/api.html">Documentation API</a></p>
+    </div>
+    <div>
+      <p><a href="/legal.html">Mentions légales</a><br>
+      <a href="/legal.html#confidentialite">Politique de confidentialité</a><br>
+      <a href="/legal.html#cgv">Conditions générales</a></p>
+    </div>
+  </div>
+</footer>
+<script src="/app.js"></script>
+</body>
+</html>

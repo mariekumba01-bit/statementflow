@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tableau de bord — StatementFlow</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0d1220">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="dashboard">
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="/"><span class="logo"></span>StatementFlow</a>
+    <span class="spacer"></span>
+    <a class="navlink" href="/api.html">API</a>
+    <a class="navlink" href="#" onclick="logout();return false">Déconnexion</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="dash-head">
+    <h1>Tableau de bord</h1>
+    <span class="spacer" style="flex:1"></span>
+    <span class="muted small" id="who"></span>
+  </div>
+  <div id="verify-note" class="msg info hidden">
+    <span id="verify-text">Votre adresse email n'est pas encore vérifiée :
+    ouvrez le lien reçu par email pour activer les conversions et les
+    recharges. <a href="/login.html">Renvoyer le lien</a></span>
+  </div>
+
+  <div class="kpis">
+    <div class="card"><div class="kpi">Crédits disponibles</div>
+      <div class="balance" id="credits">—</div></div>
+    <div class="card"><div class="kpi">Clé API</div>
+      <div style="margin-top:8px"><code id="key-masked" class="muted">chargement…</code></div>
+      <button class="btn sec small mt1" onclick="rotateKey()">Régénérer</button>
+      <div id="key-status" class="msg hidden mt1"></div></div>
+    <div class="card" style="grid-column: span 2">
+      <div class="kpi">Nouveau&nbsp;?</div>
+      <p class="small muted mt1 mb1">Déposez un relevé ci-dessous :
+      PDF, CSV, TSV ou XLSX. 1 crédit ≈ 1 page PDF ou 50 lignes de
+      tableau ; aucun débit si le traitement échoue.</p>
+    </div>
+  </div>
+
+  <div id="key-line" class="msg ok hidden">
+    <strong>Voici votre clé API — conservez-la, elle ne sera plus
+    affichée&nbsp;:</strong>
+    <div class="keybox mt1"><code id="new-key"></code>
+      <button class="btn sec small" onclick="copyKey()">Copier</button></div>
+  </div>
+
+  <section class="mt1" id="convert-section">
+    <h2 style="text-align:left">Convertir un relevé</h2>
+    <div id="convert-status" class="msg hidden"></div>
+    <div class="dropzone" id="dropzone">
+      <strong>Déposez votre fichier ici</strong> ou cliquez pour choisir<br>
+      <span class="small">PDF · CSV · TSV · XLSX — 20 Mo max · 200 pages max</span>
+    </div>
+    <input type="file" id="file-input" class="hidden"
+           accept=".pdf,.csv,.tsv,.xlsx">
+    <div id="progress" class="hidden">
+      <p class="muted small center mb1">Analyse en cours — le moteur
+      extrait et vérifie les transactions…</p>
+      <div class="progress"><div></div></div>
+    </div>
+
+    <div id="result" class="hidden mt2">
+      <div class="card">
+        <h3>Résultat de la conversion</h3>
+        <div id="res-meta" class="mt1"></div>
+        <h4 class="mt3">Aperçu des transactions</h4>
+        <div id="res-txs" class="mt1"></div>
+        <h4 class="mt3">Alertes de validation</h4>
+        <div id="res-checks" class="mt1"></div>
+        <div class="row end mt2">
+          <button class="btn" id="dl-json">Télécharger le JSON complet</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt3" id="recharge">
+    <h2 style="text-align:left">Recharger des crédits</h2>
+    <div id="buy-status" class="msg hidden"></div>
+    <div class="grid c3">
+      <div class="card price">
+        <h3>Starter</h3>
+        <div class="amount">5 000 FCFA</div>
+        <p class="small muted">500 crédits</p>
+        <button class="btn sec block mt1" onclick="buyPack('starter', this)">Acheter</button>
+      </div>
+      <div class="card price popular">
+        <span class="tag">Le plus choisi</span>
+        <h3>Pro</h3>
+        <div class="amount">20 000 FCFA</div>
+        <p class="small muted">2 500 crédits</p>
+        <button class="btn block mt1" onclick="buyPack('pro', this)">Acheter</button>
+      </div>
+      <div class="card price">
+        <h3>Business</h3>
+        <div class="amount">60 000 FCFA</div>
+        <p class="small muted">10 000 crédits</p>
+        <button class="btn sec block mt1" onclick="buyPack('business', this)">Acheter</button>
+      </div>
+    </div>
+    <p class="muted small mt1">Paiement sécurisé par SasPay. Les crédits
+    sont ajoutés uniquement après confirmation serveur du paiement.
+    Revenez sur cette page après le paiement : le solde se met à jour
+    automatiquement.</p>
+  </section>
+
+  <section class="mt3">
+    <h2 style="text-align:left">Historique des conversions</h2>
+    <div id="conversions"></div>
+  </section>
+
+  <section class="mt3">
+    <h2 style="text-align:left">Historique des achats</h2>
+    <div id="topups"></div>
+  </section>
+
+  <section class="mt3">
+    <h2 style="text-align:left">Pour les développeurs</h2>
+    <div class="card">
+      <p class="small muted">Utilisez votre clé API personnelle avec
+      l'API REST — même moteur, même facturation. Voir la
+      <a href="/api.html">documentation complète</a> (Python,
+      JavaScript, n8n).</p>
+    </div>
+  </section>
+</div>
+
+<footer class="site">
+  <div class="wrap">
+    <p class="center small muted">StatementFlow — traitement éphémère :
+    vos documents ne sont jamais conservés. <a href="/legal.html">En savoir plus</a></p>
+  </div>
+</footer>
+<script src="/app.js"></script>
+</body>
+</html>

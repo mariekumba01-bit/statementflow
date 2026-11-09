@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mentions légales et confidentialité — StatementFlow</title>
+  <meta name="description" content="Mentions légales, politique de confidentialité et conditions générales du service StatementFlow.">
+  <link rel="canonical" href="https://statementflow-api-ch0f.onrender.com/legal.html">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="legal">
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="/"><span class="logo"></span>StatementFlow</a>
+    <span class="spacer"></span>
+    <a class="navlink" href="/">Accueil</a>
+    <a class="navlink" href="/demo.html">Démo</a>
+  </div>
+</header>
+
+<section>
+  <div class="wrap" style="max-width:820px">
+    <h2>Mentions légales</h2>
+    <div class="card mt1">
+      <p><strong>StatementFlow</strong> — service de conversion de
+      relevés bancaires et exports mobile money en données
+      normalisées.</p>
+      <p>Éditeur : le propriétaire du dépôt StatementFlow. Contact :
+      via le dépôt GitHub du projet
+      (github.com/mariekumba01-bit/statementflow).</p>
+      <p>Hébergement : Render (API applicative) et Supabase
+      (base de données PostgreSQL, région eu-central-1).</p>
+      <p>Passerelle de paiement : SasPay (docs.saspay.me) pour
+      l'achat de crédits.</p>
+    </div>
+
+    <h2 class="mt3" id="confidentialite">Politique de confidentialité</h2>
+    <div class="card mt1">
+      <h3>Données traitées</h3>
+      <p><strong>Compte</strong> : adresse email et mot de passe
+      (stocké uniquement sous forme de dérivation PBKDF2 avec sel
+      unique — jamais en clair).</p>
+      <p><strong>Documents convertis</strong> : traitement
+      <em>éphémère</em>. Le fichier est analysé en mémoire et
+      n'est JAMAIS écrit sur disque ni archivé. Le résultat complet
+      reste récupérable pendant 15 minutes (TTL), puis supprimé.
+      Seules des métadonnées (nom du fichier, format, nombre de
+      transactions, crédits consommés, date) sont conservées pour
+      votre historique.</p>
+      <p><strong>Journalisation</strong> : événements techniques et
+      commerciaux (visites de pages, inscriptions, conversions,
+      paiements) sans données bancaires ; les journaux applicatifs ne
+      contiennent ni clé API, ni mot de passe, ni contenu de
+      relevés.</p>
+      <h3 class="mt2">Vos droits</h3>
+      <p>Vous pouvez exporter vos historiques depuis le tableau de
+      bord. Pour une suppression de compte (email, historiques,
+      métadonnées), contactez l'éditeur via le dépôt : suppression
+      sous 30 jours (les écritures financières agrégées — montants
+      encaissés, packs vendus — sont conservées de façon anonymisée
+      pour les obligations comptables).</p>
+      <p><em>Honnêteté : StatementFlow n'est pas audité ni certifié
+      RGPD ; cette politique décrit les traitements réellement
+      implémentés dans le code, vérifiables dans le dépôt public.</em></p>
+    </div>
+
+    <h2 class="mt3" id="cgv">Conditions générales du service</h2>
+    <div class="card mt1">
+      <h3>1. Objet</h3>
+      <p>StatementFlow convertit des documents fournis par le client
+      (relevés bancaires, exports mobile money aux formats PDF, CSV,
+      TSV, XLSX) en données JSON normalisées, avec contrôles de
+      cohérence. Le service est fourni « en l'état », sans garantie
+      d'exactitude inconditionnelle de l'extraction : les contrôles
+      accompagnant chaque résultat permettent d'en vérifier la
+      cohérence.</p>
+      <h3 class="mt2">2. Crédits et facturation</h3>
+      <p>Le service fonctionne par prépaiement de crédits :
+      1 crédit ≈ 1 page PDF ou 50 lignes de tableau, minimum 1 crédit
+      par conversion réussie. Catalogue : Starter 500 crédits —
+      5 000 FCFA ; Pro 2 500 crédits — 20 000 FCFA ; Business
+      10 000 crédits — 60 000 FCFA. Les crédits n'expirent pas et ne
+      sont pas remboursables. Un traitement qui échoue ne consomme
+      pas de crédits (restitution automatique).</p>
+      <h3 class="mt2">3. Achats et paiements</h3>
+      <p>Les paiements sont traités par SasPay. Les crédits sont
+      crédités uniquement après confirmation serveur du paiement
+      (webhook signé + vérification du statut). En cas d'échec,
+      d'annulation ou de non-confirmation, aucun crédit n'est
+      débité.</p>
+      <h3 class="mt2">4. Usage acceptable</h3>
+      <p>Vous vous engagez à ne soumettre que des documents dont vous
+      avez légitimement accès, à ne pas tenter de contourner les
+      limites du service (taille, fréquence, quotas) ni d'accéder aux
+      données d'autres comptes.</p>
+      <h3 class="mt2">5. Responsabilité</h3>
+      <p>La responsabilité de l'éditeur est limitée aux montants
+      effectivement payés par le client au cours des 12 derniers
+      mois. Le service ne constitue pas un conseil financier,
+      comptable ou juridique.</p>
+      <h3 class="mt2">6. Suppression du compte</h3>
+      <p>Vous pouvez demander la suppression de votre compte à tout
+      moment (voir politique de confidentialité).</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <p class="center">StatementFlow — <a href="/">accueil</a> · <a href="/api.html">API</a></p>
+  </div>
+</footer>
+<script src="/app.js"></script>
+</body>
+</html>

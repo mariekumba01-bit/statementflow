@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connexion — StatementFlow</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="login">
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="/"><span class="logo"></span>StatementFlow</a>
+    <span class="spacer"></span>
+    <a class="navlink" href="/">Accueil</a>
+    <a class="navlink" href="/demo.html">Démo</a>
+  </div>
+</header>
+<div class="wrap auth-box">
+  <div class="card">
+    <h1>Connexion</h1>
+    <p class="hint">Accédez à votre tableau de bord, vos crédits et votre clé API.</p>
+    <div id="status" class="msg hidden"></div>
+    <form id="login-form">
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn block" type="submit">Se connecter</button>
+    </form>
+    <p class="mt2 small muted"><a href="/forgot.html">Mot de passe oublié&nbsp;?</a> ·
+    <a data-signup href="/signup.html">Créer un compte</a></p>
+  </div>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

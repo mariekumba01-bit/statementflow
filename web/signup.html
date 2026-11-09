@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Créer un compte — StatementFlow</title>
+  <meta name="description" content="Créez votre compte StatementFlow en 30 secondes : crédits d'accueil offerts, aucune carte bancaire requise.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="signup">
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="/"><span class="logo"></span>StatementFlow</a>
+    <span class="spacer"></span>
+    <a class="navlink" href="/">Accueil</a>
+    <a class="navlink" href="/login.html">Connexion</a>
+  </div>
+</header>
+<div class="wrap auth-box">
+  <div class="card">
+    <h1>Créer mon compte</h1>
+    <p class="hint">Crédits d'accueil offerts — aucune carte bancaire
+    requise pour commencer.</p>
+    <div id="status" class="msg hidden"></div>
+    <form id="signup-form">
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe (10 caractères minimum)</label>
+        <input type="password" id="password" name="password"
+               autocomplete="new-password" minlength="10" required>
+      </div>
+      <button class="btn block" type="submit">Créer mon compte</button>
+    </form>
+    <p class="mt2 small muted">En créant un compte, vous acceptez les
+    <a href="/legal.html#cgv">conditions générales</a> et la
+    <a href="/legal.html#confidentialite">politique de confidentialité</a>.</p>
+    <p class="mt1 small muted">Déjà inscrit&nbsp;? <a href="/login.html">Connectez-vous</a>.</p>
+  </div>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

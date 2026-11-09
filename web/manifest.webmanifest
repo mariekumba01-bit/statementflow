@@ -1,0 +1,16 @@
+{
+  "name": "StatementFlow — relevés bancaires en JSON",
+  "short_name": "StatementFlow",
+  "description": "Convertissez vos relevés bancaires et mobile money (PDF, CSV, TSV, XLSX) en transactions JSON normalisées.",
+  "start_url": "/dashboard.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0d1220",
+  "theme_color": "#0d1220",
+  "lang": "fr",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

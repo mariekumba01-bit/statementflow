@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Démo — StatementFlow</title>
+  <meta name="description" content="Testez la conversion StatementFlow sur vos propres fichiers ou nos échantillons : PDF, CSV, TSV, XLSX → JSON. Moteur réel, sans compte, sans débit de crédits.">
+  <link rel="canonical" href="https://statementflow-api-ch0f.onrender.com/demo.html">
+  <meta name="theme-color" content="#0d1220">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="demo">
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="/"><span class="logo"></span>StatementFlow</a>
+    <span class="spacer"></span>
+    <a class="navlink" href="/">Accueil</a>
+    <a class="navlink" href="#tarifs-l">Tarifs</a>
+    <a class="navlink" href="/api.html">API</a>
+    <a class="btn small" data-signup href="/signup.html">Créer un compte</a>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Démo interactive — moteur réel</h2>
+    <p class="sub">Déposez un fichier (20 Mo max) ou choisissez un
+    échantillon. Cette démo exécute exactement le même moteur de
+    conversion que les comptes payants : résultat JSON complet, contrôles
+    de cohérence inclus. Aucun crédit n'est débité et le fichier n'est
+    pas conservé (traitement éphémère en mémoire).</p>
+
+    <div class="mt2" id="demo-samples">
+      <p class="muted small">Échantillons fournis :</p>
+      <div class="row">
+        <button class="btn sec small" data-src="/samples/releve-mobile-money.csv" data-name="releve-mobile-money.csv">Relevé mobile money (CSV)</button>
+        <button class="btn sec small" data-src="/samples/releve-bancaire.csv" data-name="releve-bancaire.csv">Relevé bancaire (CSV)</button>
+        <a class="btn sec small" href="/samples/exemple-resultat.json" download>Télécharger un exemple de résultat JSON</a>
+      </div>
+    </div>
+
+    <div class="dropzone mt2" id="demo-zone">
+      <strong>Déposez votre fichier ici</strong> ou cliquez pour choisir<br>
+      <span class="small">PDF · CSV · TSV · XLSX — 20 Mo max</span>
+    </div>
+    <input type="file" id="demo-file" class="hidden" accept=".pdf,.csv,.tsv,.xlsx">
+    <p id="demo-status" class="msg info hidden"></p>
+
+    <div id="demo-out" class="demo-cols mt2 hidden">
+      <div class="demo-pane">
+        <h3>Entrée (aperçu du fichier)</h3>
+        <pre id="demo-input"></pre>
+      </div>
+      <div class="demo-pane">
+        <h3>Sortie JSON normalisée (extrait)</h3>
+        <pre id="demo-json"></pre>
+      </div>
+    </div>
+
+    <div class="center mt3">
+      <a class="btn ok" data-signup href="/signup.html">Créer mon compte et convertir pour de vrai</a>
+    </div>
+  </div>
+</section>
+
+<section id="tarifs-l" style="background:var(--bg2)">
+  <div class="wrap center">
+    <h2>Et ensuite&nbsp;?</h2>
+    <p class="sub">Créez un compte (crédits d'accueil offerts), puis
+    rechargez quand vous voulez : Starter 500 crédits · 5 000 FCFA —
+    Pro 2 500 crédits · 20 000 FCFA — Business 10 000 crédits · 60 000 FCFA.</p>
+    <a class="btn" data-signup href="/signup.html">Créer mon compte</a>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <p class="center">StatementFlow — <a href="/legal.html">mentions légales</a> · <a href="/">accueil</a></p>
+  </div>
+</footer>
+<script src="/app.js"></script>
+</body>
+</html>

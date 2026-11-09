@@ -1,0 +1,241 @@
+{
+  "note": "Exemple de résultat StatementFlow — généré par le moteur de production sur un échantillon de relevé mobile money.",
+  "document": {
+    "document_id": "b02548a2e11c12e8",
+    "schema_version": "statementflow/v1",
+    "filename": "releve-mobile-money.csv",
+    "kind": "csv",
+    "pages": 1,
+    "method": "tabular",
+    "parser": "generic-columns-v3",
+    "adapter": "orange-money-csv",
+    "statement_period": {
+      "start": "2026-03-02",
+      "end": "2026-03-28"
+    },
+    "account_currency": null
+  },
+  "usage": {
+    "pages": 1,
+    "transactions": 10,
+    "rows": 11
+  },
+  "transactions": [
+    {
+      "index": 1,
+      "transaction_id": "40db94d24f28d129",
+      "date": "2026-03-02",
+      "description": "Airtime purchase Orange SN",
+      "original_description": "Airtime purchase Orange SN",
+      "label": "Airtime purchase Orange SN",
+      "debit": 220871.0,
+      "credit": null,
+      "amount": -220871.0,
+      "balance": 554044.0,
+      "currency": null,
+      "confidence": 1.0,
+      "alerts": [],
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 2
+      }
+    },
+    {
+      "index": 2,
+      "transaction_id": "289372aea7e6d8a3",
+      "date": "2026-03-03",
+      "description": "Bill payment SENELEC 45210",
+      "original_description": "Bill payment SENELEC 45210",
+      "label": "Bill payment SENELEC 45210",
+      "debit": 33508.0,
+      "credit": null,
+      "amount": -33508.0,
+      "balance": 520536.0,
+      "currency": null,
+      "confidence": 1.0,
+      "alerts": [],
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 3
+      }
+    },
+    {
+      "index": 3,
+      "transaction_id": "d3bdd7fe4dbd5f53",
+      "date": "2026-03-08",
+      "description": "Received from Mamadou Sow",
+      "original_description": "Received from Mamadou Sow",
+      "label": "Received from Mamadou Sow",
+      "debit": null,
+      "credit": 173555.0,
+      "amount": 173555.0,
+      "balance": 694091.0,
+      "currency": null,
+      "confidence": 1.0,
+      "alerts": [],
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 4
+      }
+    },
+    {
+      "index": 4,
+      "transaction_id": "45d3b92d378d21fb",
+      "date": "2026-03-12",
+      "description": "Bill payment SENELEC 45210",
+      "original_description": "Bill payment SENELEC 45210",
+      "label": "Bill payment SENELEC 45210",
+      "debit": 41258.0,
+      "credit": null,
+      "amount": -41258.0,
+      "balance": 652833.0,
+      "currency": null,
+      "confidence": 1.0,
+      "alerts": [],
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 5
+      }
+    },
+    {
+      "index": 5,
+      "transaction_id": "a52a29d038b6e77b",
+      "date": "2026-03-13",
+      "description": "Bank transfer to SG SN 00012345678",
+      "original_description": "Bank transfer to SG SN 00012345678",
+      "label": "Bank transfer to SG SN 00012345678",
+      "debit": 9550.0,
+      "credit": null,
+      "amount": -9550.0,
+      "balance": 643283.0,
+      "currency": null,
+      "confidence": 1.0,
+      "alerts": [],
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 6
+      }
+    },
+    {
+      "index": 6,
+      "transaction_id": "91f391c9cb31ee27",
+      "date": "2026-03-14",
+      "description": "Received from Mamadou Sow",
+      "original_description": "Received from Mamadou Sow",
+      "label": "Received from Mamadou Sow",
+      "debit": null,
+      "credit": 167034.0,
+      "amount": 167034.0,
+      "balance": 810317.0,
+      "currency": null,
+      "confidence": 1.0,
+      "alerts": [],
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 7
+      }
+    },
+    {
+      "index": 7,
+      "transaction_id": "eb4bf1a4014b0c58",
+      "date": "2026-03-18",
+      "description": "Received from Aminata Diallo",
+      "original_description": "Received from Aminata Diallo",
+      "label": "Received from Aminata Diallo",
+      "debit": null,
+      "credit": 124643.0,
+      "amount": 124643.0,
+      "balance": 934960.0,
+      "currency": null,
+      "confidence": 1.0,
+      "alerts": [],
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 8
+      }
+    },
+    {
+      "index": 8,
+      "transaction_id": "60bcf9b4403e2693",
+      "date": "2026-03-21",
+      "description": "Merchant payment Auchan Dakar",
+      "original_description": "Merchant payment Auchan Dakar",
+      "label": "Merchant payment Auchan Dakar",
+      "debit": 58200.0,
+      "credit": null,
+      "amount": -58200.0,
+      "balance": 876760.0,
+      "currency": null,
+      "confidence": 1.0,
+      "alerts": [],
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 9
+      }
+    },
+    {
+      "index": 9,
+      "transaction_id": "b2e4f97bcb2f29cf",
+      "date": "2026-03-25",
+      "description": "Withdrawal ATM UGB Plateau",
+      "original_description": "Withdrawal ATM UGB Plateau",
+      "label": "Withdrawal ATM UGB Plateau",
+      "debit": 100000.0,
+      "credit": null,
+      "amount": -100000.0,
+      "balance": 776760.0,
+      "currency": null,
+      "confidence": 1.0,
+      "alerts": [],
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 10
+      }
+    },
+    {
+      "index": 10,
+      "transaction_id": "60cabb70da74fa34",
+      "date": "2026-03-28",
+      "description": "Received from Fatou Ndiaye",
+      "original_description": "Received from Fatou Ndiaye",
+      "label": "Received from Fatou Ndiaye",
+      "debit": null,
+      "credit": 45000.0,
+      "amount": 45000.0,
+      "balance": 821760.0,
+      "currency": null,
+      "confidence": 1.0,
+      "alerts": [],
+      "trace": {
+        "page": 1,
+        "method": "csv-row",
+        "source_row": 11
+      }
+    }
+  ],
+  "checks": {
+    "tolerance": 0.01,
+    "chain_checked": 9,
+    "chain_matches": 9,
+    "chain_breaks": [],
+    "chain_ok": true,
+    "opening_closing_ok": null,
+    "date_order_ok": true,
+    "transactions_without_date": 0,
+    "transactions_without_amount": 0,
+    "totals": {
+      "count": 10,
+      "debits": 463387.0,
+      "credits": 510232.0
+    }
+  }
+}

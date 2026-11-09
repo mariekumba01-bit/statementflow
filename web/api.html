@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API StatementFlow — Documentation et exemples (Python, JavaScript, n8n)</title>
+  <meta name="description" content="Documentation de l'API REST StatementFlow : conversion de relevés (PDF, CSV, TSV, XLSX) en JSON, authentification par clé, exemples Python, JavaScript et n8n.">
+  <link rel="canonical" href="https://statementflow-api-ch0f.onrender.com/api.html">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="api">
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="/"><span class="logo"></span>StatementFlow</a>
+    <span class="spacer"></span>
+    <a class="navlink" href="/">Accueil</a>
+    <a class="navlink" href="/demo.html">Démo</a>
+    <a class="btn small" data-signup href="/signup.html">Créer un compte</a>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>API StatementFlow</h2>
+    <p class="sub">Chaque compte dispose d'une clé API personnelle
+    (visible dans le tableau de bord, régénérable). Le moteur et la
+    facturation sont identiques à ceux du tableau de bord : 1 crédit ≈
+    1 page PDF ou 50 lignes de tableau, aucun débit si le traitement
+    échoue.</p>
+
+    <h3 class="mt3">Principe</h3>
+    <div class="card mt1">
+      <ol>
+        <li><code>POST /v1/analyze</code> avec votre fichier
+        (multipart) et l'en-tête <code>X-API-Key</code> → un
+        <code>job_id</code> (HTTP 202).</li>
+        <li><code>GET /v1/results/{job_id}</code> avec la même clé →
+        statut <code>processing</code> (202), puis le résultat JSON
+        complet (transactions + contrôles comptables).</li>
+        <li>Les crédits sont réservés puis réglés automatiquement ;
+        en cas d'échec d'analyse, la réservation est restituée.</li>
+      </ol>
+      <p class="small muted">Les résultats restent récupérables 15
+      minutes (TTL), uniquement avec la clé ayant soumis le fichier.
+      La spécification OpenAPI complète est servie sur <a href="/docs">/docs</a>.</p>
+    </div>
+
+    <h3 class="mt3">Python</h3>
+    <pre>import requests, time
+
+API = "https://statementflow-api-ch0f.onrender.com"
+KEY = "sf_votre_cle"          # tableau de bord → clé API
+
+with open("releve.pdf", "rb") as f:
+    r = requests.post(
+        f"{API}/v1/analyze",
+        files={"file": ("releve.pdf", f)},
+        headers={"X-API-Key": KEY},
+    )
+r.raise_for_status()
+job = r.json()["job_id"]
+
+while True:
+    res = requests.get(f"{API}/v1/results/{job}",
+                       headers={"X-API-Key": KEY})
+    if res.status_code == 202:
+        time.sleep(2); continue
+    res.raise_for_status()
+    break
+
+data = res.json()
+print(data["usage"], data["billing"])
+for tx in data["transactions"][:5]:
+    print(tx["date"], tx["label"], tx["amount"])</pre>
+
+    <h3 class="mt3">JavaScript (Node 18+)</h3>
+    <pre>const API = "https://statementflow-api-ch0f.onrender.com";
+const KEY = "sf_votre_cle";
+
+const file = await fs.openAsBlob("releve.csv");   // Node 20+
+// ou : const file = new Blob([await fs.readFile("releve.csv")]);
+
+const form = new FormData();
+form.append("file", file, "releve.csv");
+
+const submit = await fetch(`${API}/v1/analyze`, {
+  method: "POST", headers: { "X-API-Key": KEY }, body: form,
+});
+const { job_id } = await submit.json();
+
+let data;
+for (;;) {
+  const res = await fetch(`${API}/v1/results/${job_id}`, {
+    headers: { "X-API-Key": KEY },
+  });
+  if (res.status === 202) { await new Promise(r => setTimeout(r, 2000)); continue; }
+  data = await res.json(); break;
+}
+console.log(data.usage, data.billing);</pre>
+
+    <h3 class="mt3">n8n (workflow d'intégration)</h3>
+    <div class="card mt1">
+      <ol>
+        <li><strong>Nœud HTTP Request</strong> — Method:
+        <code>POST</code>, URL:
+        <code>https://statementflow-api-ch0f.onrender.com/v1/analyze</code>,
+        Authentication: <em>Header Auth</em> (nom
+        <code>X-API-Key</code>, valeur = votre clé),
+        Body Type: <em>Form-Data (Binary)</em>, champ
+        <code>file</code> ← <code>Binary → Data</code> (données du
+        nœud précédent, ex. lecture d'email ou de Drive).</li>
+        <li><strong>Nœud Wait</strong> — 3 secondes.</li>
+        <li><strong>Nœud HTTP Request</strong> — Method:
+        <code>GET</code>, URL:
+        <code>https://statementflow-api-ch0f.onrender.com/v1/results/{{$json.job_id}}</code>,
+        même Header Auth.</li>
+        <li><strong>Nœud IF</strong> — si
+        <code>{{$json.status}}</code> vaut <code>processing</code>,
+        reboucler sur le Wait (ou activer « Retry On Fail » avec 10
+        essais / 5 000 ms d'intervalle) ; sinon continuer.</li>
+        <li>Les transactions (<code>{{$json.transactions}}</code>)
+        alimentent votre base, Google Sheets, etc.</li>
+      </ol>
+      <p class="small muted">Conseil : en cas de réponse 202, n8n
+      « Retry On Fail » sur le nœud 3 suffit souvent à remplacer la
+      boucle Wait/IF.</p>
+    </div>
+
+    <h3 class="mt3">Réponse (extrait)</h3>
+    <pre>{
+  "job_id": "…",
+  "status": "done",
+  "document": { "kind": "csv", "detected_country": "SN" },
+  "usage": { "pages": 1, "rows": 24, "transactions": 22 },
+  "transactions": [
+    { "date": "2026-03-02", "label": "Airtime purchase Orange SN",
+      "amount": -220871, "balance": 554044 }
+  ],
+  "checks": [
+    { "code": "balance_gap", "severity": "warning",
+      "message": "1 écart de solde consécutif détecté (ligne 12)" }
+  ],
+  "billing": { "credits_charged": 1, "credits_remaining": 499,
+               "billing_mode": "managed" }
+}</pre>
+
+    <h3 class="mt3">Autres endpoints utiles</h3>
+    <div class="tbl-wrap mt1">
+      <table class="tbl">
+        <thead><tr><th>Méthode &amp; route</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><code>GET /health</code></td><td>État du service (public)</td></tr>
+          <tr><td><code>GET /v1/billing/packs</code></td><td>Catalogue public des packs</td></tr>
+          <tr><td><code>POST /v1/billing/topup</code></td><td>Créer une session de paiement (clé requise)</td></tr>
+          <tr><td><code>GET /v1/billing/status/{reference}</code></td><td>Statut d'un rechargement (clé requise)</td></tr>
+          <tr><td><code>GET /v1/usage</code></td><td>Compteurs d'usage de votre clé</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="center mt3">
+      <a class="btn ok" data-signup href="/signup.html">Créer mon compte et obtenir ma clé</a>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <p class="center">StatementFlow — <a href="/legal.html">mentions légales</a> · <a href="/">accueil</a></p>
+  </div>
+</footer>
+<script src="/app.js"></script>
+</body>
+</html>

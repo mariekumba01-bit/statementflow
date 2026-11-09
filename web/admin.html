@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Statistiques — StatementFlow Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="admin">
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="/"><span class="logo"></span>StatementFlow</a>
+    <span class="spacer"></span>
+    <a class="navlink" href="/">Accueil</a>
+  </div>
+</header>
+<div class="wrap">
+  <div class="dash-head"><h1>Statistiques administrateur</h1></div>
+  <div id="admin-status" class="msg hidden"></div>
+  <div id="ask-key" class="auth-box hidden">
+    <div class="card">
+      <h1>Accès administrateur</h1>
+      <p class="hint">Ces statistiques exigent la clé d'administration
+      du serveur (X-Admin-Key). Elle n'est jamais stockée sur cette
+      page au-delà de la session en cours.</p>
+      <form onsubmit="event.preventDefault(); adminSubmit(this);">
+        <div class="field">
+          <label for="key">Clé d'administration</label>
+          <input type="password" id="key" name="key" required>
+        </div>
+        <button class="btn block" type="submit">Afficher les statistiques</button>
+      </form>
+    </div>
+  </div>
+  <div id="stats" class="hidden"></div>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

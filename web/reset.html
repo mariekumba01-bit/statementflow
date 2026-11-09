@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nouveau mot de passe — StatementFlow</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="reset">
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="/"><span class="logo"></span>StatementFlow</a>
+    <span class="spacer"></span>
+    <a class="navlink" href="/">Accueil</a>
+  </div>
+</header>
+<div class="wrap auth-box">
+  <div class="card">
+    <h1>Nouveau mot de passe</h1>
+    <p class="hint">Choisissez un mot de passe de 10 caractères minimum.
+    Toutes vos sessions existantes seront fermées.</p>
+    <div id="status" class="msg hidden"></div>
+    <form id="reset-form">
+      <div class="field">
+        <label for="password">Nouveau mot de passe</label>
+        <input type="password" id="password" name="password"
+               autocomplete="new-password" minlength="10" required>
+      </div>
+      <button class="btn block" type="submit">Modifier mon mot de passe</button>
+    </form>
+  </div>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>
