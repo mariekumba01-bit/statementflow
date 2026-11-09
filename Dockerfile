@@ -18,6 +18,7 @@ WORKDIR /app
 
 COPY pyproject.toml README.md ./
 COPY src ./src
+COPY web ./web
 RUN pip install --no-cache-dir ".[api,pg]"
 
 # non-root

@@ -506,6 +506,12 @@ def _activate_topup(record: dict, transaction_id: str) -> Optional[dict]:
         return None  # déjà activé, remboursé ou inconnu
     if not _pg_backend(managed_keys):
         managed_keys.add_credits(record['key_hash'], record['credits'])
+    # journalisation produit (funnel marketing) — best effort
+    try:
+        from .webapp import record_payment_success_event
+        record_payment_success_event(record)
+    except Exception:
+        pass
     return activated
 
 
@@ -674,3 +680,11 @@ def admin_usage_reset(body: AdminResetRequest,
     target = body.key_hash.strip().lower()
     usage_store.reset(target)
     return {'key_hash': target, 'reset': True}
+
+# ── application web commerciale (v0.5.0) : comptes clients, tableau de
+# bord, paiements, tracking — voir webapp.py ; le frontend statique est
+# servi en dernier recours (mount '/') APRÈS toutes les routes API.
+from .webapp import mount_webapp, router as webapp_router  # noqa: E402
+
+app.include_router(webapp_router)
+mount_webapp(app)
