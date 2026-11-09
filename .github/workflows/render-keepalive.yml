@@ -52,27 +52,23 @@ jobs:
             echo "— tentative $attempt/$max : GET $HEALTH_URL"
             if body=$(curl -sS --fail --max-time 90 \
                       -H 'Accept: application/json' "$HEALTH_URL"); then
-              echo "$body" | python3 - <<'PY'
-          import json, sys
-          data = json.load(sys.stdin)
-          status = data.get('status')
-          persistence = data.get('persistence')
-          version = data.get('version')
-          pg_error = data.get('pg_error')
-          print(f"status={status} version={version} "
-                f"persistence={persistence} pg_error={pg_error}")
-          problems = []
-          if status != 'ok':
-              problems.append(f"status attendu 'ok', reçu '{status}'")
-          if persistence != 'postgres+up':
-              problems.append(
-                  f"persistence attendue 'postgres+up', "
-                  f"reçue '{persistence}'")
-          if problems:
-              print('::error::Santé dégradée : ' + ' ; '.join(problems))
-              sys.exit(1)
-          print('Santé OK : API opérationnelle et PostgreSQL connecté.')
-          PY
+              STATUS=$(printf '%s' "$body" | python3 -c \
+                "import json,sys; d=json.load(sys.stdin); print(d.get('status'))")
+              PERSIST=$(printf '%s' "$body" | python3 -c \
+                "import json,sys; d=json.load(sys.stdin); print(d.get('persistence'))")
+              VERSION=$(printf '%s' "$body" | python3 -c \
+                "import json,sys; d=json.load(sys.stdin); print(d.get('version'))")
+              PGERR=$(printf '%s' "$body" | python3 -c \
+                "import json,sys; d=json.load(sys.stdin); print(d.get('pg_error'))")
+              echo "status=$STATUS version=$VERSION persistence=$PERSIST pg_error=$PGERR"
+              ok=0
+              [ "$STATUS" = "ok" ] || ok=1
+              [ "$PERSIST" = "postgres+up" ] || ok=1
+              if [ "$ok" != "0" ]; then
+                echo "::error::Santé dégradée : status='$STATUS' persistence='$PERSIST' — attendu ok / postgres+up."
+                exit 1
+              fi
+              echo "Santé OK : API opérationnelle et PostgreSQL connecté."
               exit 0
             fi
             attempt=$((attempt + 1))
