@@ -18,5 +18,4 @@ Dockerfile
 .dockerignore
 .gitignore
 render.yaml
-supabase
 scripts
