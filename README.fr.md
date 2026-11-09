@@ -1,5 +1,11 @@
 # StatementFlow
 
+> **v0.5.0 — produit commercial autonome** : application web sur
+> https://statementflow-api-ch0f.onrender.com/ (landing, démo publique,
+> inscription, tableau de bord, achats de packs SasPay, statistiques
+> admin). Voir docs/FRONTEND.md et CHANGELOG.md.
+
+
 [English](README.md) · [Français](README.fr.md)
 
 [![CI](https://github.com/mariekumba01-bit/statementflow/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/mariekumba01-bit/statementflow/actions/workflows/tests.yml) [![Licence : MIT](https://img.shields.io/badge/Licence-MIT-yellow.svg)](https://github.com/mariekumba01-bit/statementflow/blob/main/LICENSE)

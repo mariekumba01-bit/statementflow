@@ -1,5 +1,68 @@
 # Changelog
 
+## 0.5.0 (2026-11-09) — produit commercial autonome : comptes clients, application web, achats SasPay, anti-sommeil
+
+### Comptes clients (migration 005 : users, sessions, auth_tokens, events)
+- Inscription par email (mot de passe PBKDF2-HMAC-SHA256, 600 000
+  itérations, sel unique), connexion, déconnexion, sessions par cookie
+  HttpOnly (token 256 bits stocké haché, TTL 30 jours) ;
+- vérification d'email par token usage unique (SMTP optionnel via
+  STATEMENTFLOW_SMTP_* ; sans SMTP : compte immédiatement utilisable,
+  signalé honnêtement `verified_via=auto_no_smtp`) ;
+- réinitialisation de mot de passe (token 1 h, usage unique, fermeture
+  de toutes les sessions) ;
+- clé API personnelle par compte : visible UNE fois à l'inscription,
+  régénérable (rotation : ancienne clé révoquée, solde transféré par
+  mouvements signés du grand livre — transaction SQL) ;
+- crédits d'accueil configurables (STATEMENTFLOW_SIGNUP_BONUS_CREDITS,
+  défaut 5 — mouvement 'topup' jamais compté dans le CA encaissé).
+
+### Application web (web/, servie par l'API — aucune dépendance, pas de build)
+- Landing commerciale SEO (Open Graph, JSON-LD, sitemap, robots),
+  tarification publique, FAQ, cas d'usage, pages légales honnêtes ;
+- démo interactive PUBLIQUE branchée sur le vrai moteur (2 Mo, 6
+  essais/h/IP, résultat tronqué) avec échantillons réels ;
+- tableau de bord mobile-first : solde, upload drag & drop, progression,
+  aperçu des transactions, alertes de validation, téléchargement JSON,
+  historiques conversions/achats, achat des 3 packs, clé API ;
+- parcours d'achat complet : pack → session SasPay → paiement → retour
+  → polling automatique du statut → crédits activés ;
+- PWA installable (manifest, service worker cache statique uniquement,
+  écran hors-ligne honnête).
+
+### Cycle d'achat SasPay (tests : 22 nouveaux dans tests/test_webapp.py)
+- POST /v1/account/topup : montants TOUJOURS calculés côté serveur ;
+- activation par webhook signé OU par polling du statut (retour
+  navigateur sans webhook) — idempotence par transaction_id unique :
+  un webhook rejoué ne crédite jamais deux fois (vérifié) ;
+- échec/annulation → statut failed, aucun crédit ;
+- GET /v1/admin/stats : visiteurs, inscriptions, clients actifs,
+  conversions, crédits consommés, CA ENCAISSÉ (uniquement les
+  rechargements activés — jamais les pending), packs vendus, sources
+  d'inscription (attribution ?ref= et referrer).
+
+### Sécurité
+- rate limiting mémoire (fenêtre glissante) : inscription 5/15 min/IP,
+  connexion 20/15 min/IP + 5 échecs/15 min/email, reset 5/15 min,
+  tracking 120/min, rotation de clé 3/h, démo 6/h ;
+- isolation stricte par user_id (résultats, historiques, rechargements) ;
+- mots de passe et tokens jamais stockés en clair ; aucun secret
+  exposé au navigateur (session = cookie HttpOnly) ;
+- mount statique : chemin inconnu → 404 JSON (le mount ne masque pas
+  les routes API).
+
+### Anti-sommeil Render (.github/workflows/render-keepalive.yml)
+- Cron GitHub Actions toutes les 10 minutes (manuel via
+  workflow_dispatch) : GET /health, 3 tentatives, vérification
+  status=ok ET persistence=postgres+up, échec explicite, concurrency
+  anti-parallèle, aucun secret. Limites honnêtes documentées
+  (docs/KEEPALIVE.md) : réduction de l'inactivité, PAS une garantie de
+  disponibilité permanente ; instance payante si indispensable.
+
+### Infrastructure
+- Dockerfile : copie du frontend web/ dans l'image ;
+- CI : le job pg-tests exécute AUSSI tests/test_webapp.py.
+
 ## 0.4.1 (2026-11-08) — incident PostgreSQL Render : DSN pollué par un caractère invisible, fuite de secret corrigée
 
 ### Cause racine (incident production)

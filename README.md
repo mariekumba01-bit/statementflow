@@ -1,5 +1,11 @@
 # StatementFlow
 
+> **v0.5.0 — now a self-serve commercial product**: web app at
+> https://statementflow-api-ch0f.onrender.com/ (landing, public demo,
+> sign-up, dashboard, SasPay pack purchases, admin stats). See
+> docs/FRONTEND.md (FR) and CHANGELOG.md.
+
+
 **Turn bank statements and mobile money exports into normalized, verified JSON transactions.**
 
 [English](README.md) · [Français](README.fr.md)

@@ -227,3 +227,47 @@ statementflow keys issue <label> [--credits N]  # clé client gérée (KEYS_PATH
 statementflow keys list|revoke|credits <clé|hash>       # gestion
 statementflow billing pending|check <ref>|simulate <session>  # rechargements
 ```
+
+## Application web et comptes clients (v0.5.0)
+
+Le produit s'utilise désormais AUSSI depuis un navigateur :
+`https://statementflow-api-ch0f.onrender.com/` (landing, démo publique,
+inscription, tableau de bord). Détails : docs/FRONTEND.md.
+
+Nouvelles routes (résumé) :
+
+| Méthode | Route | Auth | Usage |
+|---|---|---|---|
+| POST | `/v1/auth/signup` | — | Créer un compte (email+mot de passe, crédits d'accueil, clé API visible une fois) |
+| POST | `/v1/auth/login` / `logout` | — / cookie | Connexion / déconnexion (cookie HttpOnly `sf_session`) |
+| GET | `/v1/auth/session` | cookie | État de session (email, crédits, clé masquée) |
+| POST | `/v1/auth/verify` / `verify/resend` | token | Vérification d'email (token usage unique) |
+| POST | `/v1/auth/password/forgot` / `reset` | token | Réinitialisation (1 h, usage unique) |
+| GET | `/v1/account/summary` / `conversions` / `topups` | cookie | Tableau de bord (solde, historiques) |
+| POST | `/v1/account/convert` (multipart) | cookie | Conversion — MÊME moteur et MÊME facturation que /v1/analyze |
+| GET | `/v1/account/result/{job_id}` | cookie | Résultat (isolé par compte) |
+| POST | `/v1/account/topup` `{pack}` | cookie | Achat d'un pack (montant calculé SERVEUR) |
+| GET | `/v1/account/topup/{reference}` | cookie | Statut + activation par polling (idempotent avec le webhook) |
+| POST | `/v1/account/key/rotate` | cookie | Régénérer la clé API (solde transféré) |
+| POST | `/v1/demo/analyze` (multipart) | — | Démo publique (2 Mo, 6/h/IP, tronquée) |
+| POST | `/v1/track` | — | Visites (attribution ?ref=/referrer) |
+| GET | `/v1/admin/stats` | X-Admin-Key | Statistiques commerciales (CA = UNIQUEMENT les paiements activés) |
+
+Exemple minimal Python (compte + conversion) :
+
+```python
+import requests
+
+API = "https://statementflow-api-ch0f.onrender.com"
+s = requests.Session()  # conserve le cookie de session
+
+s.post(f"{API}/v1/auth/signup",
+       json={"email": "client@example.com", "password": "motdepasse123"})
+
+with open("releve.pdf", "rb") as f:
+    job = s.post(f"{API}/v1/account/convert",
+                 files={"file": ("releve.pdf", f)}).json()
+print(job["job_id"], s.get(f"{API}/v1/auth/session").json())
+```
+
+## Webhook
