@@ -630,6 +630,292 @@ class PgStore:
             return True
         return self._call(q)
 
+    # ── comptes clients (v0.5.0 — migration 005) ──────────────────
+    def create_account(self, email: str, password_hash: str,
+                       password_salt: str, key_hash: str,
+                       bonus_credits: float = 0.0, verified: bool = False,
+                       verified_via: Optional[str] = None,
+                       source: str = 'direct',
+                       ref: Optional[str] = None) -> str:
+        """Compte complet (organisation + utilisateur + clé API + bonus
+        éventuel) en UNE transaction SQL. Lève PgStoreError
+        'email_deja_utilise' si l'email existe déjà."""
+        def q(conn):
+            return conn.execute(
+                'select create_account(%s, %s, %s, %s, %s::numeric,'
+                ' %s, %s, %s, %s)',
+                (email, password_hash, password_salt, key_hash,
+                 bonus_credits, verified, verified_via, source,
+                 ref)).fetchone()[0]
+        try:
+            return self._call(q)
+        except Exception as e:
+            if 'email_deja_utilise' in str(e):
+                raise PgStoreError('email_deja_utilise') from None
+            raise
+
+    def get_user_by_email(self, email: str) -> Optional[dict]:
+        def q(conn):
+            row = conn.execute(
+                'select id, email, password_hash, password_salt,'
+                ' email_verified, verified_via, created_at, last_login_at'
+                ' from users where email = %s', (email,)).fetchone()
+            return None if row is None else {
+                'id': str(row[0]), 'email': row[1], 'password_hash': row[2],
+                'password_salt': row[3], 'email_verified': row[4],
+                'verified_via': row[5], 'created': _iso(row[6]),
+                'last_login': _iso(row[7])}
+        return self._call(q)
+
+    def mark_email_verified(self, user_id: str, via: str = 'smtp') -> bool:
+        def q(conn):
+            return conn.execute(
+                'update users set email_verified = true, verified_via = %s'
+                ' where id = %s::uuid', (via, user_id)).rowcount > 0
+        return self._call(q)
+
+    def touch_login(self, user_id: str) -> None:
+        def q(conn):
+            conn.execute('update users set last_login_at = now()'
+                         ' where id = %s::uuid', (user_id,))
+        self._call(q)
+
+    def create_session(self, user_id: str, token_hash: str,
+                       ttl_s: int) -> None:
+        def q(conn):
+            conn.execute(
+                'insert into sessions (user_id, token_hash, expires_at)'
+                ' values (%s::uuid, %s, now() + (%s || \' seconds\')'
+                '::interval)', (user_id, token_hash, int(ttl_s)))
+        self._call(q)
+
+    def get_session_user(self, token_hash: str) -> Optional[dict]:
+        """Utilisateur de la session (ou None : inexistante/expirée).
+        Rafraîchit last_seen_at (meilleur effort)."""
+        def q(conn):
+            row = conn.execute(
+                'select u.id, u.email, u.email_verified, u.verified_via'
+                ' from sessions s join users u on u.id = s.user_id'
+                ' where s.token_hash = %s and s.expires_at > now()',
+                (token_hash,)).fetchone()
+            if row is not None:
+                conn.execute('update sessions set last_seen_at = now()'
+                             ' where token_hash = %s', (token_hash,))
+            return None if row is None else {
+                'id': str(row[0]), 'email': row[1],
+                'email_verified': row[2], 'verified_via': row[3]}
+        return self._call(q)
+
+    def delete_session(self, token_hash: str) -> None:
+        def q(conn):
+            conn.execute('delete from sessions where token_hash = %s',
+                         (token_hash,))
+        self._call(q)
+
+    def create_auth_token(self, user_id: str, purpose: str,
+                          token_hash: str, ttl_s: int) -> None:
+        def q(conn):
+            conn.execute(
+                'insert into auth_tokens (user_id, purpose, token_hash,'
+                ' expires_at) values (%s::uuid, %s, %s,'
+                ' now() + (%s || \' seconds\')::interval)',
+                (user_id, purpose, token_hash, int(ttl_s)))
+        self._call(q)
+
+    def consume_auth_token(self, purpose: str,
+                           token_hash: str) -> Optional[str]:
+        """Consomme le token (usage UNIQUE, atomique) → user_id ou None."""
+        def q(conn):
+            row = conn.execute(
+                'update auth_tokens set used_at = now()'
+                ' where token_hash = %s and purpose = %s'
+                ' and used_at is null and expires_at > now()'
+                ' returning user_id', (token_hash, purpose)).fetchone()
+            return None if row is None else str(row[0])
+        return self._call(q)
+
+    def user_active_key_hash(self, user_id: str) -> Optional[str]:
+        """Hash de la clé ACTIVE du compte (une seule par compte)."""
+        def q(conn):
+            row = conn.execute(
+                'select key_hash from api_keys'
+                ' where user_id = %s::uuid and status = \'active\''
+                ' order by created_at desc limit 1', (user_id,)).fetchone()
+            return None if row is None else row[0]
+        return self._call(q)
+
+    def user_owns_key_hash(self, user_id: str, key_hash: str) -> bool:
+        """True si la clé (active OU révoquée par rotation) appartient au
+        compte — l'historique reste accessible après rotation."""
+        def q(conn):
+            return conn.execute(
+                'select exists(select 1 from api_keys'
+                ' where user_id = %s::uuid and key_hash = %s)',
+                (user_id, key_hash)).fetchone()[0]
+        return self._call(q)
+
+    def list_jobs_for_user(self, user_id: str, limit: int = 20,
+                           offset: int = 0) -> list[dict]:
+        """Historique des conversions du compte, toutes clés confondues
+        (MÉTADONNÉES — jamais les transactions bancaires)."""
+        def q(conn):
+            rows = conn.execute(
+                'select j.id, j.filename, j.kind, j.status, j.pages,'
+                ' j.rows, j.transactions_count, j.credits_charged,'
+                ' j.error, j.created_at from jobs j'
+                ' join api_keys k on k.id = j.key_id'
+                ' where k.user_id = %s::uuid'
+                ' order by j.created_at desc limit %s offset %s',
+                (user_id, int(limit), int(offset))).fetchall()
+            return [{'job_id': str(r[0]), 'filename': r[1], 'kind': r[2],
+                     'status': r[3], 'pages': r[4], 'rows': r[5],
+                     'transactions': r[6],
+                     'credits_charged': float(r[7]) if r[7] else None,
+                     'error': r[8], 'created_at': _iso(r[9])}
+                    for r in rows]
+        return self._call(q)
+
+    def list_topups_for_user(self, user_id: str, limit: int = 20
+                             ) -> list[dict]:
+        """Historique d'achats du compte, toutes clés confondues."""
+        def q(conn):
+            rows = conn.execute(
+                'select t.reference, t.pack, t.credits, t.amount_fcfa,'
+                ' t.status, t.transaction_id, t.created_at, t.activated_at'
+                ' from topups t join api_keys k on k.id = t.key_id'
+                ' where k.user_id = %s::uuid'
+                ' order by t.created_at desc limit %s',
+                (user_id, int(limit))).fetchall()
+            return [{'reference': r[0], 'pack': r[1], 'credits': r[2],
+                     'amount_fcfa': r[3], 'status': r[4],
+                     'transaction_id': r[5], 'created_at': _iso(r[6]),
+                     'activated_at': _iso(r[7])} for r in rows]
+        return self._call(q)
+
+    def get_topup_for_user(self, reference: str,
+                           user_id: str) -> Optional[dict]:
+        """Rechargement du compte (toutes clés confondues) ou None."""
+        def q(conn):
+            row = conn.execute(
+                'select t.reference, t.key_id, k.key_hash, t.pack,'
+                ' t.credits, t.amount_fcfa, t.session_id, t.status,'
+                ' t.transaction_id from topups t'
+                ' join api_keys k on k.id = t.key_id'
+                ' where t.reference = %s and k.user_id = %s::uuid',
+                (reference, user_id)).fetchone()
+            return None if row is None else {
+                'reference': row[0], 'key_id': str(row[1]),
+                'key_hash': row[2], 'pack': row[3], 'credits': row[4],
+                'amount_fcfa': row[5], 'session_id': row[6],
+                'status': row[7], 'transaction_id': row[8]}
+        return self._call(q)
+
+    def rotate_key(self, user_id: str, new_key_hash: str) -> float:
+        """Rotation : révoque l'ancienne clé, crée la nouvelle, transfère
+        le solde (fonction SQL transactionnelle). Retourne le solde
+        transféré."""
+        def q(conn):
+            return float(conn.execute(
+                'select rotate_user_key(%s::uuid, %s)',
+                (user_id, new_key_hash)).fetchone()[0])
+        return self._call(q)
+
+    def record_event(self, type_: str, anonymous_id: str = '',
+                     user_id: Optional[str] = None, source: str = 'direct',
+                     path: str = '', metadata: Optional[dict] = None) -> None:
+        """Événement produit/marketing (aucune donnée bancaire).
+        Best effort : jamais bloquant pour l'appelant."""
+        def q(conn):
+            conn.execute(
+                'insert into events (type, anonymous_id, user_id, source,'
+                ' path, metadata) values (%s, %s, %s::uuid, %s, %s, %s)',
+                (type_, (anonymous_id or '')[:120], user_id,
+                 (source or 'direct')[:60], (path or '')[:200],
+                 json.dumps(metadata or {})))
+        try:
+            self._call(q)
+        except Exception:
+            pass
+
+    def list_jobs_for_key(self, key_hash: str, limit: int = 20,
+                          offset: int = 0) -> list[dict]:
+        """Historique des conversions d'une clé (MÉTADONNÉES uniquement —
+        jamais les transactions bancaires du résultat)."""
+        def q(conn):
+            rows = conn.execute(
+                'select j.id, j.filename, j.kind, j.status, j.pages,'
+                ' j.rows, j.transactions_count, j.credits_charged,'
+                ' j.error, j.created_at from jobs j'
+                ' join api_keys k on k.id = j.key_id'
+                ' where k.key_hash = %s'
+                ' order by j.created_at desc limit %s offset %s',
+                (key_hash, int(limit), int(offset))).fetchall()
+            return [{'job_id': str(r[0]), 'filename': r[1], 'kind': r[2],
+                     'status': r[3], 'pages': r[4], 'rows': r[5],
+                     'transactions': r[6],
+                     'credits_charged': float(r[7]) if r[7] else None,
+                     'error': r[8], 'created_at': _iso(r[9])}
+                    for r in rows]
+        return self._call(q)
+
+    def list_topups_for_key(self, key_hash: str, limit: int = 20
+                            ) -> list[dict]:
+        def q(conn):
+            rows = conn.execute(
+                'select t.reference, t.pack, t.credits, t.amount_fcfa,'
+                ' t.status, t.transaction_id, t.created_at, t.activated_at'
+                ' from topups t join api_keys k on k.id = t.key_id'
+                ' where k.key_hash = %s'
+                ' order by t.created_at desc limit %s',
+                (key_hash, int(limit))).fetchall()
+            return [{'reference': r[0], 'pack': r[1], 'credits': r[2],
+                     'amount_fcfa': r[3], 'status': r[4],
+                     'transaction_id': r[5], 'created_at': _iso(r[6]),
+                     'activated_at': _iso(r[7])} for r in rows]
+        return self._call(q)
+
+    def admin_stats(self) -> dict:
+        """Statistiques commerciales agrégées. Le chiffre d'affaires ne
+        compte QUE les rechargements 'activated' (jamais les pending)."""
+        def q(conn):
+            row = conn.execute(
+                "select"
+                " (select count(distinct anonymous_id) from events"
+                "   where type = 'visit'),"
+                " (select count(*) from users),"
+                " (select count(*) from jobs where status = 'done'),"
+                " (select coalesce(sum(credits_charged), 0) from jobs"
+                "   where status = 'done'),"
+                " (select count(*) from topups where status = 'activated'),"
+                " (select coalesce(sum(amount_fcfa), 0) from topups"
+                "   where status = 'activated'),"
+                " (select count(distinct k.user_id) from jobs j"
+                "   join api_keys k on k.id = j.key_id"
+                "   where j.status = 'done' and k.user_id is not null),"
+                " (select count(distinct t.key_id) from topups t"
+                "   where t.status = 'activated')").fetchone()
+            packs = conn.execute(
+                "select pack, count(*), coalesce(sum(amount_fcfa), 0),"
+                " coalesce(sum(credits), 0) from topups"
+                " where status = 'activated' group by pack"
+                " order by count(*) desc").fetchall()
+            sources = conn.execute(
+                "select source, count(*) from events where type = 'signup'"
+                " group by source order by count(*) desc limit 10").fetchall()
+            return {
+                'visitors': row[0], 'signups': row[1],
+                'conversions_done': row[2],
+                'credits_consumed': float(row[3]),
+                'payments_activated': row[4],
+                'revenue_fcfa': int(row[5]),
+                'active_users': row[6], 'paying_keys': row[7],
+                'packs': [{'pack': p[0], 'count': p[1],
+                           'revenue_fcfa': int(p[2]),
+                           'credits_sold': int(p[3])} for p in packs],
+                'signup_sources': [{'source': s[0], 'count': s[1]}
+                                   for s in sources]}
+        return self._call(q)
+
     # ── maintenance / réconciliation (cron) ───────────────────────
     def purge_expired_jobs(self) -> int:
         def q(conn):
