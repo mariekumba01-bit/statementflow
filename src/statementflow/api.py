@@ -7,6 +7,9 @@ Endpoints :
 - GET  /v1/usage                   : compteurs d'usage de la clé fournie
 - GET  /v1/admin/usage             : usage global (ADMIN uniquement)
 - POST /v1/admin/usage/reset       : réinitialisation d'un compteur (ADMIN)
+- POST /mcp                        : serveur MCP distant (agents IA),
+                                      transport Streamable HTTP — voir
+                                      mcp_http.py et docs/MCP.md
 
 Sécurité (v0.2.0 — voir security.py et docs/SECURITY.md) :
 - TOUTE route privée exige X-API-Key : 401 si absente, 401 si inconnue
@@ -692,6 +695,10 @@ def admin_usage_reset(body: AdminResetRequest,
 # bord, paiements, tracking — voir webapp.py ; le frontend statique est
 # servi en dernier recours (mount '/') APRÈS toutes les routes API.
 from .webapp import mount_webapp, router as webapp_router  # noqa: E402
+from .mcp_http import router as mcp_router  # noqa: E402
 
 app.include_router(webapp_router)
+# serveur MCP distant (Streamable HTTP, stateless) — voir mcp_http.py ;
+# monté AVANT le frontend statique pour que POST /mcp passe toujours.
+app.include_router(mcp_router)
 mount_webapp(app)
