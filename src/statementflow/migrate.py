@@ -117,7 +117,11 @@ def run_migrations(dsn: str, directory: Optional[str] = None,
         return []
 
     applied: list[str] = []
-    with psycopg.connect(dsn, autocommit=True) as conn:
+    # prepare_threshold=None : compatible pooler Supabase en mode
+    # transaction (6543), comme PgStore (pg.py) — psycopg ne prépare
+    # JAMAIS de requête côté serveur ici.
+    with psycopg.connect(dsn, autocommit=True,
+                         prepare_threshold=None) as conn:
         conn.execute(_TRACKER_DDL)
         # un seul process applique à la fois (verrou consultatif) :
         # deux workers Render ne peuvent pas se marcher dessus
