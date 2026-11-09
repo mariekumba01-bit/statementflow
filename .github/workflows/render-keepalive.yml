@@ -1,0 +1,82 @@
+# StatementFlow — anti-sommeil du service Render gratuit
+#
+# OBJECTIF : interroger /health toutes les 10 minutes pour réduire les
+# périodes d'inactivité du plan Render free (un service gratuit non
+# sollicité est mis en veille ; la première requête suivante paie alors
+# un réveil de ~20-60 s).
+#
+# ⚠️ LIMITES HONNÊTES (voir docs/KEEPALIVE.md) :
+# - ce cron ne GARANTIT PAS un service éveillé en permanence : GitHub
+#   Actions peut retarder un cron chargé, et Render peut appliquer sa
+#   propre politique d'inactivité ; entre deux sondes, le service peut
+#   toujours s'endormir ;
+# - les minutes Actions gratuites (2 000-3 000/mois pour un compte
+#   privé ; illimitées pour un dépôt public) sont consommées :
+#   ~4 464 exécutions/mois × ~30 s ≈ 37 h/mois de minutes — OK pour un
+#   dépôt PUBLIC, à surveiller pour un dépôt privé ;
+# - si la disponibilité permanente devient indispensable, la solution
+#   fiable est une instance Render payante (~7 $/mois) : voir
+#   docs/KEEPALIVE.md.
+#
+# Aucun secret n'est utilisé : l'URL sondée est publique et l'endpoint
+# /health ne renvoie aucune donnée sensible. La requête est un GET en
+# lecture seule : elle ne modifie AUCUNE donnée.
+name: Keepalive Render
+
+on:
+  schedule:
+    # toutes les 10 minutes (heure UTC) — GitHub Actions ne garantit
+    # pas la ponctualité exacte des crons très fréquents
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}
+
+concurrency:
+  group: keepalive-render
+  cancel-in-progress: true
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Sonde /health (3 tentatives)
+        env:
+          HEALTH_URL: https://statementflow-api-ch0f.onrender.com/health
+        run: |
+          set -eu
+          attempt=1
+          max=3
+          # timeout généreux : si le service est endormi, le réveil
+          # Render peut prendre jusqu'à ~60 s
+          while [ "$attempt" -le "$max" ]; do
+            echo "— tentative $attempt/$max : GET $HEALTH_URL"
+            if body=$(curl -sS --fail --max-time 90 \
+                      -H 'Accept: application/json' "$HEALTH_URL"); then
+              echo "$body" | python3 - <<'PY'
+          import json, sys
+          data = json.load(sys.stdin)
+          status = data.get('status')
+          persistence = data.get('persistence')
+          version = data.get('version')
+          pg_error = data.get('pg_error')
+          print(f"status={status} version={version} "
+                f"persistence={persistence} pg_error={pg_error}")
+          problems = []
+          if status != 'ok':
+              problems.append(f"status attendu 'ok', reçu '{status}'")
+          if persistence != 'postgres+up':
+              problems.append(
+                  f"persistence attendue 'postgres+up', "
+                  f"reçue '{persistence}'")
+          if problems:
+              print('::error::Santé dégradée : ' + ' ; '.join(problems))
+              sys.exit(1)
+          print('Santé OK : API opérationnelle et PostgreSQL connecté.')
+          PY
+              exit 0
+            fi
+            attempt=$((attempt + 1))
+            sleep 20
+          done
+          echo "::error::API indisponible après $max tentatives (GET $HEALTH_URL)."
+          exit 1
