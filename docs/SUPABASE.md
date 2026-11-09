@@ -39,6 +39,39 @@ contre un vrai PostgreSQL (migrations réelles appliquées), en local
 | `activate` (statut puis crédit) | fonction `activate_topup` (UNE transaction) |
 | — | `organizations`, `audit_log` |
 
+## Auto-migration au démarrage (v0.5.1)
+
+Les migrations sont désormais appliquées **automatiquement** au
+démarrage de l'API quand `STATEMENTFLOW_DATABASE_URL` est défini —
+plus d'intervention manuelle dans l'éditeur SQL Supabase :
+
+- chaque fichier de `supabase/migrations/*.sql` est appliqué **une
+  seule fois**, tracé dans la table `schema_migrations` (nom + somme
+  de contrôle SHA-256) ;
+- **contrat additif mécanique** : tout énoncé destructeur (`drop …`,
+  `truncate`, `create/alter role`, `alter system`) est REFUSÉ avant
+  exécution — le moteur ne peut appliquer que du `create … if not
+  exists` / `create or replace` ;
+- une migration déjà appliquée dont le contenu aurait changé est
+  REFUSÉE (règle : on écrit une NOUVELLE migration, on n'édite jamais
+  une appliquée) ;
+- re-jeu sûr : les 5 fichiers actuels appliqués DEUX FOIS sur une
+  vraie base ne produisent aucune erreur ni aucune écriture nette
+  (preuve : `tests/test_migrate.py`) ;
+- verrou consultatif PostgreSQL : deux workers ne peuvent pas appliquer
+  les migrations simultanément ;
+- un échec de migration **ne bloque pas le démarrage** de l'API (les
+  conversions continuent d'être servies ; les nouvelles fonctionnalités
+  répondent 503 explicites) ;
+- désactivation : `STATEMENTFLOW_AUTO_MIGRATE=0` (mode `strict` : le
+  démarrage échoue — utile en CI).
+
+Les migrations restent applicables manuellement via l'éditeur SQL
+Supabase si vous préférez (elles sont idempotentes) ; l'auto-migration
+les considérera alors comme déjà appliquées et ne les rejouera pas
+dès lors que la table `schema_migrations` les trace — sinon elle les
+appliquera, sans danger (idempotence prouvée).
+
 ## Brancher en 10 minutes
 
 ### 1. Récupérer la chaîne de connexion

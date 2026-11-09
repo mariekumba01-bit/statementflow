@@ -76,6 +76,13 @@ if _pg_store is not None:
     managed_keys = _pg_store
     billing_store = _pg_store
     usage_store = PgUsageStore(_pg_store)
+    # schéma : auto-migration additive contrôlée au démarrage
+    # (v0.5.1 — voir migrate.py) : applique les migrations non tracées,
+    # refuse mécaniquement tout énoncé destructeur, ne casse pas le
+    # démarrage en cas d'échec (STATEMENTFLOW_AUTO_MIGRATE=0 pour
+    # désactiver, =strict pour échouer fort en CI).
+    from .migrate import run_for_store
+    run_for_store(_pg_store)
 # passerelle d'encaissement : SasPay (si clé secrète configurée) ou
 # simulateur local (mode test, aucune connexion, aucun paiement réel)
 saspay, billing_mode = provider_from_env()

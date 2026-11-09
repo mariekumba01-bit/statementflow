@@ -32,7 +32,7 @@ jobs:
       # Aucun secret requis : les paiements passent par le simulateur
       # FakeSasPay (mêmes contrats), les webhooks par des HMAC de test.
       - name: Run test suite (fail on any test failure)
-        run: python -m pytest tests/ -v --ignore=tests/test_pg.py --ignore=tests/run_pg_tests.py --ignore=tests/test_dsn_diagnostics.py --ignore=tests/test_webapp.py
+        run: python -m pytest tests/ -v --ignore=tests/test_pg.py --ignore=tests/run_pg_tests.py --ignore=tests/test_dsn_diagnostics.py --ignore=tests/test_webapp.py --ignore=tests/test_migrate.py
 
       - name: Smoke test — CLI on the corpus
         run: |
@@ -90,7 +90,7 @@ jobs:
           print('migrations applied')
           EOF
       - name: Run PostgreSQL adapter + DSN diagnostics tests
-        run: python -m pytest tests/test_pg.py tests/test_dsn_diagnostics.py tests/test_webapp.py -v
+        run: python -m pytest tests/test_pg.py tests/test_dsn_diagnostics.py tests/test_webapp.py tests/test_migrate.py -v
 
   build:
     name: build distribution

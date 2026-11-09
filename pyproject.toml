@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "statementflow"
-version = "0.5.0"
+version = "0.5.1"
 description = "Moteur de conversion de relevés bancaires et exports mobile money en transactions JSON normalisées et vérifiées (PDF natifs/scannés, CSV, XLSX)."
 readme = "README.md"
 requires-python = ">=3.10"

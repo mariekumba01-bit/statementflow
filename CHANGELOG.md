@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.5.1 (2026-11-09) — auto-migration contrôlée du schéma PostgreSQL
+
+Les migrations sont appliquées automatiquement au démarrage de l'API
+quand PostgreSQL est actif (`migrate.py`) : plus besoin d'exécuter le
+SQL à la main dans l'éditeur Supabase — nécessaire pour livrer la
+migration 005 (comptes clients) en production sans intervention.
+
+- table `schema_migrations` (nom + checksum SHA-256) : chaque fichier
+  est appliqué UNE fois ; un fichier déjà appliqué puis modifié est
+  refusé ;
+- contrat additif MÉCANIQUE : drop/truncate/role/alter system refusés
+  avant exécution ;
+- re-jeu intégral prouvé inoffensif (tests/test_migrate.py : double
+  application, base strictement intacte) ;
+- verrou consultatif (pas d'application parallèle), échec non bloquant
+  pour le service (STATEMENTFLOW_AUTO_MIGRATE=0|1|strict) ;
+- Dockerfile : copie de supabase/migrations dans l'image.
+
 ## 0.5.0 (2026-11-09) — produit commercial autonome : comptes clients, application web, achats SasPay, anti-sommeil
 
 ### Comptes clients (migration 005 : users, sessions, auth_tokens, events)
