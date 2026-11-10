@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Données personnelles &amp; RGPD — StatementFlow</title>
+  <meta name="description" content="Quelles données personnelles StatementFlow traite, pourquoi, combien de temps, chez quels sous-traitants (Render, Supabase, SasPay), et comment exercer vos droits.">
+  <link rel="canonical" href="https://statementflow-api-ch0f.onrender.com/privacy.html">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="privacy">
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="/"><span class="logo"></span>StatementFlow</a>
+    <span class="spacer"></span>
+    <a class="navlink" href="/">Accueil</a>
+    <a class="navlink" href="/demo.html">Démo</a>
+    <a class="navlink" href="/api.html">API</a>
+  </div>
+</header>
+
+<section>
+  <div class="wrap" style="max-width:820px">
+    <h2>Données personnelles — l'inventaire complet</h2>
+    <p class="sub">Cette page décrit exactement ce qui est collecté.
+    Elle décrit le code réel, pas un idéal : tout est vérifiable dans
+    le dépôt public.</p>
+
+    <div class="card mt2">
+      <h3>Catégories de données traitées</h3>
+      <div class="tbl-wrap">
+      <table class="tbl">
+        <thead>
+          <tr><th>Donnée</th><th>Finalité</th><th>Durée</th><th>Lieu</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Adresse email + mot de passe (dérivé PBKDF2, jamais en clair)</td>
+            <td>Création et accès au compte</td>
+            <td>Durée du compte, puis ≤ 30 jours après suppression</td>
+            <td>Supabase, Francfort (UE)</td>
+          </tr>
+          <tr>
+            <td>Clé API (stockée hachée SHA-256)</td>
+            <td>Authentification aux routes API</td>
+            <td>Durée du compte, régénérable</td>
+            <td>Supabase, Francfort (UE)</td>
+          </tr>
+          <tr>
+            <td>Documents convertis (relevés)</td>
+            <td>Conversion en JSON</td>
+            <td><strong>0 — traitement en mémoire, jamais stockés</strong></td>
+            <td>Render (mémoire), Oregon (USA), quelques secondes</td>
+          </tr>
+          <tr>
+            <td>Résultat JSON de conversion</td>
+            <td>Restitution au client</td>
+            <td><strong>15 minutes (TTL), puis purge</strong></td>
+            <td>Render (mémoire), Oregon (USA)</td>
+          </tr>
+          <tr>
+            <td>Métadonnées de conversion (nom de fichier, format, nombre de transactions, crédits, date)</td>
+            <td>Historique et facturation à l'usage</td>
+            <td>Durée du compte, puis ≤ 30 jours</td>
+            <td>Supabase, Francfort (UE)</td>
+          </tr>
+          <tr>
+            <td>Événements commerciaux (visites, inscriptions, paiements)</td>
+            <td>Mesure d'usage interne, sans tracker tiers</td>
+            <td>Agrégés / anonymisés au fil de l'eau</td>
+            <td>Supabase, Francfort (UE)</td>
+          </tr>
+          <tr>
+            <td>Écritures financières (montants encaissés, packs)</td>
+            <td>Obligations comptables</td>
+            <td>Durée légale, anonymisées</td>
+            <td>Supabase, Francfort (UE)</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="muted small mt1">Le contenu de vos relevés (transactions,
+      soldes, montants) n'apparaît dans aucune de ces lignes de
+      conservation longue : il n'est <strong>jamais écrit en base</strong>.
+      C'est la différence structurelle entre un convertisseur de
+      fichiers et un agrégateur bancaire.</p>
+    </div>
+
+    <h2 class="mt3">Sous-traitants et localisation</h2>
+    <div class="card mt1">
+      <p>StatementFlow ne délègue qu'un petit nombre de fonctions, à des
+      sous-traitants connus :</p>
+      <ul>
+        <li><strong>Render</strong> (render.com) — hébergement de
+        l'application et de l'API, région Oregon, États-Unis (vérifiable
+        par DNS : <code>gcp-us-west1</code>). Les fichiers ne font
+        qu'y transiter en mémoire.</li>
+        <li><strong>Supabase</strong> (supabase.com) — base de données
+        PostgreSQL, région Francfort, Allemagne
+        (<code>eu-central-1</code>, UE). Y vivent : comptes, clés
+        hachées, crédits, métadonnées d'historique.</li>
+        <li><strong>SasPay</strong> (saspay.me) — passerelle de paiement
+        de l'achat de crédits. Ne traite que les données nécessaires à
+        la transaction.</li>
+        <li><strong>GitHub</strong> — dépôt de code public.</li>
+      </ul>
+      <p>Il n'y a aucun autre destinataire : pas de régie publicitaire,
+      pas d'outil d'analyse tiers, pas de revente. La base de données
+      étant hébergée dans l'Union européenne et les documents n'étant
+      jamais stockés, les données personnelles persistantes restent
+      en UE ; seuls les traitements <em>éphémères</em> (quelques
+      secondes, en mémoire, purgés au TTL) passent par les
+      États-Unis.</p>
+    </div>
+
+    <h2 class="mt3">Vos droits et comment les exercer</h2>
+    <div class="card mt1">
+      <p>Vous disposez des droits d'accès, de rectification,
+      d'export, d'effacement et d'opposition sur vos données de
+      compte. Concrètement :</p>
+      <ul>
+        <li><strong>Export</strong> : vos historiques de conversion
+        (métadonnées) sont téléchargeables depuis le tableau de bord ;</li>
+        <li><strong>Suppression</strong> : demandez-la via le contact
+        des <a href="/legal.html">mentions légales</a> — email, clés,
+        historiques et métadonnées sont effacés sous 30 jours ;</li>
+        <li><strong>Effacement immédiat des relevés</strong> : inutile
+        de le demander — il est déjà effectif (TTL 15 minutes, aucune
+        copie nulle part) ;</li>
+        <li><strong>Portabilité</strong> : le format JSON des
+        résultats est documenté sur la <a href="/api.html">page API</a>.</li>
+      </ul>
+      <p>Les écritures financières agrégées (montants encaissés,
+      packs vendus) sont conservées de façon anonymisée pour les
+      obligations comptables, sans lien avec votre identité.</p>
+    </div>
+
+    <h2 class="mt3">Base légale et honnêteté</h2>
+    <div class="card mt1">
+      <p>Les données de compte sont traitées sur la base de
+      l'exécution du contrat (créer et gérer votre accès). Les
+      événements commerciaux le sont sur la base de l'intérêt légitime
+      (mesurer l'usage du service), sans tracker tiers.</p>
+      <p><em>Honnêteté : StatementFlow n'est pas certifié RGPD ni audité
+      par un tiers, et l'éditeur n'est pas encore immatriculé —
+      voir les <a href="/legal.html">mentions légales</a> pour l'état
+      réel. En revanche, chaque traitement décrit ici correspond à une
+      ligne de code vérifiable dans le dépôt public, et l'architecture
+      (rien de bancaire en stockage) rend les violations de
+      confidentialité structurellement limitées.</em></p>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <p class="center">StatementFlow — <a href="/">accueil</a> ·
+    <a href="/security.html">sécurité</a> ·
+    <a href="/legal.html">mentions légales</a></p>
+  </div>
+</footer>
+<script src="/app.js"></script>
+</body>
+</html>

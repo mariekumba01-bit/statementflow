@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sécurité — StatementFlow</title>
+  <meta name="description" content="Traitement éphémère en mémoire, résultat supprimé après 15 minutes, clés API hachées, mots de passe PBKDF2 (600 000 itérations), aucune demande d'identifiants bancaires. Chaque affirmation renvoie au code source public.">
+  <link rel="canonical" href="https://statementflow-api-ch0f.onrender.com/security.html">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="security">
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="/"><span class="logo"></span>StatementFlow</a>
+    <span class="spacer"></span>
+    <a class="navlink" href="/">Accueil</a>
+    <a class="navlink" href="/demo.html">Démo</a>
+    <a class="navlink" href="/api.html">API</a>
+  </div>
+</header>
+
+<section class="hero" style="padding:40px 0 20px">
+  <div class="wrap">
+    <span class="badge">Sécurité par conception</span>
+    <h1 style="font-size:clamp(1.6rem,4vw,2.4rem)">Nous ne demandons jamais<br>vos identifiants bancaires</h1>
+    <p class="lead">StatementFlow convertit des <strong>fichiers</strong> que
+    vous déposez (PDF, CSV, TSV, XLSX). Aucune connexion à votre banque,
+    aucun agrégation de comptes, aucune synchronisation automatique.
+    Vous fournissez un document ; nous renvoyons du JSON ; le document
+    et le résultat disparaissent.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Comment vos relevés sont traités</h2>
+    <div class="grid c3 mt2">
+      <div class="card">
+        <h3>1 · Dépôt</h3>
+        <p>Vous téléversez un fichier (20&nbsp;Mo max). Il est lu en
+        mémoire par blocs d'un mégaoctet, avec interruption immédiate
+        si la limite est dépassée — il n'est <strong>jamais écrit sur
+        le disque du serveur</strong>, jamais archivé, jamais copié.</p>
+      </div>
+      <div class="card">
+        <h3>2 · Conversion</h3>
+        <p>L'extraction se fait entièrement en mémoire. Le résultat
+        reste récupérable <strong>15 minutes</strong> via votre clé ou
+        votre session (TTL de 900 secondes), puis il est purgé. Aucun
+        mécanisme de conservation n'existe dans le code.</p>
+      </div>
+      <div class="card">
+        <h3>3 · Après expiration</h3>
+        <p>Seules des <strong>métadonnées</strong> subsistent dans
+        l'historique : nom du fichier, format, nombre de transactions,
+        crédits consommés, date. <strong>Jamais les transactions
+        bancaires elles-mêmes</strong>, jamais les soldes, jamais les
+        montants.</p>
+      </div>
+    </div>
+    <p class="muted small mt2">Ces garanties ne sont pas des promesses
+    marketing : le code de traitement est public dans le dépôt GitHub
+    (<code>src/statementflow/api.py</code>, fonction
+    <code>_read_upload_capped</code> ; <code>pg.py</code>, table
+    <code>jobs</code> — métadonnées uniquement), et les échantillons de
+    la démo sont les mêmes pour tout le monde.</p>
+  </div>
+</section>
+
+<section id="mesures" style="background:var(--bg2)">
+  <div class="wrap">
+    <h2>Mesures techniques vérifiables</h2>
+    <div class="grid c2 mt2">
+      <div class="card">
+        <h3>🔐 Secrets</h3>
+        <p>Les clés API ne sont stockées que sous forme de
+        <strong>hachage SHA-256</strong> ; les mots de passe sous forme
+        de dérivation <strong>PBKDF2-SHA256 avec 600&nbsp;000
+        itérations</strong> et un sel unique par compte. La clé en clair
+        n'est affichée qu'une fois à la création ; une clé perdue se
+        régénère, elle ne se récupère pas.</p>
+      </div>
+      <div class="card">
+        <h3>🚫 Journalisation</h3>
+        <p>Les journaux applicatifs ne contiennent ni clé API, ni mot
+        de passe, ni contenu de relevé. Les comparaisons de secrets se
+        font en temps constant (protection timing). Les noms de
+        fichiers sont nettoyés (anti path-traversal) avant d'être
+        journalisés.</p>
+      </div>
+      <div class="card">
+        <h3>💰 Paiements</h3>
+        <p>Les crédits sont achetés via SasPay. Un paiement n'est
+        validé que sur <strong>webhook signé HMAC</strong> (rejet au-delà
+        de 5 minutes d'écart) <strong>et</strong> vérification du statut
+        réel auprès de la passerelle — jamais sur le simple retour du
+        navigateur. Un échec restitue les crédits réservés.</p>
+      </div>
+      <div class="card">
+        <h3>🧱 Limites et quotas</h3>
+        <p>Quotas de documents/pages par clé, limites de taille de
+        fichier (20&nbsp;Mo), de pages (200) et de lignes (200&nbsp;000),
+        limitation de débit sur les endpoints sensibles (inscription,
+        connexion, réinitialisation : fenêtre glissante 10 requêtes /
+        15 minutes). Réservations de crédits atomiques et idempotentes.</p>
+      </div>
+      <div class="card">
+        <h3>🍪 Sessions</h3>
+        <p>Cookies de session <code>HttpOnly</code>,
+        <code>SameSite=Lax</code>, <code>Secure</code> en HTTPS,
+        expiration à 30 jours ; jetons de réinitialisation de mot de
+        passe à usage unique valables 1&nbsp;heure, jetons de
+        vérification email 48&nbsp;heures, stockés hachés.</p>
+      </div>
+      <div class="card">
+        <h3>🔎 Transparence</h3>
+        <p>Aucun cookie publicitaire, aucun tracker tiers
+        (Google&nbsp;Analytics, Meta Pixel, etc.) sur aucune page :
+        les événements mesurés (visites, inscriptions, conversions)
+        restent dans notre base. Le code de l'application est
+        <a href="https://github.com/mariekumba01-bit/statementflow">public</a>
+        et chaque affirmation de cette page peut y être vérifiée.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="hebergement">
+  <div class="wrap">
+    <h2>Hébergement et sous-traitants</h2>
+    <p class="sub">Ce que nous faisons héberger, par qui, et où — sans
+    surenchère.</p>
+    <div class="card mt2">
+      <h3>Render (États-Unis — Oregon, GCP us-west1)</h3>
+      <p>Héberge l'application web et l'API. Les relevés y transitent
+      en mémoire le temps du traitement (quelques secondes), puis sont
+      purgés au TTL. Le service est servi via HTTPS (TLS géré par
+      Render, devant le CDN Cloudflare utilisé par Render).</p>
+      <h3 class="mt2">Supabase (UE — Francfort, AWS eu-central-1)</h3>
+      <p>Héberge la base PostgreSQL : comptes (emails, dérivations de
+      mots de passe), clés API hachées, soldes de crédits, historiques
+      de <strong>métadonnées</strong> de conversion. Les relevés
+      eux-mêmes n'y sont jamais stockés — le traitement est éphémère
+      et la table des résultats vit en mémoire applicative.</p>
+      <h3 class="mt2">SasPay</h3>
+      <p>Passerelle de paiement pour l'achat de crédits. Reçoit le
+      montant et la référence de la transaction ; ne reçoit ni les
+      documents, ni les données de compte autre que l'identifiant
+      nécessaire au crédit.</p>
+      <h3 class="mt2">GitHub (Microsoft)</h3>
+      <p>Héberge le dépôt de code public. Peut être contacté par
+      quiconque — c'est le principe.</p>
+    </div>
+    <p class="muted small mt2">Nos applications tournent sur des
+    régions d'infrastructure qu'il est possible de vérifier
+    indépendamment (DNS public). Si un sous-traitant change, cette
+    page est mise à jour.</p>
+  </div>
+</section>
+
+<section style="background:var(--bg2)">
+  <div class="wrap">
+    <h2>Signaler une vulnérabilité</h2>
+    <div class="card mt2">
+      <p>Vous avez trouvé une faille ? Merci de la signaler de façon
+      responsable en ouvrant une <em>issue privée</em> (security
+      advisory) sur le dépôt GitHub, ou par le canal de contact indiqué
+      dans les <a href="/legal.html">mentions légales</a>. Nous nous
+      engageons à accuser réception sous 72&nbsp;heures et à corriger
+      les failles validées en priorité. Merci de ne pas tester sur des
+      données réelles de tiers.</p>
+      <p class="muted">À ce jour, aucun audit de sécurité tiers n'a été
+      réalisé — c'est l'un des compromis d'un service jeune. Le code
+      public et la suite de tests (plusieurs centaines de tests, y
+      compris sur la sécurité : hachage, webhooks signés, isolation
+      entre comptes) sont notre meilleure garantie en attendant.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Ce que nous ne ferons pas</h2>
+    <div class="card mt2">
+      <ul>
+        <li>Demander vos identifiants bancaires ou un accès à votre
+        banque — le service n'a pas de mode « connexion à la banque »
+        et n'en aura pas ;</li>
+        <li>Conserver vos relevés ou leurs transactions au-delà du TTL
+        de 15 minutes — le code n'en a tout simplement pas la
+        capacité ;</li>
+        <li>Vendre, partager ou exploiter commercialement vos données
+        — aucune donnée bancaire n'est stockée, il n'y a rien à
+        vendre ;</li>
+        <li>Ajouter un tracker publicitaire — il n'y en a aucun
+        aujourd'hui et leur ajout serait visible dans le code public.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <p class="center">StatementFlow — <a href="/">accueil</a> ·
+    <a href="/legal.html">mentions légales &amp; confidentialité</a> ·
+    <a href="/privacy.html">RGPD &amp; sous-traitants</a></p>
+  </div>
+</footer>
+<script src="/app.js"></script>
+</body>
+</html>

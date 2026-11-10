@@ -64,6 +64,12 @@ class _ExternalServer:
 def pg_server():
     if os.environ.get('SF_PG_TEST_URI'):
         return _ExternalServer(os.environ['SF_PG_TEST_URI'])
+    # si un serveur pgserver vit déjà dans CE processus (exécution
+    # combinée avec test_pg.py dans la même session pytest), on le
+    # réutilise : le rmtree ci-dessous détruirait son socket et
+    # casserait l'autre fichier de tests.
+    if os.path.exists('/tmp/sf-pgserver/.s.PGSQL.5432'):
+        return pgserver.get_server(PGDATA_PARENT)
     shutil.rmtree(PGDATA_PARENT, ignore_errors=True)
     shutil.rmtree(SOCKET_DIR, ignore_errors=True)
     server = pgserver.get_server(PGDATA_PARENT)
@@ -560,7 +566,8 @@ class TestFrontendStatique:
         client, _, _ = web_app
         pages = ['/', '/index.html', '/demo.html', '/signup.html',
                  '/login.html', '/dashboard.html', '/admin.html',
-                 '/legal.html', '/api.html', '/forgot.html',
+                 '/legal.html', '/security.html', '/privacy.html',
+                 '/api.html', '/forgot.html',
                  '/reset.html', '/offline.html', '/style.css',
                  '/app.js', '/sw.js', '/manifest.webmanifest',
                  '/robots.txt', '/sitemap.xml', '/favicon.svg',
@@ -573,11 +580,36 @@ class TestFrontendStatique:
         # la landing contient le SEO attendu
         home = client.get('/').text
         for marker in ('og:title', 'sitemap.xml', 'StatementFlow',
-                       '5 000 FCFA', 'FAQ', 'manifest.webmanifest'):
+                       '5 000 FCFA', 'FAQ', 'manifest.webmanifest',
+                       'security.html', 'privacy.html',
+                       '15 minutes', 'identifiants'):
             assert marker in home, marker
         # les routes API restent prioritaires sur le statique
         assert client.get('/health').status_code == 200
         assert client.get('/v1/billing/packs').status_code == 200
+
+    def test_pages_confiance_coherentes_avec_le_code(self, web_app):
+        """Les pages confiance ne doivent promettre que ce que le code
+        fait réellement : TTL 15 min, traitement mémoire, régions
+        d'hébergement vérifiées, hash des secrets."""
+        client, _, _ = web_app
+        security = client.get('/security.html').text
+        for marker in ('15 minutes', 'SHA-256', 'PBKDF2',
+                       '600&nbsp;000', 'us-west1', 'eu-central-1',
+                       'SasPay', 'github.com/mariekumba01-bit'):
+            assert marker in security, marker
+        privacy = client.get('/privacy.html').text
+        for marker in ('15 minutes', 'Francfort', 'Oregon',
+                       'Supabase', 'Render', 'SasPay',
+                       'sous 30 jours', 'jamais'):
+            assert marker in privacy, marker
+        legal = client.get('/legal.html').text
+        for marker in ('Oregon', 'Francfort', 'security.html',
+                       'privacy.html'):
+            assert marker in legal, marker
+        # cohérence croisée : le TTL affiché correspond au défaut du code
+        from statementflow.config import Config
+        assert Config().results_ttl_s == 900
 
     def test_api_doc_disponible(self, web_app):
         client, _, _ = web_app

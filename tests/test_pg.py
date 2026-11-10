@@ -72,7 +72,7 @@ def pg_server():
     external = os.environ.get('SF_PG_TEST_URI')
     if external:
         return _ExternalServer(external)
-    if os.environ.exists('/tmp/sf-pgserver/.s.PGSQL.5432'):
+    if os.path.exists('/tmp/sf-pgserver/.s.PGSQL.5432'):
         import pgserver as _pgs
         return _pgs.get_server(PGDATA_PARENT)  # déjà démarré (même proc.)
     shutil.rmtree(PGDATA_PARENT, ignore_errors=True)

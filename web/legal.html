@@ -26,16 +26,35 @@
       <p><strong>StatementFlow</strong> — service de conversion de
       relevés bancaires et exports mobile money en données
       normalisées.</p>
-      <p>Éditeur : le propriétaire du dépôt StatementFlow. Contact :
-      via le dépôt GitHub du projet
+      <p>Éditeur : le propriétaire du dépôt StatementFlow (éditeur
+      indépendant, non immatriculé à ce jour — voir « État de
+      l'éditeur » ci-dessous). Contact : via le dépôt GitHub du projet
       (github.com/mariekumba01-bit/statementflow).</p>
-      <p>Hébergement : Render (API applicative) et Supabase
-      (base de données PostgreSQL, région eu-central-1).</p>
+      <p>Hébergement : Render — application et API, région Oregon,
+      États-Unis (les documents n'y font que transiter en mémoire) ;
+      Supabase — base de données PostgreSQL, région Francfort,
+      Union européenne (comptes, crédits, métadonnées). Détail complet
+      sur la page <a href="/privacy.html">données personnelles &amp;
+      sous-traitants</a>.</p>
       <p>Passerelle de paiement : SasPay (docs.saspay.me) pour
       l'achat de crédits.</p>
+      <h3 class="mt2">État de l'éditeur — en toute transparence</h3>
+      <p>StatementFlow est un service jeune édité par un développeur
+      indépendant. L'immatriculation de l'éditeur (SIREN/SIRET ou
+      équivalent), le nom commercial et une adresse de contact
+      directe seront ajoutés ici dès qu'ils seront établis. En
+      attendant, le contact passe par le dépôt GitHub public (issues),
+      où chaque demande est traçable. Aucune donnée bancaire n'étant
+      stockée par le service (voir <a href="/security.html">sécurité</a>),
+      l'exposition en cas de défaillance est structurellement
+      limitée.</p>
     </div>
 
     <h2 class="mt3" id="confidentialite">Politique de confidentialité</h2>
+    <p class="sub">L'inventaire détaillé (catégories de données,
+    durées, sous-traitants, localisation, droits) figure sur la page
+    dédiée <a href="/privacy.html">Données personnelles &amp; RGPD</a>.
+    Résumé ci-dessous.</p>
     <div class="card mt1">
       <h3>Données traitées</h3>
       <p><strong>Compte</strong> : adresse email et mot de passe
@@ -108,7 +127,10 @@
 
 <footer class="site">
   <div class="wrap">
-    <p class="center">StatementFlow — <a href="/">accueil</a> · <a href="/api.html">API</a></p>
+    <p class="center">StatementFlow — <a href="/">accueil</a> ·
+    <a href="/api.html">API</a> ·
+    <a href="/security.html">sécurité</a> ·
+    <a href="/privacy.html">données personnelles</a></p>
   </div>
 </footer>
 <script src="/app.js"></script>
