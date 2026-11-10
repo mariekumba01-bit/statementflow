@@ -90,7 +90,7 @@ jobs:
           print('migrations applied')
           EOF
       - name: Run PostgreSQL adapter + DSN diagnostics tests
-        run: python -m pytest tests/test_pg.py tests/test_dsn_diagnostics.py tests/test_webapp.py tests/test_migrate.py -v
+        run: python -m pytest tests/test_pg.py tests/test_dsn_diagnostics.py tests/test_webapp.py tests/test_migrate.py tests/test_persistence_v061.py -v
 
   build:
     name: build distribution

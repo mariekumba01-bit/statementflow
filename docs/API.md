@@ -124,6 +124,25 @@ n'est jamais fabriquée.
 | POST | `/v1/billing/webhook` | signature SasPay | webhook d'encaissement (HMAC obligatoire) |
 | GET | `/openapi.json`, `/docs` | public | spécification et documentation interactive |
 
+Formats d'entrée acceptés par `/v1/analyze` : **PDF, CSV, TSV, XLSX**
+(20 Mo max). Le `.xls` binaire legacy (OLE2/BIFF) n'est **pas**
+supporté — convertissez le fichier en `.xlsx` avant envoi ; un tel
+fichier renvoie une erreur de traitement explicite et ne consomme
+aucun crédit (restitution automatique). Un fichier `.txt` lisible est
+traité comme CSV.
+
+### Rétention des résultats (v0.6.1)
+
+Le résultat d'une conversion reste récupérable pendant le TTL
+(`RESULTS_TTL_S`, 900 s par défaut) via `GET /v1/results/{job_id}`.
+Depuis la v0.6.1, avec PostgreSQL actif, le résultat est stocké en
+base **pour la durée du TTL uniquement** et reste accessible même
+après un redémarrage du service (redéploiement, recycle du plan
+gratuit). À l'expiration, la ligne du job est purgée, résultat compris
+: la politique « traitement éphémère » est inchangée. L'accès reste
+réservé à la clé qui a soumis le document ; toute autre clé reçoit un
+404 indiscernable d'un job inconnu.
+
 ### Authentification (obligatoire depuis v0.2.0, verrouillée par défaut depuis v0.3.1)
 
 - Toute route privée exige l'en-tête `X-API-Key` : **401** si absent ou

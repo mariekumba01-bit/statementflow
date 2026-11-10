@@ -53,6 +53,7 @@ La validation passe par le **même chemin que l'API REST** (`_require_key` : has
 
 - Chaque outil agit **uniquement** pour la clé appelante : un job d'un autre compte est une erreur « inconnu », indistinguable d'un job inexistant.
 - `convert_document` suit le **même chemin financier** que `POST /v1/analyze` : réservation atomique d'un crédit → complément au coût réel (1 crédit = 1 page PDF ou 50 lignes de tableau) → restitution intégrale sur échec. **Aucun contournement de facturation n'est possible via MCP.**
+- **Idempotence robuste au redémarrage (v0.6.1)** : rejouer `convert_document` avec la même `idempotency_key` renvoie le job existant sans nouveau débit — y compris si le service a redémarré entre-temps (le job est relu depuis PostgreSQL pendant sa période de rétention).
 - Aucun outil n'exécute de paiement : `buy_credits` crée la session et retourne l'URL ; le paiement reste un geste humain (mobile money), l'activation reste serveur (webhook signé + re-vérification).
 - La clé API n'est **jamais retournée** dans les résultats ordinaires (masquée `sf_a****`), sauf une fois à la rotation explicitement demandée et confirmée.
 - Aucun secret (Supabase, SasPay, variables Render) n'est manipulé ni exposé par le serveur MCP.
@@ -65,7 +66,7 @@ La validation passe par le **même chemin que l'API REST** (`_require_key` : has
 |---|---|---|
 | `get_account_info` | Identité du compte appelant : email, vérification, clé masquée, mode de facturation | — |
 | `get_credits` | Solde de crédits et usage de la clé (documents, pages) | — |
-| `get_supported_formats` | Formats d'entrée (PDF natifs/scannés, CSV, TSV, XLSX), banques et opérateurs mobile money reconnus, structure du JSON produit | — |
+| `get_supported_formats` | Formats d'entrée (PDF natifs/scannés, CSV, TSV, XLSX — **pas** le `.xls` binaire legacy), banques et opérateurs mobile money reconnus, structure du JSON produit | — |
 | `get_limits` | Limites : taille, pages, lignes, TTL des résultats, quotas, débit MCP | — |
 | `list_conversions` | Historique des conversions du compte | `limit` (1-100, défaut 20), `offset` |
 | `get_conversion_status` | Statut d'un traitement : `processing`/`done`/`error` (+ usage, facturation) | `job_id` |
@@ -315,7 +316,7 @@ comme v2 (`MCPServer`, renommage upstream) — shim d'import depuis v0.2.0.
 ## Outils exposés (stdio)
 
 ### `parse_statement`
-Analyse un relevé local (PDF natif/scanné, CSV, TSV, XLSX) → résultat complet (`statementflow/v1` : transactions, contrôles, alertes, confiance).
+Analyse un relevé local (PDF natif/scanné, CSV, TSV, XLSX ; `.txt` traité comme CSV) → résultat complet (`statementflow/v1` : transactions, contrôles, alertes, confiance). Le `.xls` binaire legacy n'est pas supporté (erreur explicite).
 
 Paramètres :
 - `path` (str, requis) : chemin absolu du fichier **sur la machine du serveur** ;

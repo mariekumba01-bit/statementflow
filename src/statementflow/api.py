@@ -243,6 +243,52 @@ def _sweep_jobs():
         del _jobs[jid]
 
 
+def _job_lookup(job_id: str, key_hash: str) -> Optional[dict]:
+    """Job (statut/résultat/erreur) pour la clé propriétaire : mémoire
+    d'abord (chaud), puis PostgreSQL (v0.6.1) — un redémarrage Render ne
+    rend plus un résultat inaccessible pendant sa période de rétention.
+    None si inconnu, expiré (TTL), ou appartenant à une AUTRE clé (les
+    trois cas indiscernables : pas de sonde d'existence). Le fallback PG
+    ne s'applique qu'aux clés gérées en base (_pg_store) ; les jobs des
+    autres modes restent mémoire (comportement inchangé)."""
+    job = _jobs.get(job_id)
+    if job is not None:
+        return job if job['key_hash'] == key_hash else None
+    if _pg_store is not None:
+        try:
+            rec = _pg_store.get_job_for_key(key_hash, job_id)
+        except Exception:
+            rec = None  # base indisponible : la mémoire a déjà répondu
+        if rec is not None:
+            # forme compatible _jobs pour les appelants (status/result/
+            # error) ; 'created' est synthétique (pas de purge mémoire à
+            # faire : la base applique déjà expires_at)
+            return {'status': rec['status'], 'result': rec['result'],
+                    'error': rec['error'], 'key_hash': key_hash,
+                    'created': time.time()}
+    return None
+
+
+def _record_job_done(job_id: str, key_hash: str, filename: str,
+                     result: dict) -> None:
+    """Persistance TTL du résultat terminé (PostgreSQL) — meilleur
+    effort : la traçabilité ne doit jamais bloquer la réponse client.
+    Le résultat part avec les métadonnées dans la même ligne jobs
+    (colonne result, purgée à expires_at par la maintenance)."""
+    if not _pg_backend(managed_keys):
+        return
+    try:
+        managed_keys.record_job(
+            job_id, key_hash, filename, result['document']['kind'],
+            'done', pages=result['usage']['pages'],
+            rows=result['usage'].get('rows'),
+            transactions=result['usage']['transactions'],
+            credits_charged=result.get('billing', {}).get('credits_charged'),
+            ttl_s=config.results_ttl_s, result=result)
+    except Exception:
+        pass
+
+
 # ── routes publiques (aucune donnée sensible) ───────────────────────
 @app.get('/health', response_model=HealthResponse)
 def health():
@@ -358,18 +404,7 @@ async def analyze(
         else:
             result['billing'] = {'billing_mode': 'unmanaged'}
         _jobs[job_id].update(status='done', result=result)
-        if _pg_backend(managed_keys):
-            try:
-                managed_keys.record_job(
-                    job_id, key_hash, filename,
-                    result['document']['kind'], 'done',
-                    pages=result['usage']['pages'],
-                    rows=result['usage'].get('rows'),
-                    transactions=result['usage']['transactions'],
-                    credits_charged=result['billing'].get('credits_charged'),
-                    ttl_s=config.results_ttl_s)
-            except Exception:
-                pass
+        _record_job_done(job_id, key_hash, filename, result)
     except ParseError as e:
         if managed is not None and reserved:
             if _pg_backend(managed_keys):
@@ -395,9 +430,9 @@ def results(job_id: str,
             x_api_key: str | None = Header(default=None)):
     _sweep_jobs()
     key = _require_key(x_api_key)
-    job = _jobs.get(job_id)
+    job = _job_lookup(job_id, hash_key(key))
     # 404 identique pour job inconnu et job d'une autre clé : pas de sonde
-    if job is None or job['key_hash'] != hash_key(key):
+    if job is None:
         raise HTTPException(
             404, 'Résultat inconnu, expiré (TTL '
                  f'{config.results_ttl_s} s) ou non accessible avec cette '
@@ -534,7 +569,9 @@ def _pg_backend(store) -> bool:
 
 def detect_kind_hint(filename: str) -> str:
     """Extension → kind probable (journalisation pré-traitement ; le
-    moteur reste seul juge du format réel)."""
+    moteur reste seul juge du format réel). Un .xls binaire legacy sera
+    détecté 'xlsx' ici mais échouera au parsing (openpyxl = zip
+    uniquement) — le refus explicite se fait dans le moteur."""
     name = (filename or '').lower()
     if name.endswith('.pdf'):
         return 'pdf'

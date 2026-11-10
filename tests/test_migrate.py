@@ -93,13 +93,13 @@ class TestAutoMigration:
         dsn = _fresh_db(server, 'sfmigrate1')
         # 1. base vierge : les 5 fichiers sont appliqués et tracés
         applied = run_migrations(dsn, directory=MIGRATIONS, verbose=False)
-        assert len(applied) == 5
+        assert len(applied) == 6
         tables, funcs, tracked, rows = _objects(dsn)
         assert {'users', 'sessions', 'auth_tokens', 'events',
                 'schema_migrations'} <= tables
         assert {'create_account', 'rotate_user_key', 'reserve_credits',
                 'settle_credits', 'activate_topup'} <= funcs
-        assert len(tracked) == 5
+        assert len(tracked) == 6
         assert all(n == 0 for n in rows.values())  # rien d'écrit
         # 2. re-jeu intégral : rien de nouveau, aucune erreur
         applied2 = run_migrations(dsn, directory=MIGRATIONS, verbose=False)
@@ -158,7 +158,7 @@ class TestAutoMigration:
         assert exists is False
         monkeypatch.setenv('STATEMENTFLOW_AUTO_MIGRATE', '1')
         applied = run_for_store(FakeStore(), verbose=False)
-        assert len(applied) == 5
+        assert len(applied) == 6
         # échec non bloquant : DSN invalide → [] et pas d'exception
         class BadStore:
             _dsn = 'postgresql://nobody:nop@127.0.0.1:1/none'

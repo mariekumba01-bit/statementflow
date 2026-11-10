@@ -32,7 +32,10 @@ from .engine import ParseError, parse_file
 mcp = (FastMCP('statementflow', version=__version__) if _MCP_V2
        else FastMCP('statementflow'))
 
-_ALLOWED_EXT = ('.pdf', '.csv', '.tsv', '.xlsx', '.xls', '.txt')
+# Extensions réellement traitées par le moteur. .xls binaire (OLE2)
+# n'est pas supporté par openpyxl (XLSX = zip) — il est refusé en amont
+# avec un message explicite plutôt qu'en échec de parsing.
+_ALLOWED_EXT = ('.pdf', '.csv', '.tsv', '.xlsx', '.txt')
 _config = Config.from_env()
 
 

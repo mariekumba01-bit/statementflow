@@ -598,17 +598,22 @@ class PgStore:
                 (key_hash,))
         self._call(q)
 
-    # ── jobs (métadonnées de traçabilité ; jamais le résultat bancaire) ──
+    # ── jobs (métadonnées + résultat TTL — v0.6.1) ────────────────────
     def record_job(self, job_id: str, key_hash: str, filename: str,
                    kind: str, status: str, pages: Optional[int] = None,
                    rows: Optional[int] = None,
                    transactions: Optional[int] = None,
                    credits_charged: Optional[float] = None,
-                   error: Optional[str] = None, ttl_s: int = 900) -> bool:
-        """Journalise/metà-jour un job. La politique « traitement éphémère »
-        est conservée : seules les métadonnées sont persistées, jamais les
-        transactions bancaires du résultat. Renvoie False pour une clé non
-        gérée (rien à journaliser)."""
+                   error: Optional[str] = None, ttl_s: int = 900,
+                   result: Optional[dict] = None) -> bool:
+        """Journalise/metà-jour un job. Les MÉTADONNÉES (nom, pages,
+        transactions, crédits) alimentent l'historique durable du
+        compte ; `result` (résultat complet, jobs done uniquement) est
+        couvert par le MÊME TTL expires_at — purgé à l'expiration par
+        purge_expired_jobs : la politique « traitement éphémère » est
+        inchangée, le résultat survit simplement aux redémarrages
+        PENDANT sa période de rétention. Renvoie False pour une clé
+        non gérée (rien à journaliser)."""
         key_id = self._key_id(key_hash)
         if key_id is None:
             return False
@@ -617,17 +622,60 @@ class PgStore:
             conn.execute(
                 "insert into jobs (id, key_id, filename, kind, status,"
                 " pages, rows, transactions_count, credits_charged, error,"
-                " expires_at)"
+                " expires_at, result)"
                 " values (%s::uuid, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
-                " now() + (%s || ' seconds')::interval)"
+                " now() + (%s || ' seconds')::interval, %s::jsonb)"
                 " on conflict (id) do update set status = excluded.status,"
                 " pages = excluded.pages, rows = excluded.rows,"
                 " transactions_count = excluded.transactions_count,"
                 " credits_charged = excluded.credits_charged,"
-                " error = excluded.error",
+                " error = excluded.error, result = excluded.result",
                 (job_id, key_id, filename, kind, status, pages, rows,
-                 transactions, credits_charged, error, int(ttl_s)))
+                 transactions, credits_charged, error, int(ttl_s),
+                 json.dumps(result) if result is not None else None))
             return True
+        return self._call(q)
+
+    def get_job_for_key(self, key_hash: str,
+                        job_id: str) -> Optional[dict]:
+        """Job (statut, résultat, erreur) pour la clé PROPRIÉTAIRE
+        uniquement, tant que expires_at > now() (TTL). None si :
+        job inconnu, expiré, appartenant à une autre clé — les trois
+        cas sont indistinguables pour l'appelant (pas de sonde
+        d'existence). Le résultat n'est renvoyé que pour les jobs done
+        (colonne result, NULL pour les jobs antérieurs à la v0.6.1)."""
+        def q(conn):
+            row = conn.execute(
+                'select status, result, error, expires_s'
+                ' from get_job_for_key(%s, %s::uuid)',
+                (key_hash, job_id)).fetchone()
+            if row is None:
+                return None
+            return {'status': row[0],
+                    'result': row[1],
+                    'error': row[2],
+                    'expires_s': row[3]}
+        return self._call(q)
+
+    def get_job_for_user(self, user_id: str,
+                         job_id: str) -> Optional[dict]:
+        """Variante par COMPTE (session web) : toutes les clés du compte
+        (active ou révoquée par rotation) peuvent consulter le job,
+        comme user_owns_key_hash en mode mémoire. Mêmes règles de TTL
+        et d'indistinguabilité que get_job_for_key."""
+        def q(conn):
+            row = conn.execute(
+                'select j.status, j.result, j.error,'
+                ' greatest(extract(epoch from (j.expires_at - now())), 0)'
+                '::float8 as expires_s'
+                ' from jobs j join api_keys k on k.id = j.key_id'
+                ' where k.user_id = %s::uuid and j.id = %s::uuid'
+                ' and j.expires_at > now()',
+                (user_id, job_id)).fetchone()
+            if row is None:
+                return None
+            return {'status': row[0], 'result': row[1], 'error': row[2],
+                    'expires_s': row[3]}
         return self._call(q)
 
     # ── comptes clients (v0.5.0 — migration 005) ──────────────────
@@ -767,7 +815,8 @@ class PgStore:
                 ' where k.user_id = %s::uuid'
                 ' order by j.created_at desc limit %s offset %s',
                 (user_id, int(limit), int(offset))).fetchall()
-            return [{'job_id': str(r[0]), 'filename': r[1], 'kind': r[2],
+            return [{'job_id': str(r[0]).replace('-', ''),
+                     'filename': r[1], 'kind': r[2],
                      'status': r[3], 'pages': r[4], 'rows': r[5],
                      'transactions': r[6],
                      'credits_charged': float(r[7]) if r[7] else None,
@@ -850,7 +899,8 @@ class PgStore:
                 ' where k.key_hash = %s'
                 ' order by j.created_at desc limit %s offset %s',
                 (key_hash, int(limit), int(offset))).fetchall()
-            return [{'job_id': str(r[0]), 'filename': r[1], 'kind': r[2],
+            return [{'job_id': str(r[0]).replace('-', ''),
+                     'filename': r[1], 'kind': r[2],
                      'status': r[3], 'pages': r[4], 'rows': r[5],
                      'transactions': r[6],
                      'credits_charged': float(r[7]) if r[7] else None,

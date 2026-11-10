@@ -120,7 +120,12 @@ _anon_limiter = RateLimiter(30, 60)
 # rotation : opération sensible, 3/heure par clé (comme le tableau de bord)
 _rotate_limiter = RateLimiter(3, 3600)
 
-_ALLOWED_EXTENSIONS = ('.pdf', '.csv', '.tsv', '.xlsx', '.xls')
+# Extensions acceptées par convert_document — seuls des formats que le
+# moteur traite RÉELLEMENT (v0.6.1) : .xls binaire (OLE2/BIFF) n'est PAS
+# supporté par openpyxl (XLSX = zip uniquement) et produisait une erreur
+# de traitement APRÈS réservation de crédit ; il est refusé en amont.
+# .txt reste accepté par le moteur (détecté/traité comme CSV).
+_ALLOWED_EXTENSIONS = ('.pdf', '.csv', '.tsv', '.xlsx')
 
 
 # ── exceptions internes ──────────────────────────────────────────────
@@ -259,6 +264,26 @@ def _require_str(args: dict, name: str, *, max_len: int = 200,
     return v
 
 
+def _job_lookup(api_mod, job_id: str, key_hash: str):
+    """Mémoire d'abord, puis PostgreSQL : un redémarrage du service ne
+    rend plus un job inaccessible pendant son TTL (v0.6.1). None si
+    inconnu, expiré ou d'un autre compte (indiscernables)."""
+    job = api_mod._jobs.get(job_id)
+    if job is not None:
+        return job if job['key_hash'] == key_hash else None
+    store = _pg()
+    if store is not None:
+        try:
+            rec = store.get_job_for_key(key_hash, job_id)
+        except Exception:
+            rec = None
+        if rec is not None:
+            return {'status': rec['status'], 'result': rec['result'],
+                    'error': rec['error'], 'key_hash': key_hash,
+                    'created': time.time()}
+    return None
+
+
 # ════════════════════════════════════════════════════════════════════
 # OUTILS MCP (11) — lecture (8) puis actions (3)
 # Chaque handler : (clé, hash_de_clé, arguments) → dict structuré.
@@ -330,8 +355,9 @@ def _tool_get_supported_formats(key: str, key_hash: str,
              'BOM UTF-8 toléré, encodages courants'},
             {'format': 'tsv', 'details': 'tabulations, dates ISO ou '
              'régionales'},
-            {'format': 'xlsx', 'details': 'classeurs Excel (xls historique '
-             'inclus au meilleur effort)'},
+            {'format': 'xlsx', 'details': 'classeurs Excel .xlsx '
+             '(openpyxl). Le format .xls binaire legacy (OLE2/BIFF) '
+             'n\'est PAS supporté : convertissez en .xlsx'},
         ],
         'allowed_extensions': list(_ALLOWED_EXTENSIONS),
         'max_file_mb': cfg.max_file_mb,
@@ -397,11 +423,14 @@ def _tool_list_conversions(key: str, key_hash: str, args: dict) -> dict:
     store = _pg()
     if store is not None:
         user_id, _ = _user_for_key(store, key_hash)
-        if user_id is None:
-            return {'records': [], 'note': 'Clé sans compte client : '
-                                           'aucun historique persisté.'}
-        records = store.list_jobs_for_user(user_id, limit=limit,
-                                           offset=offset)
+        if user_id is not None:
+            records = store.list_jobs_for_user(user_id, limit=limit,
+                                               offset=offset)
+        else:
+            # clé technique (sans compte web) : l'historique existe
+            # aussi dans la table jobs, filtré par la clé appelante
+            records = store.list_jobs_for_key(key_hash, limit=limit,
+                                              offset=offset)
         return {'records': records}
     api_mod._sweep_jobs()
     records = [
@@ -428,8 +457,8 @@ def _tool_get_conversion_status(key: str, key_hash: str,
     if not all(c in '0123456789abcdef' for c in job_id.lower()):
         raise InvalidParams('« job_id » : identifiant hexadécimal attendu.')
     api_mod._sweep_jobs()
-    job = api_mod._jobs.get(job_id)
-    if job is None or job['key_hash'] != key_hash:
+    job = _job_lookup(api_mod, job_id, key_hash)
+    if job is None:
         raise ToolError('Conversion inconnue, expirée (TTL '
                         f'{api_mod.config.results_ttl_s} s) ou non '
                         'accessible depuis ce compte.')
@@ -455,8 +484,8 @@ def _tool_get_result(key: str, key_hash: str, args: dict) -> dict:
     if not all(c in '0123456789abcdef' for c in job_id.lower()):
         raise InvalidParams('« job_id » : identifiant hexadécimal attendu.')
     api_mod._sweep_jobs()
-    job = api_mod._jobs.get(job_id)
-    if job is None or job['key_hash'] != key_hash:
+    job = _job_lookup(api_mod, job_id, key_hash)
+    if job is None:
         raise ToolError('Résultat inconnu, expiré (TTL '
                         f'{api_mod.config.results_ttl_s} s) ou non '
                         'accessible depuis ce compte.')
@@ -469,6 +498,13 @@ def _tool_get_result(key: str, key_hash: str, args: dict) -> dict:
         raise ToolError(f'Conversion échouée : {job.get("error")}',
                         payload={'job_id': job_id, 'status': 'error',
                                  'error': job.get('error')})
+    if not job.get('result'):
+        # job 'done' antérieur à la persistance des résultats (v0.6.1) :
+        # le statut est connu, le contenu n'est plus récupérable
+        return {'job_id': job_id, 'status': 'done',
+                'note': 'Conversion terminée avant la persistance des '
+                        'résultats (v0.6.1) : le contenu n\'est plus '
+                        'récupérable. Relancez la conversion.'}
     return {'job_id': job_id, 'status': 'done', **job['result']}
 
 
@@ -549,6 +585,25 @@ async def _tool_convert_document(key: str, key_hash: str,
                         'traitement ni nouveau débit.',
                 'next_step': 'get_conversion_status / get_result avec ce '
                              'job_id.'}
+    # rejeu après un REDÉMARRAGE (le job n'est plus en mémoire) : la
+    # réservation SQL (job:<id>, unicité credit_ledger) existe encore
+    # pendant le TTL — re-réserver lèverait une violation de contrainte.
+    # On relit le job depuis PostgreSQL : s'il existe et appartient à la
+    # clé, on renvoie son statut (rejeu idempotent, aucun re-débit) ;
+    # sinon (expiré ou inconnu) la conversion repart proprement.
+    if idem is not None and _pg() is not None:
+        try:
+            rec = _pg().get_job_for_key(key_hash, job_id)
+        except Exception:
+            rec = None
+        if rec is not None:
+            return {'job_id': job_id, 'status': rec['status'],
+                    'idempotent_replay': True,
+                    'note': 'Conversion déjà enregistrée pour cette '
+                            'idempotency_key (récupérée depuis la base '
+                            'après redémarrage) : aucun nouveau débit.',
+                    'next_step': 'get_conversion_status / get_result avec '
+                                 'ce job_id.'}
 
     # quota (même règle que POST /v1/analyze)
     quota = api_mod.quota
@@ -603,19 +658,7 @@ async def _tool_convert_document(key: str, key_hash: str,
         else:
             result['billing'] = {'billing_mode': 'unmanaged'}
         api_mod._jobs[job_id].update(status='done', result=result)
-        if api_mod._pg_backend(api_mod.managed_keys):
-            try:
-                api_mod.managed_keys.record_job(
-                    job_id, key_hash, filename,
-                    result['document']['kind'], 'done',
-                    pages=result['usage']['pages'],
-                    rows=result['usage'].get('rows'),
-                    transactions=result['usage']['transactions'],
-                    credits_charged=result['billing'].get(
-                        'credits_charged'),
-                    ttl_s=api_mod.config.results_ttl_s)
-            except Exception:
-                pass
+        api_mod._record_job_done(job_id, key_hash, filename, result)
         return {
             'job_id': job_id,
             'status': 'done',
@@ -779,7 +822,8 @@ _TOOLS_SPEC: list[dict] = [
     {
         'name': 'get_supported_formats',
         'description': "Formats d'entrée pris en charge (PDF natifs et "
-                       "scannés, CSV, TSV, XLSX), banques et opérateurs "
+                       "scannés, CSV, TSV, XLSX — pas le .xls binaire "
+                       "legacy), banques et opérateurs "
                        "mobile money reconnus (Wave, Orange Money, MTN "
                        "MoMo, Moov), et structure du JSON produit.",
         'readOnly': True,
@@ -863,7 +907,8 @@ _TOOLS_SPEC: list[dict] = [
         'description': "Convertit un relevé bancaire ou mobile money en "
                        "JSON normalisé via le moteur du service "
                        "StatementFlow. Fournissez le nom de fichier (avec "
-                       "une extension valide : .pdf .csv .tsv .xlsx) et "
+                       "une extension valide : .pdf .csv .tsv .xlsx — le "
+                       ".xls binaire legacy n'est pas supporté) et "
                        "son contenu encodé en base64. La conversion est "
                        "facturée aux crédits du compte (1 crédit = 1 page "
                        "PDF ou 50 lignes de tableau ; aucun débit si le "
@@ -882,7 +927,8 @@ _TOOLS_SPEC: list[dict] = [
                 'filename': {'type': 'string', 'minLength': 1,
                              'maxLength': 200,
                              'description': "Nom du fichier avec extension "
-                                            "(.pdf, .csv, .tsv, .xlsx)."},
+                                            "(.pdf, .csv, .tsv, .xlsx ; "
+                                            ".xls binaire non supporté)."},
                 'data_base64': {'type': 'string', 'minLength': 4,
                                 'description': "Contenu binaire du document "
                                                "encodé en base64 (ASCII)."},

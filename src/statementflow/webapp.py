@@ -551,17 +551,7 @@ async def account_convert(request: Request, file: UploadFile = File(...)):
             'billing_mode': 'managed',
         }
         api_mod._jobs[job_id].update(status='done', result=result)
-        try:
-            api_mod.managed_keys.record_job(
-                job_id, key_hash, filename,
-                result['document']['kind'], 'done',
-                pages=result['usage']['pages'],
-                rows=result['usage'].get('rows'),
-                transactions=result['usage']['transactions'],
-                credits_charged=result['billing']['credits_charged'],
-                ttl_s=api_mod.config.results_ttl_s)
-        except Exception:
-            pass
+        api_mod._record_job_done(job_id, key_hash, filename, result)
         store.record_event('conversion_done', user_id=user['id'],
                            metadata={'transactions':
                                      result['usage']['transactions'],
@@ -587,10 +577,22 @@ def account_result(job_id: str, request: Request):
     store = _require_pg()
     api_mod = _api()
     api_mod._sweep_jobs()
+    # mémoire d'abord, puis PostgreSQL (v0.6.1) : le résultat reste
+    # accessible pendant son TTL même après un redémarrage du service
     job = api_mod._jobs.get(job_id)
+    if job is not None:
+        if not store.user_owns_key_hash(user['id'], job['key_hash']):
+            job = None
+    else:
+        try:
+            rec = api_mod._pg_store.get_job_for_user(user['id'], job_id)
+        except Exception:
+            rec = None
+        if rec is not None:
+            job = {'status': rec['status'], 'result': rec['result'],
+                   'error': rec['error']}
     # 404 identique pour job inconnu et job d'un AUTRE compte
-    if job is None or not store.user_owns_key_hash(user['id'],
-                                                   job['key_hash']):
+    if job is None:
         raise HTTPException(404, 'Résultat inconnu, expiré ou non '
                                  'accessible depuis ce compte.')
     if job['status'] == 'processing':
